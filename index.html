@@ -1134,17 +1134,17 @@ table.data-table { width: 100%; font-size: 11px; border-collapse: collapse; }
   <div class="plan-grid-3">
     <div class="lp-card selected" id="lp-6" onclick="selectLease('6')">
       <div class="lp-kw">6kW</div>
-      <div class="lp-price">月額 12,000円</div>
+      <div class="lp-price">月額 12,000円<span style="font-size:10px;color:var(--gray-400);margin-left:3px">（税抜）</span></div>
       <div class="lp-note">ZEH標準<br>リース10年</div>
     </div>
     <div class="lp-card" id="lp-8" onclick="selectLease('8')">
       <div class="lp-kw">8kW</div>
-      <div class="lp-price">月額 16,000円</div>
+      <div class="lp-price">月額 16,000円<span style="font-size:10px;color:var(--gray-400);margin-left:3px">（税抜）</span></div>
       <div class="lp-note">屋根余裕あり<br>リース10年</div>
     </div>
     <div class="lp-card" id="lp-12" onclick="selectLease('12')">
       <div class="lp-kw">12kW</div>
-      <div class="lp-price">月額 24,000円</div>
+      <div class="lp-price">月額 24,000円<span style="font-size:10px;color:var(--gray-400);margin-left:3px">（税抜）</span></div>
       <div class="lp-note">大型・ZEH+<br>リース10年</div>
     </div>
   </div>
@@ -2117,9 +2117,9 @@ table.data-table { width: 100%; font-size: 11px; border-collapse: collapse; }
       <table class="data-table">
         <thead><tr><th>プラン</th><th>容量</th><th>月額</th><th>リース期間</th><th>想定用途</th></tr></thead>
         <tbody>
-          <tr><td>6kWプラン</td><td>6kW</td><td>12,000円</td><td>10年</td><td>ZEH標準・一般戸建</td></tr>
-          <tr><td>8kWプラン</td><td>8kW</td><td>16,000円</td><td>10年</td><td>屋根面積余裕あり</td></tr>
-          <tr><td>12kWプラン</td><td>12kW</td><td>24,000円</td><td>10年</td><td>ZEH+・大型戸建</td></tr>
+          <tr><td>6kWプラン</td><td>6kW</td><td>12,000円（税抜）</td><td>10年</td><td>ZEH標準・一般戸建</td></tr>
+          <tr><td>8kWプラン</td><td>8kW</td><td>16,000円（税抜）</td><td>10年</td><td>屋根面積余裕あり</td></tr>
+          <tr><td>12kWプラン</td><td>12kW</td><td>24,000円（税抜）</td><td>10年</td><td>ZEH+・大型戸建</td></tr>
         </tbody>
       </table>
     </div>
@@ -2201,6 +2201,8 @@ const LEASE_PLANS = {
 =================================================== */
 let selLease = '6';
 let selPlan  = null;
+let _lCumEco = 0; // calc後の累積メリット（PDF用）
+let _pCum    = 0;
 let chartInst = null;
 let agentInfo = null; // URLパラメータから読んだ担当者情報
 const condAns = { area:null, zeh:null, cap:null, bat:null };
@@ -3075,6 +3077,8 @@ function calc() {
     const ecoBenefit = calcEcoBenefit30(effUnit); // 参考表示用
     const totalDiff  = diff; // lCum・pCumともにECO状態を反映済み
     const lCumEco    = lCum; // ECO込み累積（二重加算しない）
+  _lCumEco = lCumEco; // PDF用にグローバル保存
+  _pCum    = pCum;
     const { ecoKwh, shiftR } = getEcoParams();
 
     // ▼ メイン結論をエコキュート込みに上書き
@@ -3348,6 +3352,10 @@ function buildPrintReport() {
   // PDF結論タイトルは「30年の経済効果は」で改行
   const _prTitleEl = document.getElementById('prConclusionTitle');
   if(_prTitleEl) _prTitleEl.innerHTML = '30年の経済効果は<br>' + (_txt('ttLabel') || '—') + 'です';
+
+  // PDF表の30年累積メリット行に値をセット
+  _setTxt('prDLtTable', fmt(_lCumEco));
+  _setTxt('prDPtTable', fmt(_pCum));
   _setTxt('prConclusionSub', _txt('ttSub'));
   _setTxt('prKpiDiffLabel', _txt('diffLbl'));
   _setTxt('prKpiDiff', _txt('rD'));
