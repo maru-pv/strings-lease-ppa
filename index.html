@@ -3071,14 +3071,16 @@ function calc() {
   const ecoNgItem    = document.getElementById('ecoNgItem');
   const ecoBreakdown = document.getElementById('ecoBreakdown');
 
+  // PDF用にグローバル保存（ECO有無にかかわらず常に保存）
+  _lCumEco = lCum;
+  _pCum    = pCum;
+
   if(ecoOn && effUnit) {
     // lCumにはすでにECO込み（自家消費率シフト済み）
     // calcEcoBenefit30は表示用の参考額として使用
     const ecoBenefit = calcEcoBenefit30(effUnit); // 参考表示用
     const totalDiff  = diff; // lCum・pCumともにECO状態を反映済み
     const lCumEco    = lCum; // ECO込み累積（二重加算しない）
-  _lCumEco = lCumEco; // PDF用にグローバル保存
-  _pCum    = pCum;
     const { ecoKwh, shiftR } = getEcoParams();
 
     // ▼ メイン結論をエコキュート込みに上書き
