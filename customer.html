@@ -576,9 +576,9 @@ optgroup { font-weight: 700; }
     </div>
 
     <div class="result-hero">
-      <div class="rh-label">SBIリースを選んだ場合の30年累積メリット</div>
+      <div class="rh-label">SBIリースを導入すると、30年間で</div>
       <div><span class="rh-value" id="resLeaseCum">—</span><span class="rh-unit">万円</span></div>
-      <div class="rh-compare">太陽光を設置しない場合と比較して</div>
+      <div class="rh-compare">電気代を節約できます（太陽光なしと比較）</div>
       <div class="rh-sub" id="resHeroSub">—</div>
     </div>
 
@@ -588,18 +588,18 @@ optgroup { font-weight: 700; }
         <div class="cc-label">SBIリース</div>
         <div class="cc-name" id="resLeaseName">—</div>
         <div class="cc-val"  id="resLeaseVal">—</div>
-        <div class="cc-unit">30年累積メリット</div>
+        <div class="cc-unit">30年間の節約額（太陽光なし比）</div>
       </div>
       <div class="compare-card" id="resPpaCard">
         <div class="cc-label" id="resPpaLabel">PPA</div>
         <div class="cc-name" id="resPpaName">—</div>
         <div class="cc-val"  id="resPpaVal">—</div>
-        <div class="cc-unit">30年累積メリット</div>
+        <div class="cc-unit">30年間の節約額（太陽光なし比）</div>
       </div>
     </div>
 
     <div class="chart-wrap">
-      <h3>📈 累積メリット推移（30年）</h3>
+      <h3>📊 30年間の累積支出比較</h3>
       <canvas id="resultChart"></canvas>
     </div>
 
@@ -685,7 +685,7 @@ optgroup { font-weight: 700; }
             <div class="nudge-cell-label">SBIリース</div>
             <div class="nudge-item"><span class="ico-ok">✓</span><span>FIT売電収入が<strong>初日から全額</strong>お客様へ</span></div>
             <div class="nudge-item"><span class="ico-ok">✓</span><span>リース終了後は売電・節電を<strong>完全独占</strong></span></div>
-            <div class="nudge-item"><span class="ico-ok">✓</span><span>モジュール出力保証 <strong>30年・90%</strong></span></div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>モジュール出力保証 <strong>30年</strong></span></div>
           </div>
           <div class="nudge-cell ppa">
             <div class="nudge-cell-label" id="nudgePpaLabel3">建て得</div>
@@ -976,20 +976,36 @@ function renderResult(r, effUnit) {
   const dMan = Math.abs(r.diff30 / 10000).toFixed(1);
   const leaseWins = r.diff30 >= 0;
 
+  // 支出ベースの節約額計算
+  // 「太陽光なし」の30年累積支出
+  const incR = 0.02;
+  let noSolarSpend30 = 0, leaseSpend30 = 0, ppaSpend30 = 0;
+  for (let y = 1; y <= 30; y++) {
+    const pm = Math.pow(1 + incR, y - 1);
+    noSolarSpend30 += state.monthlyKwh * effUnit * 12 * pm;
+  }
+  // リースの節約額 = 太陽光なし支出 - (太陽光なし支出 - 累積メリット)
+  // ≒ 累積メリット（電気代削減+売電-リース料-パワコン）
+  // ただし「節約額」として正の値で表示するため r.lCum30 をそのまま使用
+  const lSaving = r.lCum30;   // 太陽光なし比の節約額
+  const pSaving = r.pCum30;   // 同上
+  const lSavMan = (Math.abs(lSaving) / 10000).toFixed(1);
+  const pSavMan = (Math.abs(pSaving) / 10000).toFixed(1);
+
   // ヒーロー
-  document.getElementById('resLeaseCum').textContent = (r.lCum30 >= 0 ? '+' : '') + lMan;
+  document.getElementById('resLeaseCum').textContent = lSavMan;
   document.getElementById('resHeroSub').textContent =
-    `${r.ppaPlan.name}と比較して ${leaseWins ? '約' + dMan + '万円 お得' : '約' + dMan + '万円 少ない'}（30年累積）`;
+    `${r.ppaPlan.name}と比較しても 約${dMan}万円 多く節約（30年累積）`;
 
   // 比較カード
   document.getElementById('resLeaseCard').classList.toggle('winner', leaseWins);
   document.getElementById('resPpaCard').classList.toggle('winner', !leaseWins);
   document.getElementById('resLeaseBadge').style.display = leaseWins ? '' : 'none';
   document.getElementById('resLeaseName').textContent = `SBIリース ${r.leasePlan.cap}kW`;
-  document.getElementById('resLeaseVal').textContent  = (r.lCum30 >= 0 ? '+' : '') + lMan + '万円';
+  document.getElementById('resLeaseVal').textContent  = lSavMan + '万円';
   document.getElementById('resPpaLabel').textContent  = r.ppaPlan.name;
   document.getElementById('resPpaName').textContent   = `${r.ppaPlan.name} ${r.ppaCap}kW`;
-  document.getElementById('resPpaVal').textContent    = (r.pCum30 >= 0 ? '+' : '') + pMan + '万円';
+  document.getElementById('resPpaVal').textContent    = pSavMan + '万円';
 
   renderChart(r);
 
@@ -1026,14 +1042,48 @@ function renderChart(r) {
   const ctx = document.getElementById('resultChart').getContext('2d');
   if (chartInst) chartInst.destroy();
 
-  // 太陽光なし（ベースライン）= 毎年の電気代累積（機会損失として負値）
+  // 支出累積グラフ（大きいほど支出が多い＝損）
+  // 「太陽光なし」「SBIリース」「PPA」の3本を支出累積で表示
   const eff = getEffUnit();
-  const noSolarArr = [];
-  let noSolarCum = 0;
+  const noSolarSpendArr = [], leaseSpendArr = [], ppaSpendArr = [];
+  let nsCum = 0, lsCum = 0, ppaCum = -(r.pInitCost); // PPA初期費用を最初に計上
   for (let y = 1; y <= 30; y++) {
-    const pm = Math.pow(1.02, y - 1);
-    noSolarCum -= state.monthlyKwh * eff * 12 * pm; // 電気代を払い続けるので負方向
-    noSolarArr.push(Math.round(noSolarCum));
+    const pm  = Math.pow(1.02, y - 1);
+    const eu  = eff * pm;
+    const gen  = r.leasePlan.cap * 1000 * Math.pow(0.995, y - 1);
+    const pGen = r.ppaCap        * 1000 * Math.pow(0.995, y - 1);
+    // calc.jsのcalcAutoSCを使用
+    const lscR = calcAutoSC(state.monthlyKwh, r.leasePlan.cap);
+    const pscR = calcAutoSC(state.monthlyKwh, r.ppaCap);
+
+    // 太陽光なし：電気代そのまま
+    nsCum += state.monthlyKwh * eu * 12;
+
+    // リース：電気代 - 節電 - 売電 + リース料 + パワコン
+    const lSv  = gen * lscR * eu;
+    const lsu  = y<=4 ? 24 : y<=r.leasePlan.term ? 8.3 : 7.15;
+    const lSl  = gen * (1 - lscR) * lsu;
+    const lC   = y <= r.leasePlan.term ? r.leasePlan.monthly * 12 : 0;
+    const lP   = (y===15||y===30) ? 200000 : 0;
+    lsCum += state.monthlyKwh * eu * 12 - lSv - lSl + lC + lP;
+
+    // PPA：電気代 - 節電（typeで分岐） + パワコン
+    const pPcon = (r.ppaPlan.pconCost ?? 400000);
+    const pP   = ((y===15||y===30) && pPcon > 0) ? pPcon : 0;
+    let ppaNet = 0;
+    if (r.ppaPlan.type === 'metered') {
+      const selfU = r.ppaPlan.selfUnitPrice || 24;
+      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * (eu - selfU) + pP;
+    } else if (r.ppaPlan.type === 'monthly') {
+      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * eu + (r.ppaPlan.monthlyFee||0)*12 + pP;
+    } else {
+      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * eu + pP;
+    }
+    ppaCum += ppaNet;
+
+    noSolarSpendArr.push(Math.round(nsCum));
+    leaseSpendArr.push(Math.round(lsCum));
+    ppaSpendArr.push(Math.round(ppaCum));
   }
 
   // 30年終点ラベル用プラグイン
@@ -1046,14 +1096,38 @@ function renderChart(r) {
         if (last == null) return;
         const xPos = x.getPixelForValue(29);
         const yPos = y.getPixelForValue(last);
-        const man  = (last / 10000).toFixed(0);
+        const man  = (last / 10000).toFixed(0) + '万円';
         ctx.save();
         ctx.font = 'bold 11px sans-serif';
         ctx.fillStyle = ds.borderColor;
-        ctx.textAlign = 'right';
-        ctx.fillText(man + '万', xPos - 4, yPos - 6);
+        ctx.textAlign = 'left';
+        ctx.fillText(man, xPos + 4, yPos + 4);
         ctx.restore();
       });
+      // 「太陽光なし」と「SBIリース」の差額を矢印で強調
+      if (chart.data.datasets.length >= 2) {
+        const ns30  = chart.data.datasets[0].data[29];
+        const ls30  = chart.data.datasets[1].data[29];
+        if (ns30 != null && ls30 != null) {
+          const xPos  = x.getPixelForValue(28);
+          const yNs   = y.getPixelForValue(ns30);
+          const yLs   = y.getPixelForValue(ls30);
+          const saving = ((ns30 - ls30) / 10000).toFixed(0);
+          const midY  = (yNs + yLs) / 2;
+          ctx.save();
+          ctx.strokeStyle = '#15803D';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([]);
+          ctx.beginPath(); ctx.moveTo(xPos - 20, yNs); ctx.lineTo(xPos - 20, yLs); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(xPos - 24, yNs + 4); ctx.lineTo(xPos - 20, yNs); ctx.lineTo(xPos - 16, yNs + 4); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(xPos - 24, yLs - 4); ctx.lineTo(xPos - 20, yLs); ctx.lineTo(xPos - 16, yLs - 4); ctx.stroke();
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillStyle = '#15803D';
+          ctx.textAlign = 'right';
+          ctx.fillText('節約 ' + saving + '万円', xPos - 24, midY + 4);
+          ctx.restore();
+        }
+      }
     }
   };
 
@@ -1063,27 +1137,27 @@ function renderChart(r) {
       labels: r.labels,
       datasets: [
         {
+          label: '太陽光なし',
+          data: noSolarSpendArr,
+          borderColor: '#9CA3AF',
+          backgroundColor: 'rgba(156,163,175,0.08)',
+          borderWidth: 2, pointRadius: 0, fill: true, tension: 0.3,
+          borderDash: [4, 3],
+        },
+        {
           label: 'SBIリース',
-          data: r.leaseArr,
+          data: leaseSpendArr,
           borderColor: '#1A5EA8',
-          backgroundColor: 'rgba(26,94,168,0.08)',
+          backgroundColor: 'rgba(26,94,168,0.10)',
           borderWidth: 2.5, pointRadius: 0, fill: true, tension: 0.3,
         },
         {
           label: r.ppaPlan.name,
-          data: r.ppaArr,
+          data: ppaSpendArr,
           borderColor: '#C85A00',
-          backgroundColor: 'rgba(200,90,0,0.04)',
+          backgroundColor: 'rgba(200,90,0,0.05)',
           borderWidth: 2, pointRadius: 0, fill: false, tension: 0.3,
           borderDash: [5, 3],
-        },
-        {
-          label: '太陽光なし（参考）',
-          data: noSolarArr,
-          borderColor: '#9CA3AF',
-          backgroundColor: 'transparent',
-          borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.3,
-          borderDash: [3, 3],
         }
       ]
     },
@@ -1094,7 +1168,7 @@ function renderChart(r) {
         legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10 } },
         tooltip: {
           callbacks: {
-            label: ctx => `${ctx.dataset.label}: ${(ctx.raw / 10000).toFixed(1)}万円`
+            label: ctx => `${ctx.dataset.label}: 累積支出 ${(ctx.raw / 10000).toFixed(1)}万円`
           }
         }
       },
