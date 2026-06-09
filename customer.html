@@ -7,9 +7,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="calc.js"></script>
 <style>
-/* ===================================================
-   デザイントークン
-=================================================== */
 :root {
   --blue:       #1A5EA8;
   --blue-light: #EBF2FB;
@@ -30,19 +27,15 @@
   --shadow:     0 2px 12px rgba(0,0,0,0.08);
   --shadow-lg:  0 8px 32px rgba(0,0,0,0.12);
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
 body {
-  font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  font-family: 'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
   background: #F0F5FB;
   color: var(--gray-900);
   min-height: 100vh;
 }
 
-/* ===================================================
-   ヘッダー
-=================================================== */
+/* ヘッダー */
 .site-header {
   background: var(--blue);
   color: var(--white);
@@ -51,578 +44,381 @@ body {
   align-items: center;
   gap: 10px;
 }
-.site-header .logo { font-size: 13px; font-weight: 700; opacity: 0.9; }
+.site-header .logo  { font-size: 13px; font-weight: 700; opacity: 0.9; }
 .site-header .title { font-size: 15px; font-weight: 700; }
-.site-header .version { font-size: 10px; opacity: 0.6; margin-left: auto; }
+.site-header .ver   { font-size: 10px; opacity: 0.6; margin-left: auto; }
 
-/* ===================================================
-   プログレスバー
-=================================================== */
+/* プログレスバー */
 .progress-wrap {
   background: var(--white);
   border-bottom: 1px solid var(--gray-300);
   padding: 14px 20px 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  position: sticky; top: 0; z-index: 100;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 .progress-steps {
   display: flex;
-  gap: 0;
-  max-width: 640px;
-  margin: 0 auto;
+  max-width: 640px; margin: 0 auto;
   position: relative;
 }
 .progress-steps::before {
   content: '';
   position: absolute;
-  top: 14px;
-  left: 14px;
-  right: 14px;
-  height: 2px;
-  background: var(--gray-300);
-  z-index: 0;
+  top: 14px; left: 14px; right: 14px;
+  height: 2px; background: var(--gray-300); z-index: 0;
 }
 .ps-step {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
   padding-bottom: 10px;
-  cursor: default;
-  position: relative;
-  z-index: 1;
+  position: relative; z-index: 1;
 }
 .ps-circle {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  background: var(--gray-300);
-  color: var(--gray-500);
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  background: var(--gray-300); color: var(--gray-500);
   transition: all 0.3s;
   border: 3px solid var(--white);
   box-shadow: 0 0 0 2px var(--gray-300);
 }
-.ps-step.done .ps-circle {
-  background: var(--blue);
-  color: var(--white);
-  box-shadow: 0 0 0 2px var(--blue);
-}
-.ps-step.active .ps-circle {
-  background: var(--blue);
-  color: var(--white);
-  box-shadow: 0 0 0 2px var(--blue), 0 0 0 4px var(--blue-light);
-}
-.ps-label {
-  font-size: 9px;
-  color: var(--gray-500);
-  text-align: center;
-  line-height: 1.2;
-}
+.ps-step.done   .ps-circle { background: var(--blue); color: var(--white); box-shadow: 0 0 0 2px var(--blue); }
+.ps-step.active .ps-circle { background: var(--blue); color: var(--white); box-shadow: 0 0 0 2px var(--blue), 0 0 0 4px var(--blue-light); }
+.ps-label { font-size: 9px; color: var(--gray-500); text-align: center; line-height: 1.2; }
 .ps-step.active .ps-label { color: var(--blue); font-weight: 700; }
-.ps-step.done .ps-label { color: var(--blue); }
+.ps-step.done   .ps-label { color: var(--blue); }
 
-/* ===================================================
-   ステップ画面
-=================================================== */
-.steps-container {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 24px 16px 100px;
-}
-
-.step-screen {
-  display: none;
-  animation: fadeIn 0.25s ease;
-}
+/* メイン */
+.steps-container { max-width: 640px; margin: 0 auto; padding: 24px 16px 120px; }
+.step-screen { display: none; animation: fadeIn 0.25s ease; }
 .step-screen.active { display: block; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+.step-head { margin-bottom: 20px; }
+.step-eyebrow { font-size: 11px; color: var(--blue); font-weight: 700; letter-spacing: 0.08em; margin-bottom: 4px; }
+.step-head h2 { font-size: 20px; font-weight: 800; line-height: 1.3; }
+.step-head p  { font-size: 13px; color: var(--gray-500); margin-top: 6px; line-height: 1.6; }
 
-/* ステップヘッダー */
-.step-head {
-  margin-bottom: 20px;
-}
-.step-eyebrow {
-  font-size: 11px;
-  color: var(--blue);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-.step-head h2 {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--gray-900);
-  line-height: 1.3;
-}
-.step-head p {
-  font-size: 13px;
-  color: var(--gray-500);
-  margin-top: 6px;
-  line-height: 1.6;
-}
-
-/* カード */
 .card {
-  background: var(--white);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 14px;
+  background: var(--white); border-radius: var(--radius);
+  padding: 20px; margin-bottom: 14px;
   box-shadow: var(--shadow);
 }
-.card-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--gray-500);
-  letter-spacing: 0.05em;
-  margin-bottom: 12px;
-}
+.card-title { font-size: 12px; font-weight: 700; color: var(--gray-500); letter-spacing: 0.05em; margin-bottom: 12px; }
 
-/* フォームパーツ */
+/* フォーム */
 .field { margin-bottom: 16px; }
 .field:last-child { margin-bottom: 0; }
-.field label {
-  display: block;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--gray-700);
-  margin-bottom: 6px;
-}
-.field .sublabel {
-  font-size: 11px;
-  color: var(--gray-500);
-  margin-bottom: 6px;
-}
+.field label { display: block; font-size: 13px; font-weight: 700; color: var(--gray-700); margin-bottom: 6px; }
+.field .sublabel { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
 .field input[type="number"],
 .field input[type="text"],
 .field input[type="tel"],
 .field select {
   width: 100%;
-  border: 1.5px solid var(--gray-300);
-  border-radius: var(--radius-sm);
-  padding: 11px 14px;
-  font-size: 15px;
-  font-family: inherit;
-  background: var(--white);
-  color: var(--gray-900);
-  transition: border-color 0.2s;
-  -webkit-appearance: none;
+  border: 1.5px solid var(--gray-300); border-radius: var(--radius-sm);
+  padding: 11px 14px; font-size: 15px; font-family: inherit;
+  background: var(--white); color: var(--gray-900);
+  transition: border-color 0.2s; -webkit-appearance: none;
 }
-.field input:focus,
-.field select:focus {
-  outline: none;
-  border-color: var(--blue);
+.field input:focus, .field select:focus {
+  outline: none; border-color: var(--blue);
   box-shadow: 0 0 0 3px var(--blue-light);
 }
-.field .unit {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.field .unit { display: flex; align-items: center; gap: 8px; }
 .field .unit input { flex: 1; }
-.field .unit span {
-  font-size: 13px;
-  color: var(--gray-500);
-  white-space: nowrap;
-}
+.field .unit span { font-size: 13px; color: var(--gray-500); white-space: nowrap; }
 
-/* 切り替えタブ（円/kWh） */
-.input-mode-tabs {
-  display: flex;
-  background: var(--gray-100);
-  border-radius: var(--radius-sm);
-  padding: 3px;
-  margin-bottom: 12px;
-  gap: 2px;
-}
-.input-mode-tabs button {
-  flex: 1;
-  border: none;
-  background: transparent;
-  border-radius: 6px;
-  padding: 8px 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--gray-500);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.input-mode-tabs button.active {
-  background: var(--white);
-  color: var(--blue);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-}
+/* 電力会社セレクト：オール電化ラベル */
+.util-opt-ev   { color: #1A5EA8; font-weight: 600; }
+.util-opt-std  { color: var(--gray-700); }
+optgroup { font-weight: 700; }
 
-/* 選択ボタングループ */
-.sel-group {
-  display: grid;
-  gap: 8px;
-}
+/* 選択ボタン */
+.sel-group { display: grid; gap: 8px; }
 .sel-group.col2 { grid-template-columns: 1fr 1fr; }
-.sel-group.col3 { grid-template-columns: repeat(3, 1fr); }
-
+.sel-group.col3 { grid-template-columns: repeat(3,1fr); }
 .sel-btn {
-  border: 2px solid var(--gray-300);
-  border-radius: var(--radius-sm);
-  background: var(--white);
-  padding: 12px 8px;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.2s;
+  border: 2px solid var(--gray-300); border-radius: var(--radius-sm);
+  background: var(--white); padding: 12px 8px;
+  cursor: pointer; text-align: center; transition: all 0.2s;
   font-family: inherit;
 }
-.sel-btn:hover { border-color: var(--blue); background: var(--blue-light); }
-.sel-btn.selected {
-  border-color: var(--blue);
-  background: var(--blue-light);
-  box-shadow: 0 0 0 1px var(--blue);
-}
+.sel-btn:hover    { border-color: var(--blue); background: var(--blue-light); }
+.sel-btn.selected { border-color: var(--blue); background: var(--blue-light); box-shadow: 0 0 0 1px var(--blue); }
 .sel-btn .sb-main { font-size: 15px; font-weight: 800; color: var(--gray-900); }
 .sel-btn .sb-sub  { font-size: 10px; color: var(--gray-500); margin-top: 2px; }
 .sel-btn.selected .sb-main { color: var(--blue); }
 
-/* PPAカード */
+/* PPAタブ */
+.ppa-tabs {
+  display: flex; gap: 0;
+  border-bottom: 2px solid var(--gray-300);
+  margin-bottom: 16px;
+}
+.ppa-tab {
+  flex: 1; border: none; background: transparent;
+  padding: 10px 4px; font-size: 12px; font-weight: 700;
+  color: var(--gray-500); cursor: pointer;
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+  font-family: inherit; transition: all 0.2s;
+}
+.ppa-tab.active { color: var(--orange); border-bottom-color: var(--orange); }
+.ppa-panel { display: none; }
+.ppa-panel.active { display: block; }
+
 .ppa-card {
-  border: 2px solid var(--gray-300);
-  border-radius: var(--radius-sm);
-  padding: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 8px;
+  border: 2px solid var(--gray-300); border-radius: var(--radius-sm);
+  padding: 14px; cursor: pointer; transition: all 0.2s; margin-bottom: 8px;
 }
 .ppa-card:last-child { margin-bottom: 0; }
-.ppa-card:hover { border-color: var(--orange); background: var(--orange-light); }
+.ppa-card:hover    { border-color: var(--orange); background: var(--orange-light); }
 .ppa-card.selected { border-color: var(--orange); background: var(--orange-light); box-shadow: 0 0 0 1px var(--orange); }
 .ppa-card .pc-name { font-size: 14px; font-weight: 800; color: var(--gray-900); }
 .ppa-card.selected .pc-name { color: var(--orange); }
 .ppa-card .pc-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
-.ppa-card .pc-tag {
-  font-size: 10px; padding: 2px 6px;
-  background: var(--gray-100); color: var(--gray-500);
-  border-radius: 4px; font-weight: 600;
-}
+.ppa-card .pc-tag  { font-size: 10px; padding: 2px 6px; background: var(--gray-100); color: var(--gray-500); border-radius: 4px; font-weight: 600; }
 .ppa-card .pc-note { font-size: 11px; color: var(--gray-500); margin-top: 6px; line-height: 1.5; }
 
-/* トグルスイッチ */
+/* トグル */
 .toggle-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 0;
+  display: flex; align-items: center;
+  justify-content: space-between; padding: 14px 0;
   border-bottom: 1px solid var(--gray-100);
 }
 .toggle-row:last-child { border-bottom: none; }
-.toggle-row .tr-text .tr-label { font-size: 14px; font-weight: 700; }
-.toggle-row .tr-text .tr-sub   { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
-.toggle {
-  position: relative; width: 44px; height: 26px;
-  flex-shrink: 0;
-}
+.toggle-row .tr-label { font-size: 14px; font-weight: 700; }
+.toggle-row .tr-sub   { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
+.toggle { position: relative; width: 44px; height: 26px; flex-shrink: 0; }
 .toggle input { opacity: 0; width: 0; height: 0; }
 .toggle-slider {
   position: absolute; inset: 0;
-  background: var(--gray-300);
-  border-radius: 13px;
-  cursor: pointer;
-  transition: background 0.2s;
+  background: var(--gray-300); border-radius: 13px;
+  cursor: pointer; transition: background 0.2s;
 }
 .toggle-slider::before {
-  content: '';
-  position: absolute;
-  width: 20px; height: 20px;
-  left: 3px; top: 3px;
-  background: var(--white);
-  border-radius: 50%;
-  transition: transform 0.2s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  content: ''; position: absolute;
+  width: 20px; height: 20px; left: 3px; top: 3px;
+  background: var(--white); border-radius: 50%;
+  transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 .toggle input:checked + .toggle-slider { background: var(--blue); }
 .toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
 
 /* 情報ボックス */
 .info-box {
-  background: var(--blue-light);
-  border-left: 3px solid var(--blue);
+  background: var(--blue-light); border-left: 3px solid var(--blue);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  padding: 10px 14px;
-  font-size: 12px;
-  color: var(--blue);
-  line-height: 1.6;
-  margin-top: 8px;
+  padding: 10px 14px; font-size: 12px; color: var(--blue);
+  line-height: 1.6; margin-top: 8px;
 }
 .warn-box {
-  background: var(--orange-light);
-  border-left: 3px solid var(--orange);
+  background: var(--orange-light); border-left: 3px solid var(--orange);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  padding: 10px 14px;
-  font-size: 12px;
-  color: var(--orange);
-  line-height: 1.6;
-  margin-top: 8px;
+  padding: 10px 14px; font-size: 12px; color: var(--orange);
+  line-height: 1.6; margin-top: 8px;
 }
 
-/* ===================================================
-   STEP4 結果画面
-=================================================== */
+/* kWh目安テーブル */
+.kwh-guide {
+  display: none;
+  margin-top: 10px; padding: 14px;
+  background: var(--blue-light); border-radius: var(--radius-sm);
+  font-size: 12px;
+}
+.kwh-guide.open { display: block; }
+.kwh-guide table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+.kwh-guide th { padding: 4px 8px; text-align: left; color: var(--blue); background: rgba(26,94,168,.1); }
+.kwh-guide td { padding: 4px 8px; border-top: 1px solid rgba(26,94,168,.1); }
+.kwh-guide .note { color: var(--gray-500); line-height: 1.7; font-size: 11px; }
+.guide-toggle {
+  background: none; border: 1px solid var(--blue);
+  color: var(--blue); border-radius: 20px;
+  padding: 3px 10px; font-size: 11px; font-weight: 700;
+  cursor: pointer; margin-left: 6px; font-family: inherit;
+}
+
+/* STEP4 結果 */
 .result-hero {
   background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
-  border-radius: var(--radius);
-  padding: 24px 20px;
-  color: var(--white);
-  text-align: center;
-  margin-bottom: 14px;
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius); padding: 24px 20px;
+  color: var(--white); text-align: center;
+  margin-bottom: 14px; box-shadow: var(--shadow-lg);
 }
-.result-hero .rh-label { font-size: 12px; opacity: 0.8; margin-bottom: 4px; }
-.result-hero .rh-value {
-  font-size: 42px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-.result-hero .rh-unit  { font-size: 16px; font-weight: 400; opacity: 0.9; margin-left: 4px; }
-.result-hero .rh-sub   { font-size: 12px; opacity: 0.7; margin-top: 8px; }
+.result-hero .rh-label   { font-size: 11px; opacity: 0.85; margin-bottom: 4px; }
+.result-hero .rh-value   { font-size: 42px; font-weight: 900; letter-spacing: -0.02em; line-height: 1; }
+.result-hero .rh-unit    { font-size: 16px; font-weight: 400; opacity: 0.9; margin-left: 4px; }
+.result-hero .rh-compare { font-size: 12px; opacity: 0.8; margin-top: 6px; }
+.result-hero .rh-sub     { font-size: 13px; opacity: 0.9; margin-top: 4px; font-weight: 700; }
 
-.compare-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 14px;
-}
+.compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
 .compare-card {
-  background: var(--white);
-  border-radius: var(--radius-sm);
-  padding: 14px;
-  box-shadow: var(--shadow);
-  text-align: center;
+  background: var(--white); border-radius: var(--radius-sm);
+  padding: 14px; box-shadow: var(--shadow); text-align: center;
 }
-.compare-card.winner {
-  border: 2px solid var(--blue);
-  background: var(--blue-light);
-}
+.compare-card.winner { border: 2px solid var(--blue); background: var(--blue-light); }
 .compare-card .cc-label { font-size: 11px; color: var(--gray-500); margin-bottom: 4px; }
-.compare-card .cc-name  { font-size: 13px; font-weight: 800; color: var(--gray-700); margin-bottom: 6px; }
+.compare-card .cc-name  { font-size: 12px; font-weight: 800; color: var(--gray-700); margin-bottom: 6px; }
 .compare-card.winner .cc-name { color: var(--blue); }
 .compare-card .cc-val   { font-size: 22px; font-weight: 900; color: var(--gray-900); }
-.compare-card.winner .cc-val { color: var(--blue); }
+.compare-card.winner .cc-val  { color: var(--blue); }
 .compare-card .cc-unit  { font-size: 10px; color: var(--gray-500); }
 .winner-badge {
-  display: inline-block;
-  background: var(--blue);
-  color: var(--white);
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 10px;
-  margin-bottom: 4px;
+  display: inline-block; background: var(--blue); color: var(--white);
+  font-size: 10px; font-weight: 700; padding: 2px 8px;
+  border-radius: 10px; margin-bottom: 4px;
 }
 
 .chart-wrap {
-  background: var(--white);
-  border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: var(--shadow);
-  margin-bottom: 14px;
+  background: var(--white); border-radius: var(--radius);
+  padding: 16px; box-shadow: var(--shadow); margin-bottom: 14px;
 }
-.chart-wrap h3 {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--gray-700);
-  margin-bottom: 12px;
-}
-.chart-wrap canvas { max-height: 220px; }
+.chart-wrap h3 { font-size: 13px; font-weight: 700; color: var(--gray-700); margin-bottom: 12px; }
+.chart-wrap canvas { max-height: 240px; }
 
-.breakdown-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
+.breakdown-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.breakdown-table th { background: var(--gray-100); padding: 8px 10px; text-align: left; font-weight: 700; color: var(--gray-500); font-size: 11px; }
+.breakdown-table td { padding: 9px 10px; border-bottom: 1px solid var(--gray-100); }
+.breakdown-table tr:last-child td { border-bottom: none; }
+.val-blue   { color: var(--blue); font-weight: 700; }
+.val-orange { color: var(--orange); font-weight: 700; }
+
+/* STEP5 まとめ */
+.nudge-section { margin-bottom: 14px; }
+.nudge-header {
+  background: var(--blue); color: var(--white);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 12px 16px; font-size: 13px; font-weight: 700;
 }
-.breakdown-table th {
-  background: var(--gray-100);
-  padding: 8px 10px;
-  text-align: left;
-  font-weight: 700;
-  color: var(--gray-500);
-  font-size: 11px;
+.nudge-body {
+  background: var(--white); border-radius: 0 0 var(--radius) var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
 }
-.breakdown-table td {
-  padding: 9px 10px;
+.nudge-row {
+  display: grid; grid-template-columns: 1fr 1fr;
   border-bottom: 1px solid var(--gray-100);
 }
-.breakdown-table tr:last-child td { border-bottom: none; }
-.breakdown-table .val-blue { color: var(--blue); font-weight: 700; }
-.breakdown-table .val-orange { color: var(--orange); font-weight: 700; }
-
-/* ===================================================
-   STEP5 お問い合わせ
-=================================================== */
-.form-sent {
-  display: none;
-  text-align: center;
-  padding: 40px 20px;
+.nudge-row:last-child { border-bottom: none; }
+.nudge-cell {
+  padding: 12px 14px;
 }
+.nudge-cell.lease { border-right: 1px solid var(--gray-100); }
+.nudge-cell-label {
+  font-size: 10px; font-weight: 700; margin-bottom: 6px;
+  padding: 3px 8px; border-radius: 10px; display: inline-block;
+}
+.lease .nudge-cell-label { background: var(--blue-light); color: var(--blue); }
+.ppa   .nudge-cell-label { background: var(--orange-light); color: var(--orange); }
+.nudge-item {
+  display: flex; gap: 6px; margin-bottom: 4px;
+  font-size: 12px; line-height: 1.5; align-items: flex-start;
+}
+.nudge-item:last-child { margin-bottom: 0; }
+.ico-ok  { color: #15803D; font-weight: 700; flex-shrink: 0; }
+.ico-ng  { color: var(--red); font-weight: 700; flex-shrink: 0; }
+.ico-tri { color: #92400E; font-weight: 700; flex-shrink: 0; }
+
+.eco-nudge {
+  background: #F0F9FF; border: 1px solid #BAE6FD;
+  border-radius: var(--radius-sm); padding: 14px;
+  margin-bottom: 14px;
+}
+.eco-nudge h4 { font-size: 13px; color: #0369A1; font-weight: 700; margin-bottom: 8px; }
+.eco-nudge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.eco-side {
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  font-size: 11px; line-height: 1.6;
+}
+.eco-side.lease { background: var(--blue-light); border: 1px solid #BCD4F5; }
+.eco-side.ppa   { background: var(--orange-light); border: 1px solid #FED7AA; }
+.eco-side .eco-name { font-size: 12px; font-weight: 800; margin-bottom: 4px; }
+.eco-side.lease .eco-name { color: var(--blue); }
+.eco-side.ppa   .eco-name { color: var(--orange); }
+
+/* STEP6 お問い合わせ */
+.form-sent { display: none; text-align: center; padding: 40px 20px; }
 .form-sent .sent-icon { font-size: 48px; margin-bottom: 16px; }
 .form-sent h3 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
 .form-sent p  { font-size: 13px; color: var(--gray-500); line-height: 1.7; }
 
-/* ===================================================
-   ナビゲーションボタン
-=================================================== */
-.nav-bar {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: var(--white);
-  border-top: 1px solid var(--gray-300);
-  padding: 12px 16px;
-  display: flex;
-  gap: 10px;
-  max-width: 640px;
-  margin: 0 auto;
-  z-index: 200;
-}
-
-/* 実際のfixedは画面幅全体なのでmax-widthのラップが効かない→別手法 */
+/* ナビバー */
 .nav-bar-outer {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: var(--white);
-  border-top: 1px solid var(--gray-300);
-  z-index: 200;
-  padding: 12px 16px;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--white); border-top: 1px solid var(--gray-300);
+  z-index: 200; padding: 12px 16px;
   padding-bottom: calc(12px + env(safe-area-inset-bottom));
 }
-.nav-bar-inner {
-  max-width: 640px;
-  margin: 0 auto;
-  display: flex;
-  gap: 10px;
-}
-
+.nav-bar-inner { max-width: 640px; margin: 0 auto; display: flex; gap: 10px; }
 .btn {
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 14px 20px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  border: none; border-radius: var(--radius-sm);
+  padding: 14px 20px; font-size: 15px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
 }
-.btn-primary {
-  background: var(--blue);
-  color: var(--white);
-  flex: 1;
-  box-shadow: 0 2px 8px rgba(26,94,168,0.3);
-}
-.btn-primary:hover { background: var(--blue-mid); }
-.btn-primary:active { transform: scale(0.98); }
-.btn-secondary {
-  background: var(--gray-100);
-  color: var(--gray-700);
-  width: 56px;
-}
+.btn-primary   { background: var(--blue); color: var(--white); flex: 1; box-shadow: 0 2px 8px rgba(26,94,168,0.3); }
+.btn-primary:hover   { background: var(--blue-mid); }
+.btn-primary:active  { transform: scale(0.98); }
+.btn-secondary { background: var(--gray-100); color: var(--gray-700); width: 56px; }
 .btn-secondary:hover { background: var(--gray-300); }
 .btn-primary:disabled { background: var(--gray-300); box-shadow: none; cursor: not-allowed; }
-
-/* ===================================================
-   レスポンシブ調整
-=================================================== */
-@media (max-width: 400px) {
-  .sel-group.col3 { grid-template-columns: repeat(3, 1fr); }
-  .result-hero .rh-value { font-size: 34px; }
-}
 </style>
 </head>
 <body>
 
-<!-- ヘッダー -->
 <header class="site-header">
   <div class="logo">株式会社Strings</div>
   <div class="title">太陽光 導入診断</div>
-  <div class="version">v2026.06.10-1</div>
+  <div class="ver">v2026.06.10-1</div>
 </header>
 
-<!-- プログレスバー -->
 <div class="progress-wrap">
   <div class="progress-steps" id="progressSteps">
-    <div class="ps-step active" data-step="1">
-      <div class="ps-circle">1</div>
-      <div class="ps-label">電気代</div>
-    </div>
-    <div class="ps-step" data-step="2">
-      <div class="ps-circle">2</div>
-      <div class="ps-label">プラン</div>
-    </div>
-    <div class="ps-step" data-step="3">
-      <div class="ps-circle">3</div>
-      <div class="ps-label">オプション</div>
-    </div>
-    <div class="ps-step" data-step="4">
-      <div class="ps-circle">4</div>
-      <div class="ps-label">試算結果</div>
-    </div>
-    <div class="ps-step" data-step="5">
-      <div class="ps-circle">5</div>
-      <div class="ps-label">お問い合わせ</div>
-    </div>
+    <div class="ps-step active" data-step="1"><div class="ps-circle">1</div><div class="ps-label">電気代</div></div>
+    <div class="ps-step" data-step="2"><div class="ps-circle">2</div><div class="ps-label">プラン</div></div>
+    <div class="ps-step" data-step="3"><div class="ps-circle">3</div><div class="ps-label">オプション</div></div>
+    <div class="ps-step" data-step="4"><div class="ps-circle">4</div><div class="ps-label">試算結果</div></div>
+    <div class="ps-step" data-step="5"><div class="ps-circle">5</div><div class="ps-label">まとめ</div></div>
+    <div class="ps-step" data-step="6"><div class="ps-circle">6</div><div class="ps-label">お問い合わせ</div></div>
   </div>
 </div>
 
-<!-- メインコンテンツ -->
 <div class="steps-container">
 
-  <!-- ========================
-       STEP 1: 電気代入力
-  ========================= -->
+  <!-- STEP1: 電気代 -->
   <div class="step-screen active" id="step1">
     <div class="step-head">
-      <div class="step-eyebrow">Step 1 / 5</div>
-      <h2>毎月の電気代を<br>教えてください</h2>
-      <p>電気代か月間kWhのどちらかで入力できます。</p>
+      <div class="step-eyebrow">Step 1 / 6</div>
+      <h2>毎月の電気使用量を<br>教えてください</h2>
     </div>
 
     <div class="card">
-      <div class="input-mode-tabs">
-        <button class="active" onclick="setInputMode('bill')">電気代（円/月）で入力</button>
-        <button onclick="setInputMode('kwh')">kWhで入力（より正確）</button>
-      </div>
-
-      <div id="modeBill">
-        <div class="field">
-          <label>月間電気代の目安</label>
-          <div class="unit">
-            <input type="number" id="monthlyBill" value="20000" min="3000" max="80000" step="500" oninput="onBillChange()">
-            <span>円 / 月</span>
-          </div>
-          <div class="sublabel" style="margin-top:6px">オール電化の場合は電気代のみ（ガス代は含めない）</div>
+      <div class="field">
+        <label>
+          月間電力使用量
+          <button class="guide-toggle" onclick="toggleKwhGuide()">目安を見る</button>
+        </label>
+        <div class="unit">
+          <input type="number" id="monthlyKwh" value="600" min="200" max="1200" step="10" oninput="onKwhInput()">
+          <span>kWh / 月</span>
         </div>
-        <div class="info-box" id="billKwhHint">月間約 — kWh 相当</div>
+        <div class="sublabel">オール電化戸建て目安：500〜800kWh/月</div>
+        <div id="kwhWarning" style="font-size:11px;margin-top:4px;display:none;color:var(--red)"></div>
       </div>
-
-      <div id="modeKwh" style="display:none">
-        <div class="field">
-          <label>月間電力使用量</label>
-          <div class="unit">
-            <input type="number" id="monthlyKwh" value="600" min="200" max="1200" step="10" oninput="onKwhChange2()">
-            <span>kWh / 月</span>
-          </div>
-          <div class="sublabel" style="margin-top:6px">電気代明細・スマートメーターアプリで確認できます</div>
+      <div class="kwh-guide" id="kwhGuide">
+        <div style="font-weight:700;color:var(--blue);margin-bottom:8px">オール電化戸建て世帯の月間使用量の目安</div>
+        <table>
+          <thead><tr><th>家族構成</th><th style="text-align:center">月間目安</th><th style="text-align:center">月間電気代目安</th></tr></thead>
+          <tbody>
+            <tr><td>2人世帯</td><td style="text-align:center">450〜550 kWh</td><td style="text-align:center">約1.5〜2万円</td></tr>
+            <tr><td><strong>3人世帯（夫婦＋子1人）</strong></td><td style="text-align:center"><strong>550〜700 kWh</strong></td><td style="text-align:center"><strong>約1.8〜2.5万円</strong></td></tr>
+            <tr><td>4人世帯</td><td style="text-align:center">650〜800 kWh</td><td style="text-align:center">約2.2〜3万円</td></tr>
+            <tr><td>5人以上</td><td style="text-align:center">750〜950 kWh</td><td style="text-align:center">約2.5〜3.5万円</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          ※ 夏（7〜8月）・冬（12〜2月）は通常月の1.3〜1.5倍になります。年間平均として入力してください。<br>
+          ※ 600kWhの目安：3〜4人家族・共働き・エコキュート＋IH使用・月2〜2.5万円程度。<br>
+          ※ 電気代は電力プランや燃料費調整額によって変動します。
         </div>
       </div>
     </div>
@@ -630,121 +426,80 @@ body {
     <div class="card">
       <div class="card-title">ご契約の電力会社・プラン</div>
       <div class="field">
-        <select id="utilSelect" onchange="onUtilChange()">
-          <option value="">-- 選択してください --</option>
-        </select>
+        <select id="utilSelect" onchange="onUtilChange()"></select>
       </div>
       <div id="utilHint" class="info-box" style="display:none"></div>
     </div>
-
-    <div class="card">
-      <div class="card-title">住宅タイプ</div>
-      <div class="sel-group col2">
-        <button class="sel-btn selected" onclick="selectHouseType('allElec', this)">
-          <div class="sb-main">🏠 オール電化</div>
-          <div class="sb-sub">IH・エコキュート</div>
-        </button>
-        <button class="sel-btn" onclick="selectHouseType('gas', this)">
-          <div class="sb-main">🔥 ガス併用</div>
-          <div class="sb-sub">ガスコンロ・給湯</div>
-        </button>
-      </div>
-    </div>
   </div>
 
-  <!-- ========================
-       STEP 2: プラン選択
-  ========================= -->
+  <!-- STEP2: プラン -->
   <div class="step-screen" id="step2">
     <div class="step-head">
-      <div class="step-eyebrow">Step 2 / 5</div>
+      <div class="step-eyebrow">Step 2 / 6</div>
       <h2>設置プランを<br>選んでください</h2>
-      <p>リース容量と比較するPPAサービスを選択します。</p>
     </div>
 
     <div class="card">
       <div class="card-title">SBIリース 搭載容量</div>
       <div class="sel-group col3">
-        <button class="sel-btn" onclick="selectLeaseCap('6', this)">
-          <div class="sb-main">6kW</div>
-          <div class="sb-sub">12,000円/月</div>
+        <button class="sel-btn" onclick="selectLease('6',this)">
+          <div class="sb-main">6kW</div><div class="sb-sub">12,000円/月（税抜）</div>
         </button>
-        <button class="sel-btn selected" onclick="selectLeaseCap('8', this)">
-          <div class="sb-main">8kW</div>
-          <div class="sb-sub">16,000円/月</div>
+        <button class="sel-btn selected" onclick="selectLease('8',this)">
+          <div class="sb-main">8kW</div><div class="sb-sub">16,000円/月（税抜）</div>
         </button>
-        <button class="sel-btn" onclick="selectLeaseCap('12', this)">
-          <div class="sb-main">12kW</div>
-          <div class="sb-sub">24,000円/月</div>
+        <button class="sel-btn" onclick="selectLease('12',this)">
+          <div class="sb-main">12kW</div><div class="sb-sub">24,000円/月（税抜）</div>
         </button>
       </div>
-      <div class="info-box" style="margin-top:12px">リース料金は月額一定・10年間。10年後は無償で設備が手に入ります。</div>
+      <div class="info-box" style="margin-top:12px">リース料は月額一定・10年間。10年後は無償で設備が手に入ります。</div>
     </div>
 
     <div class="card">
       <div class="card-title">比較するPPAサービス</div>
-
-      <div class="ppa-card selected" onclick="selectPpaPlan('smile', this)">
-        <div class="pc-name">建て得スマイル（LIXIL）</div>
-        <div class="pc-tags">
-          <span class="pc-tag">初期費用49.5万</span>
-          <span class="pc-tag">自家消費0円</span>
-          <span class="pc-tag">15年</span>
-          <span class="pc-tag">4.5kW〜</span>
-        </div>
-        <div class="pc-note">初期費用あり・自家消費は無料。15年後に設備譲渡。</div>
+      <div class="ppa-tabs">
+        <button class="ppa-tab active" onclick="switchPpaTab('tatekoku',this)">建て得（LIXIL）</button>
+        <button class="ppa-tab" onclick="switchPpaTab('other',this)">その他のPPA</button>
       </div>
 
-      <div class="ppa-card" onclick="selectPpaPlan('life', this)">
-        <div class="pc-name">建て得ライフ（LIXIL）</div>
-        <div class="pc-tags">
-          <span class="pc-tag">初期費用33万</span>
-          <span class="pc-tag">自家消費0円</span>
-          <span class="pc-tag">15年</span>
-          <span class="pc-tag">4.5kW〜</span>
+      <!-- 建て得パネル -->
+      <div class="ppa-panel active" id="panel-tatekoku">
+        <div class="ppa-card selected" onclick="selectPpa('smile',this)">
+          <div class="pc-name">建て得スマイル</div>
+          <div class="pc-tags"><span class="pc-tag">初期費用49.5万</span><span class="pc-tag">自家消費0円</span><span class="pc-tag">15年</span><span class="pc-tag">4.5kW〜</span></div>
+          <div class="pc-note">初期費用あり・自家消費は無料。15年後に設備譲渡。</div>
         </div>
-        <div class="pc-note">スマイルより初期費用を抑えたプラン。</div>
+        <div class="ppa-card" onclick="selectPpa('life',this)">
+          <div class="pc-name">建て得ライフ</div>
+          <div class="pc-tags"><span class="pc-tag">初期費用33万</span><span class="pc-tag">自家消費0円</span><span class="pc-tag">15年</span><span class="pc-tag">4.5kW〜</span></div>
+          <div class="pc-note">スマイルより初期費用を抑えたプラン。</div>
+        </div>
+        <div class="ppa-card" onclick="selectPpa('value',this)">
+          <div class="pc-name">建て得バリュー</div>
+          <div class="pc-tags"><span class="pc-tag">初期費用0円</span><span class="pc-tag">自家消費0円</span><span class="pc-tag">15年</span><span class="pc-tag">9kW〜</span></div>
+          <div class="pc-note">初期費用ゼロ。9kW以上の搭載が必要です。</div>
+        </div>
       </div>
 
-      <div class="ppa-card" onclick="selectPpaPlan('value', this)">
-        <div class="pc-name">建て得バリュー（LIXIL）</div>
-        <div class="pc-tags">
-          <span class="pc-tag">初期費用0円</span>
-          <span class="pc-tag">自家消費0円</span>
-          <span class="pc-tag">15年</span>
-          <span class="pc-tag">9kW〜</span>
+      <!-- その他PPAパネル -->
+      <div class="ppa-panel" id="panel-other">
+        <div class="ppa-card" onclick="selectPpa('osakagas',this)">
+          <div class="pc-name">大阪ガス スマイルーフ</div>
+          <div class="pc-tags"><span class="pc-tag">初期費用0円</span><span class="pc-tag">自家消費24円/kWh</span><span class="pc-tag">15年</span><span class="pc-tag">関西エリア限定</span></div>
+          <div class="pc-note">自家消費は有料（24円/kWh）。関西エリアのみ。</div>
         </div>
-        <div class="pc-note">初期費用ゼロ。9kW以上が必要です。</div>
-      </div>
-
-      <div class="ppa-card" onclick="selectPpaPlan('osakagas', this)">
-        <div class="pc-name">大阪ガス スマイルーフ</div>
-        <div class="pc-tags">
-          <span class="pc-tag">初期費用0円</span>
-          <span class="pc-tag">自家消費24円/kWh</span>
-          <span class="pc-tag">15年</span>
-          <span class="pc-tag">関西エリア限定</span>
+        <div class="ppa-card" onclick="selectPpa('sharedenki',this)">
+          <div class="pc-name">シェアでんき</div>
+          <div class="pc-tags"><span class="pc-tag">初期費用0円</span><span class="pc-tag">自家消費25円/kWh</span><span class="pc-tag">15年</span><span class="pc-tag">全国対応</span></div>
+          <div class="pc-note">パワコン交換も事業者負担。全国（一部除く）。</div>
         </div>
-        <div class="pc-note">自家消費は有料（24円/kWh）。関西エリアのみ。</div>
-      </div>
-
-      <div class="ppa-card" onclick="selectPpaPlan('sharedenki', this)">
-        <div class="pc-name">シェアでんき</div>
-        <div class="pc-tags">
-          <span class="pc-tag">初期費用0円</span>
-          <span class="pc-tag">自家消費25円/kWh</span>
-          <span class="pc-tag">15年</span>
-          <span class="pc-tag">全国対応</span>
-        </div>
-        <div class="pc-note">パワコン交換も事業者負担。全国（一部除く）。</div>
       </div>
     </div>
 
-    <!-- バリュー選択時のPPA容量入力 -->
+    <!-- PPA容量入力（必要時のみ表示） -->
     <div class="card" id="ppaCapCard" style="display:none">
       <div class="card-title">PPAサービスの搭載容量</div>
       <div class="field">
-        <label>搭載容量（kW）</label>
         <div class="unit">
           <input type="number" id="ppaCap" value="9" min="4.5" max="20" step="0.5" oninput="onPpaCapChange()">
           <span>kW</span>
@@ -754,20 +509,18 @@ body {
     </div>
   </div>
 
-  <!-- ========================
-       STEP 3: オプション
-  ========================= -->
+  <!-- STEP3: オプション -->
   <div class="step-screen" id="step3">
     <div class="step-head">
-      <div class="step-eyebrow">Step 3 / 5</div>
+      <div class="step-eyebrow">Step 3 / 6</div>
       <h2>エコキュートの<br>設定を教えてください</h2>
       <p>太陽光と組み合わせると電気代をさらに節約できます。</p>
     </div>
 
     <div class="card">
       <div class="toggle-row">
-        <div class="tr-text">
-          <div class="tr-label">エコキュートをお持ちですか？</div>
+        <div>
+          <div class="tr-label">エコキュートを導入済み・導入予定ですか？</div>
           <div class="tr-sub">おひさまエコキュート・ソーラーモード対応機種も含む</div>
         </div>
         <label class="toggle">
@@ -780,90 +533,67 @@ body {
     <div id="ecoDetail" style="display:none">
       <div class="card">
         <div class="card-title">エコキュートのタイプ</div>
-        <div class="sel-group col2" style="margin-bottom:0">
-          <button class="sel-btn" onclick="selectEcoMode('solar', this)">
+        <div class="sel-group col2" id="ecoModeGroup">
+          <button class="sel-btn" id="ecoBtn_solar" onclick="selectEcoMode('solar',this)">
             <div class="sb-main">☀️ ソーラーモード</div>
             <div class="sb-sub">一般的なエコキュート</div>
           </button>
-          <button class="sel-btn selected" onclick="selectEcoMode('ohisama', this)">
+          <button class="sel-btn selected" id="ecoBtn_ohisama" onclick="selectEcoMode('ohisama',this)">
             <div class="sb-main">🌟 おひさまECO</div>
             <div class="sb-sub">専用機種（推奨）</div>
           </button>
         </div>
-        <div class="info-box" style="margin-top:12px" id="ecoModeHint">
-          おひさまエコキュートは昼間の太陽光で効率よく沸き上げ。電気代の節約効果が高まります。
+        <div class="info-box" id="ecoModeHint" style="margin-top:12px">
+          おひさまエコキュートは昼間の太陽光で優先的に沸き上げ。電気代の節約効果が特に高くなります。
         </div>
       </div>
 
       <div class="card">
         <div class="card-title">年間のエコキュート使用電力量</div>
-        <div class="sel-group col2">
-          <button class="sel-btn" onclick="selectEcoKwh(800, this)">
-            <div class="sb-main">800 kWh</div>
-            <div class="sb-sub">1〜2人世帯</div>
+        <div class="sel-group col2" id="ecoKwhGroup">
+          <button class="sel-btn" onclick="selectEcoKwh(800,this)">
+            <div class="sb-main">800 kWh</div><div class="sb-sub">1〜2人世帯</div>
           </button>
-          <button class="sel-btn selected" onclick="selectEcoKwh(1200, this)">
-            <div class="sb-main">1,200 kWh</div>
-            <div class="sb-sub">3〜4人世帯（標準）</div>
+          <button class="sel-btn selected" id="ecoKwhDefault" onclick="selectEcoKwh(1200,this)">
+            <div class="sb-main">1,200 kWh</div><div class="sb-sub">3〜4人世帯（標準）</div>
           </button>
-          <button class="sel-btn" onclick="selectEcoKwh(1500, this)">
-            <div class="sb-main">1,500 kWh</div>
-            <div class="sb-sub">4〜5人世帯</div>
+          <button class="sel-btn" onclick="selectEcoKwh(1500,this)">
+            <div class="sb-main">1,500 kWh</div><div class="sb-sub">4〜5人世帯</div>
           </button>
-          <button class="sel-btn" onclick="selectEcoKwh(2000, this)">
-            <div class="sb-main">2,000 kWh</div>
-            <div class="sb-sub">5人以上</div>
+          <button class="sel-btn" onclick="selectEcoKwh(2000,this)">
+            <div class="sb-main">2,000 kWh</div><div class="sb-sub">5人以上</div>
           </button>
         </div>
       </div>
     </div>
-
-    <div class="card">
-      <div class="card-title">電気代の将来上昇率（想定）</div>
-      <div class="sel-group col3">
-        <button class="sel-btn" onclick="selectIncRate(1, this)">
-          <div class="sb-main">年1%</div>
-          <div class="sb-sub">控えめ</div>
-        </button>
-        <button class="sel-btn selected" onclick="selectIncRate(2, this)">
-          <div class="sb-main">年2%</div>
-          <div class="sb-sub">標準（推奨）</div>
-        </button>
-        <button class="sel-btn" onclick="selectIncRate(3, this)">
-          <div class="sb-main">年3%</div>
-          <div class="sb-sub">高め</div>
-        </button>
-      </div>
-    </div>
   </div>
 
-  <!-- ========================
-       STEP 4: 試算結果
-  ========================= -->
+  <!-- STEP4: 試算結果 -->
   <div class="step-screen" id="step4">
     <div class="step-head">
-      <div class="step-eyebrow">Step 4 / 5</div>
-      <h2>30年間の<br>試算結果</h2>
+      <div class="step-eyebrow">Step 4 / 6</div>
+      <h2>30年間の試算結果</h2>
     </div>
 
-    <div class="result-hero" id="resultHero">
-      <div class="rh-label">SBIリースの30年累積メリット</div>
+    <div class="result-hero">
+      <div class="rh-label">SBIリースを選んだ場合の30年累積メリット</div>
       <div><span class="rh-value" id="resLeaseCum">—</span><span class="rh-unit">万円</span></div>
+      <div class="rh-compare">太陽光を設置しない場合と比較して</div>
       <div class="rh-sub" id="resHeroSub">—</div>
     </div>
 
     <div class="compare-row">
       <div class="compare-card winner" id="resLeaseCard">
-        <div class="cc-label">SBIリース</div>
         <div class="winner-badge" id="resLeaseBadge">おすすめ</div>
-        <div class="cc-name" id="resLeasePlan">—</div>
-        <div class="cc-val" id="resLeaseVal">—</div>
+        <div class="cc-label">SBIリース</div>
+        <div class="cc-name" id="resLeaseName">—</div>
+        <div class="cc-val"  id="resLeaseVal">—</div>
         <div class="cc-unit">30年累積メリット</div>
       </div>
       <div class="compare-card" id="resPpaCard">
         <div class="cc-label" id="resPpaLabel">PPA</div>
         <div class="cc-name" id="resPpaName">—</div>
-        <div class="cc-val" id="resPpaVal">—</div>
+        <div class="cc-val"  id="resPpaVal">—</div>
         <div class="cc-unit">30年累積メリット</div>
       </div>
     </div>
@@ -875,7 +605,7 @@ body {
 
     <div class="card">
       <div class="card-title">内訳サマリー</div>
-      <table class="breakdown-table" id="breakdownTable">
+      <table class="breakdown-table">
         <thead>
           <tr>
             <th>項目</th>
@@ -889,18 +619,113 @@ body {
 
     <div class="card">
       <div class="card-title">試算条件</div>
-      <div style="font-size:12px; color:var(--gray-500); line-height:1.8;" id="calcCondition">—</div>
+      <div style="font-size:12px;color:var(--gray-500);line-height:1.8" id="calcCondition">—</div>
     </div>
   </div>
 
-  <!-- ========================
-       STEP 5: お問い合わせ
-  ========================= -->
+  <!-- STEP5: まとめ -->
   <div class="step-screen" id="step5">
     <div class="step-head">
-      <div class="step-eyebrow">Step 5 / 5</div>
+      <div class="step-eyebrow">Step 5 / 6</div>
+      <h2>数字以外でも<br>リースが選ばれる理由</h2>
+      <p>経済効果がほぼ同等でも、SBIリースには3つの大きなメリットがあります。</p>
+    </div>
+
+    <!-- 理由①パワコン -->
+    <div class="nudge-section">
+      <div class="nudge-header">① 停電時も家中まるごと使える全負荷パワコン</div>
+      <div class="nudge-body">
+        <div class="nudge-row">
+          <div class="nudge-cell lease">
+            <div class="nudge-cell-label">SBIリース（Q.READY）</div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span><strong>全負荷型・1台</strong>で家中すべてのコンセント・照明が使える</span></div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>最大 <strong>5.9kW</strong> まで使用可能</span></div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>パワコン交換費用 <strong>20万円/回</strong>（1台）</span></div>
+          </div>
+          <div class="nudge-cell ppa">
+            <div class="nudge-cell-label" id="nudgePpaLabel1">建て得</div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span><strong>特定負荷型</strong>のため使えるのは一部の回路のみ</span></div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span>最大 <strong>1.5kW程度</strong> に制限</span></div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span>バリューはパワコン2台以上・<strong>40万円/回</strong></span></div>
+          </div>
+        </div>
+        <div style="padding:10px 14px;font-size:11px;color:var(--gray-500);background:var(--gray-100)">
+          ※ 発電中の自立運転について。蓄電池とは異なります。
+        </div>
+      </div>
+    </div>
+
+    <!-- 理由②蓄電池・EV -->
+    <div class="nudge-section">
+      <div class="nudge-header">② 蓄電池・EVを将来いつでも自由に追加できる</div>
+      <div class="nudge-body">
+        <div class="nudge-row">
+          <div class="nudge-cell lease">
+            <div class="nudge-cell-label">SBIリース</div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>蓄電池・EVをいつでも<strong>自由に後付け</strong>できる</span></div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>V2H（電気自動車から給電）にも対応</span></div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>メーカー・建材の縛りなし</span></div>
+          </div>
+          <div class="nudge-cell ppa">
+            <div class="nudge-cell-label" id="nudgePpaLabel2">建て得</div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span>契約15年間は<strong>蓄電池の後付けが不可</strong></span></div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span>EV・V2Hも制限あり</span></div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span>建材・設備が<strong>LIXIL製に限定</strong></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 理由③売電収入 -->
+    <div class="nudge-section">
+      <div class="nudge-header">③ 売電収入が初日からすべてお客様のもの</div>
+      <div class="nudge-body">
+        <div class="nudge-row">
+          <div class="nudge-cell lease">
+            <div class="nudge-cell-label">SBIリース</div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>FIT売電収入が<strong>初日から全額</strong>お客様へ</span></div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>リース終了後は売電・節電を<strong>完全独占</strong></span></div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>モジュール出力保証 <strong>30年・90%</strong></span></div>
+          </div>
+          <div class="nudge-cell ppa">
+            <div class="nudge-cell-label" id="nudgePpaLabel3">建て得</div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span>15年間の売電収入は<strong>すべて事業者側</strong>へ</span></div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span>お客様には売電収入が入りません</span></div>
+            <div class="nudge-item"><span class="ico-tri">△</span><span>15年後の譲渡後はお客様のものになります</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- エコキュートの差別化 -->
+    <div class="eco-nudge">
+      <h4>☀️ エコキュートの昼間沸き上げで電気代をさらに削減</h4>
+      <p style="font-size:12px;color:var(--gray-700);margin-bottom:10px;line-height:1.6">
+        太陽光の電力でお湯を沸かす「昼間沸き上げ」を活用すると、夜間の買電が減り電気代削減効果がさらに高まります。<strong>この機能を使えるかどうかが、リースと建て得の大きな差別化ポイントです。</strong>
+      </p>
+      <div class="eco-nudge-grid">
+        <div class="eco-side lease">
+          <div class="eco-name">SBIリース</div>
+          <div class="nudge-item"><span class="ico-ok">✓</span><span>制限なく<strong>自由に活用可能</strong></span></div>
+          <div class="nudge-item"><span class="ico-ok">✓</span><span><strong>ソーラーモード</strong>（追加費用なし）</span></div>
+          <div class="nudge-item"><span class="ico-ok">✓</span><span><strong>おひさまECO</strong>（専用機種・最大効果）</span></div>
+        </div>
+        <div class="eco-side ppa">
+          <div class="eco-name" id="ecoNudgePpaName">建て得</div>
+          <div class="nudge-item"><span class="ico-ng">✗</span><span><strong>原則使用・設置不可</strong>（契約条件）</span></div>
+          <div class="nudge-item"><span class="ico-ng">✗</span><span>違反は契約解除・違約金の対象</span></div>
+          <div class="nudge-item"><span class="ico-tri">△</span><span>19.8万円のオプションで利用可</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP6: お問い合わせ -->
+  <div class="step-screen" id="step6">
+    <div class="step-head">
+      <div class="step-eyebrow">Step 6 / 6</div>
       <h2>詳細シミュレーションを<br>ご希望の方へ</h2>
-      <p>住所・屋根情報をもとに、実際のパネル枚数・kW数・30年収支の詳細をお作りします。お気軽にどうぞ。</p>
+      <p>住所・屋根情報をもとに、実際のパネル枚数・kW数・30年収支の詳細をお作りします。</p>
     </div>
 
     <div id="inquiryForm">
@@ -923,14 +748,12 @@ body {
           <input type="text" id="inqNote" placeholder="任意">
         </div>
       </div>
-
-      <div class="card" style="background:var(--blue-light); border:1.5px solid var(--blue)">
-        <div style="font-size:12px; color:var(--blue); line-height:1.7">
+      <div class="card" style="background:var(--blue-light);border:1.5px solid var(--blue)">
+        <div style="font-size:12px;color:var(--blue);line-height:1.7">
           ✉️ 送信後、担当者よりご連絡差し上げます。<br>
           いただいた情報は詳細シミュレーション作成のみに使用します。
         </div>
       </div>
-
       <div id="inqError" class="warn-box" style="display:none">お名前と電話番号を入力してください。</div>
     </div>
 
@@ -941,9 +764,8 @@ body {
     </div>
   </div>
 
-</div><!-- /steps-container -->
+</div>
 
-<!-- ナビゲーションバー -->
 <div class="nav-bar-outer">
   <div class="nav-bar-inner">
     <button class="btn btn-secondary" id="btnBack" onclick="goStep(-1)" style="display:none">←</button>
@@ -951,97 +773,74 @@ body {
   </div>
 </div>
 
-<!-- ========================
-     JavaScript
-========================= -->
 <script>
-/* ===================================================
-   状態管理
-=================================================== */
+/* ===== 状態 ===== */
 const state = {
-  step:       1,
-  inputMode:  'bill',       // 'bill' | 'kwh'
-  monthlyBill: 20000,
-  monthlyKwh:  600,
-  utilKey:    '',
-  houseType:  'allElec',
-  leaseKey:   '8',
-  ppaKey:     'smile',
-  ppaCap:     9,
-  ecoMode:    'none',       // 'none' | 'solar' | 'ohisama'
-  ecoKwh:     1200,
-  hasEco:     false,
-  incRate:    2,
+  step: 1,
+  monthlyKwh: 600,
+  utilKey: 'chugoku_ev',
+  leaseKey: '8',
+  ppaKey: 'smile',
+  ppaCap: 9,
+  hasEco: false,
+  ecoMode: 'ohisama',
+  ecoKwh: 1200,
   calcResult: null,
 };
 
-/* ===================================================
-   初期化
-=================================================== */
+/* ===== 初期化 ===== */
 window.addEventListener('DOMContentLoaded', () => {
   buildUtilSelect();
-  updateBillHint();
   updatePpaCapCard();
-  updateBtnNext();
+  updateNavButtons();
 });
 
+/* ===== 電力会社セレクト構築 ===== */
 function buildUtilSelect() {
   const sel = document.getElementById('utilSelect');
-  const sorted = Object.entries(UTIL_DATA).sort((a,b) => a[1].priority - b[1].priority);
-  for (const [key, d] of sorted) {
-    const opt = document.createElement('option');
-    opt.value = key;
-    opt.textContent = d.name;
-    sel.appendChild(opt);
-  }
-  // デフォルト：中国電力 従量電灯A
-  sel.value = 'chugoku';
-  state.utilKey = 'chugoku';
-  showUtilHint('chugoku');
-}
 
-/* ===================================================
-   STEP 1 操作
-=================================================== */
-function setInputMode(mode) {
-  state.inputMode = mode;
-  const tabs = document.querySelectorAll('.input-mode-tabs button');
-  tabs[0].classList.toggle('active', mode === 'bill');
-  tabs[1].classList.toggle('active', mode === 'kwh');
-  document.getElementById('modeBill').style.display = mode === 'bill' ? '' : 'none';
-  document.getElementById('modeKwh').style.display  = mode === 'kwh'  ? '' : 'none';
-  syncKwh();
-}
+  // オール電化プランを先頭グループに
+  const evKeys    = Object.entries(UTIL_DATA).filter(([k,v]) => k.endsWith('_ev')).sort((a,b)=>a[1].priority-b[1].priority);
+  const stdKeys   = Object.entries(UTIL_DATA).filter(([k,v]) => !k.endsWith('_ev') && k!=='manual').sort((a,b)=>a[1].priority-b[1].priority);
+  const manualKey = [['manual', UTIL_DATA.manual]];
 
-function onBillChange() {
-  state.monthlyBill = parseFloat(document.getElementById('monthlyBill').value) || 0;
-  updateBillHint();
-}
+  const grpEv  = document.createElement('optgroup');
+  grpEv.label  = '⚡ オール電化プラン（推奨）';
+  evKeys.forEach(([k,d]) => {
+    const o = document.createElement('option');
+    o.value = k;
+    // 電力会社名のみ簡潔に
+    o.textContent = d.name.replace(' / ', '／');
+    grpEv.appendChild(o);
+  });
 
-function onKwhChange2() {
-  state.monthlyKwh = parseFloat(document.getElementById('monthlyKwh').value) || 600;
-}
+  const grpStd  = document.createElement('optgroup');
+  grpStd.label  = '📋 従量電灯プラン';
+  stdKeys.forEach(([k,d]) => {
+    const o = document.createElement('option');
+    o.value = k;
+    o.textContent = d.name.replace(' / ', '／');
+    grpStd.appendChild(o);
+  });
 
-function updateBillHint() {
-  const eff = getEffUnit();
-  const kwh = eff ? Math.round(state.monthlyBill / eff) : null;
-  const hint = document.getElementById('billKwhHint');
-  hint.textContent = kwh ? `月間約 ${kwh} kWh 相当（${state.utilKey ? UTIL_DATA[state.utilKey]?.name : '電力会社未選択'}の単価で換算）` : '電力会社を選択すると換算値が表示されます';
-}
+  const grpOther  = document.createElement('optgroup');
+  grpOther.label  = 'その他';
+  manualKey.forEach(([k,d]) => {
+    const o = document.createElement('option'); o.value = k; o.textContent = d.name;
+    grpOther.appendChild(o);
+  });
 
-function syncKwh() {
-  const eff = getEffUnit();
-  if (state.inputMode === 'bill' && eff) {
-    state.monthlyKwh = Math.round(state.monthlyBill / eff);
-  } else if (state.inputMode === 'kwh') {
-    state.monthlyKwh = parseFloat(document.getElementById('monthlyKwh').value) || 600;
-  }
+  sel.appendChild(grpEv);
+  sel.appendChild(grpStd);
+  sel.appendChild(grpOther);
+
+  sel.value = state.utilKey;
+  showUtilHint(state.utilKey);
 }
 
 function onUtilChange() {
   state.utilKey = document.getElementById('utilSelect').value;
   showUtilHint(state.utilKey);
-  updateBillHint();
 }
 
 function showUtilHint(key) {
@@ -1054,52 +853,64 @@ function showUtilHint(key) {
   hint.style.display = '';
 }
 
-function getEffUnit() {
-  const key = state.utilKey || document.getElementById('utilSelect')?.value;
-  if (!key) return 0;
-  return getEffUnitByKey(key);
+/* ===== STEP1 ===== */
+function onKwhInput() {
+  const kwh = parseFloat(document.getElementById('monthlyKwh').value) || 0;
+  state.monthlyKwh = kwh;
+  const warn = document.getElementById('kwhWarning');
+  if (kwh < 300) {
+    warn.textContent = '⚠️ 300kWh未満は一般的なオール電化世帯より低い使用量です。入力値をご確認ください。';
+    warn.style.display = '';
+  } else if (kwh < 500) {
+    warn.textContent = 'ℹ️ 500kWh未満：2人世帯や省エネ設備充実の場合は適正なこともあります。';
+    warn.style.display = '';
+    warn.style.color = '#92400E';
+  } else {
+    warn.style.display = 'none';
+  }
 }
 
-function selectHouseType(type, el) {
-  state.houseType = type;
-  document.querySelectorAll('#step1 .sel-group .sel-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
+function toggleKwhGuide() {
+  document.getElementById('kwhGuide').classList.toggle('open');
 }
 
-/* ===================================================
-   STEP 2 操作
-=================================================== */
-function selectLeaseCap(key, el) {
+/* ===== STEP2 ===== */
+function selectLease(key, el) {
   state.leaseKey = key;
-  document.querySelectorAll('#step2 .sel-group .sel-btn').forEach(b => b.classList.remove('selected'));
+  el.closest('.sel-group').querySelectorAll('.sel-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
   updatePpaCapCard();
 }
 
-function selectPpaPlan(key, el) {
+function switchPpaTab(tab, el) {
+  document.querySelectorAll('.ppa-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ppa-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function selectPpa(key, el) {
   state.ppaKey = key;
   document.querySelectorAll('.ppa-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   updatePpaCapCard();
+  // まとめページのPPA名も更新
+  const ppaName = PPA_PLANS[key]?.name || 'PPA';
+  ['nudgePpaLabel1','nudgePpaLabel2','nudgePpaLabel3','ecoNudgePpaName'].forEach(id => {
+    const el2 = document.getElementById(id);
+    if (el2) el2.textContent = ppaName;
+  });
 }
 
 function updatePpaCapCard() {
   const p = PPA_PLANS[state.ppaKey];
   if (!p) return;
-  const card = document.getElementById('ppaCapCard');
-  const hint = document.getElementById('ppaCapHint');
+  const card  = document.getElementById('ppaCapCard');
+  const hint  = document.getElementById('ppaCapHint');
   const input = document.getElementById('ppaCap');
-
-  // 建て得バリュー（9kW以上必須）や容量入力が必要なプランのみ表示
-  const needsInput = ['value', 'osakagas', 'sharedenki', 'madsolar'].includes(state.ppaKey)
-    || p.minCap >= 7;
+  const needsInput = p.minCap >= 7 || ['osakagas','sharedenki','madsolar'].includes(state.ppaKey);
   card.style.display = needsInput ? '' : 'none';
-
-  // 最小容量より小さい場合は自動補正
-  if (parseFloat(input.value) < p.minCap) {
-    input.value = p.minCap;
-    state.ppaCap = p.minCap;
-  }
+  if (parseFloat(input.value) < p.minCap) { input.value = p.minCap; state.ppaCap = p.minCap; }
   input.min = p.minCap;
   hint.textContent = `${p.capLbl}が必要です（現在 ${input.value} kW）`;
 }
@@ -1109,23 +920,18 @@ function onPpaCapChange() {
   updatePpaCapCard();
 }
 
-/* ===================================================
-   STEP 3 操作
-=================================================== */
+/* ===== STEP3 ===== */
 function onHasEcoChange() {
   state.hasEco = document.getElementById('hasEco').checked;
   document.getElementById('ecoDetail').style.display = state.hasEco ? '' : 'none';
-  if (!state.hasEco) {
-    state.ecoMode = 'none';
-  } else {
-    // デフォルトでおひさまECOを選択
-    state.ecoMode = 'ohisama';
-  }
+  if (!state.hasEco) state.ecoMode = 'none';
+  else state.ecoMode = 'ohisama';
 }
 
 function selectEcoMode(mode, el) {
   state.ecoMode = mode;
-  document.querySelectorAll('#step3 .sel-group.col2 .sel-btn').forEach(b => b.classList.remove('selected'));
+  // ecoModeGroupの中のボタンだけ対象にする（kWhグループに影響しない）
+  document.getElementById('ecoModeGroup').querySelectorAll('.sel-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
   const hint = document.getElementById('ecoModeHint');
   hint.textContent = mode === 'ohisama'
@@ -1135,102 +941,122 @@ function selectEcoMode(mode, el) {
 
 function selectEcoKwh(kwh, el) {
   state.ecoKwh = kwh;
-  document.querySelectorAll('#step3 .sel-group.col2:nth-of-type(2) .sel-btn').forEach(b => b.classList.remove('selected'));
-  // kWh選択ボタンのグループを正確に特定
-  el.closest('.sel-group').querySelectorAll('.sel-btn').forEach(b => b.classList.remove('selected'));
+  // ecoKwhGroupの中のボタンだけ対象にする（ecoModeGroupに影響しない）
+  document.getElementById('ecoKwhGroup').querySelectorAll('.sel-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
 }
 
-function selectIncRate(rate, el) {
-  state.incRate = rate;
-  el.closest('.sel-group').querySelectorAll('.sel-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-}
-
-/* ===================================================
-   STEP 4: 計算・結果表示
-=================================================== */
+/* ===== STEP4: 計算・表示 ===== */
 function runCalc() {
-  syncKwh();
   const eff = getEffUnit();
   if (!eff) return;
-
-  const ppaCap = state.ppaKey === 'value'
-    ? Math.max(9, state.ppaCap)
-    : state.ppaCap || LEASE_PLANS[state.leaseKey]?.cap || 8;
-
+  const ppaCap = state.ppaCap || LEASE_PLANS[state.leaseKey]?.cap || 8;
   const result = calcMain({
-    effUnit:      eff,
-    monthlyKwh:   state.monthlyKwh,
-    leaseKey:     state.leaseKey,
-    ppaKey:       state.ppaKey,
-    ppaCap:       ppaCap,
-    ecoMode:      state.hasEco ? state.ecoMode : 'none',
-    ecoKwh:       state.ecoKwh,
-    ppaEcoOption: false,
-    incRate:      state.incRate,
+    effUnit:     eff,
+    monthlyKwh:  state.monthlyKwh,
+    leaseKey:    state.leaseKey,
+    ppaKey:      state.ppaKey,
+    ppaCap:      ppaCap,
+    ecoMode:     state.hasEco ? state.ecoMode : 'none',
+    ecoKwh:      state.ecoKwh,
+    ppaEcoOption:false,
+    incRate:     2,
   });
-
   state.calcResult = result;
   renderResult(result, eff);
+}
+
+function getEffUnit() {
+  return getEffUnitByKey(state.utilKey);
 }
 
 function renderResult(r, effUnit) {
   const lMan = (r.lCum30 / 10000).toFixed(1);
   const pMan = (r.pCum30 / 10000).toFixed(1);
-  const dMan = (r.diff30 / 10000).toFixed(1);
+  const dMan = Math.abs(r.diff30 / 10000).toFixed(1);
   const leaseWins = r.diff30 >= 0;
 
   // ヒーロー
   document.getElementById('resLeaseCum').textContent = (r.lCum30 >= 0 ? '+' : '') + lMan;
   document.getElementById('resHeroSub').textContent =
-    `対${r.ppaPlan.name}で${leaseWins ? '約' + Math.abs(parseFloat(dMan)).toFixed(1) + '万円 お得' : '約' + Math.abs(parseFloat(dMan)).toFixed(1) + '万円 少ない'}（30年累積）`;
+    `${r.ppaPlan.name}と比較して ${leaseWins ? '約' + dMan + '万円 お得' : '約' + dMan + '万円 少ない'}（30年累積）`;
 
   // 比較カード
-  const leaseCard = document.getElementById('resLeaseCard');
-  const ppaCard   = document.getElementById('resPpaCard');
-  leaseCard.classList.toggle('winner', leaseWins);
-  ppaCard.classList.toggle('winner', !leaseWins);
+  document.getElementById('resLeaseCard').classList.toggle('winner', leaseWins);
+  document.getElementById('resPpaCard').classList.toggle('winner', !leaseWins);
   document.getElementById('resLeaseBadge').style.display = leaseWins ? '' : 'none';
+  document.getElementById('resLeaseName').textContent = `SBIリース ${r.leasePlan.cap}kW`;
   document.getElementById('resLeaseVal').textContent  = (r.lCum30 >= 0 ? '+' : '') + lMan + '万円';
-  document.getElementById('resLeasePlan').textContent = `SBIリース ${r.leasePlan.cap}kW`;
   document.getElementById('resPpaLabel').textContent  = r.ppaPlan.name;
   document.getElementById('resPpaName').textContent   = `${r.ppaPlan.name} ${r.ppaCap}kW`;
   document.getElementById('resPpaVal').textContent    = (r.pCum30 >= 0 ? '+' : '') + pMan + '万円';
 
-  // グラフ
   renderChart(r);
 
-  // 内訳テーブル
+  // 内訳
   document.getElementById('brkPpaHeader').textContent = r.ppaPlan.name;
   const fmt = n => (n >= 0 ? '+' : '') + (n / 10000).toFixed(1) + '万円';
   const rows = [
-    ['電気代節約（30年）', fmt(r.lSvTotal), fmt(r.pSvTotal)],
-    ['売電収入（30年）',   fmt(r.lSlTotal), fmt(r.pSlTotal)],
-    ['リース料/損失（30年）', fmt(-r.lCostTotal), r.pLossTotal ? fmt(-r.pLossTotal) : '—'],
-    ['パワコン交換費用',    fmt(-r.lPconTotal), fmt(-r.pPconTotal)],
-    ['初期費用',          '0円',          r.pInitCost ? fmt(-r.pInitCost) : '0円'],
-    ['<strong>30年累積</strong>', `<strong class="val-blue">${fmt(r.lCum30)}</strong>`, `<strong class="val-orange">${fmt(r.pCum30)}</strong>`],
+    ['電気代節約（30年）',      fmt(r.lSvTotal),    fmt(r.pSvTotal)],
+    ['売電収入（30年）',        fmt(r.lSlTotal),    fmt(r.pSlTotal)],
+    ['リース料 / 利用料（30年）',fmt(-r.lCostTotal), r.pLossTotal ? fmt(-r.pLossTotal) : '—'],
+    ['パワコン交換費用',         fmt(-r.lPconTotal), fmt(-r.pPconTotal)],
+    ['初期費用',                '0円',              r.pInitCost ? fmt(-r.pInitCost) : '0円'],
+    ['<strong>30年累積合計</strong>',
+      `<strong class="val-blue">${fmt(r.lCum30)}</strong>`,
+      `<strong class="val-orange">${fmt(r.pCum30)}</strong>`],
   ];
-  document.getElementById('breakdownBody').innerHTML = rows.map(([label, l, p]) =>
-    `<tr><td>${label}</td><td style="text-align:right">${l}</td><td style="text-align:right">${p}</td></tr>`
+  document.getElementById('breakdownBody').innerHTML = rows.map(([l,a,b]) =>
+    `<tr><td>${l}</td><td style="text-align:right">${a}</td><td style="text-align:right">${b}</td></tr>`
   ).join('');
 
   // 試算条件
-  const p = PPA_PLANS[state.ppaKey];
   document.getElementById('calcCondition').innerHTML =
     `電力会社：${UTIL_DATA[state.utilKey]?.name || '—'}<br>` +
     `実効単価：${effUnit.toFixed(2)}円/kWh　月間使用量：${state.monthlyKwh} kWh<br>` +
-    `SBIリース：${r.leasePlan.cap}kW・月額${r.leasePlan.monthly.toLocaleString()}円・10年<br>` +
-    `${p?.name}：${r.ppaCap}kW・初期費用${(r.pInitCost/10000).toFixed(1)}万円・${p?.term}年<br>` +
-    `エコキュート：${state.hasEco ? state.ecoMode === 'ohisama' ? 'おひさまECO（年' + state.ecoKwh + 'kWh）' : 'ソーラーモード（年' + state.ecoKwh + 'kWh）' : 'なし'}　` +
-    `電気代上昇率：年${state.incRate}%`;
+    `SBIリース：${r.leasePlan.cap}kW・月額${r.leasePlan.monthly.toLocaleString()}円（税抜）・10年<br>` +
+    `${r.ppaPlan.name}：${r.ppaCap}kW・初期費用${(r.pInitCost/10000).toFixed(1)}万円・${r.ppaPlan.term}年<br>` +
+    `エコキュート：${state.hasEco
+      ? (state.ecoMode === 'ohisama' ? 'おひさまECO' : 'ソーラーモード') + `（年${state.ecoKwh}kWh）`
+      : 'なし'}　電気代上昇率：年2%（固定）`;
 }
 
 let chartInst = null;
 function renderChart(r) {
   const ctx = document.getElementById('resultChart').getContext('2d');
   if (chartInst) chartInst.destroy();
+
+  // 太陽光なし（ベースライン）= 毎年の電気代累積（機会損失として負値）
+  const eff = getEffUnit();
+  const noSolarArr = [];
+  let noSolarCum = 0;
+  for (let y = 1; y <= 30; y++) {
+    const pm = Math.pow(1.02, y - 1);
+    noSolarCum -= state.monthlyKwh * eff * 12 * pm; // 電気代を払い続けるので負方向
+    noSolarArr.push(Math.round(noSolarCum));
+  }
+
+  // 30年終点ラベル用プラグイン
+  const endLabelPlugin = {
+    id: 'endLabels',
+    afterDatasetsDraw(chart) {
+      const { ctx, scales: { x, y } } = chart;
+      chart.data.datasets.forEach((ds, i) => {
+        const last = ds.data[ds.data.length - 1];
+        if (last == null) return;
+        const xPos = x.getPixelForValue(29);
+        const yPos = y.getPixelForValue(last);
+        const man  = (last / 10000).toFixed(0);
+        ctx.save();
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillStyle = ds.borderColor;
+        ctx.textAlign = 'right';
+        ctx.fillText(man + '万', xPos - 4, yPos - 6);
+        ctx.restore();
+      });
+    }
+  };
+
   chartInst = new Chart(ctx, {
     type: 'line',
     data: {
@@ -1241,28 +1067,31 @@ function renderChart(r) {
           data: r.leaseArr,
           borderColor: '#1A5EA8',
           backgroundColor: 'rgba(26,94,168,0.08)',
-          borderWidth: 2.5,
-          pointRadius: 0,
-          fill: true,
-          tension: 0.3,
+          borderWidth: 2.5, pointRadius: 0, fill: true, tension: 0.3,
         },
         {
-          label: PPA_PLANS[state.ppaKey]?.name || 'PPA',
+          label: r.ppaPlan.name,
           data: r.ppaArr,
           borderColor: '#C85A00',
-          backgroundColor: 'rgba(200,90,0,0.06)',
-          borderWidth: 2,
-          pointRadius: 0,
-          fill: false,
-          tension: 0.3,
+          backgroundColor: 'rgba(200,90,0,0.04)',
+          borderWidth: 2, pointRadius: 0, fill: false, tension: 0.3,
           borderDash: [5, 3],
+        },
+        {
+          label: '太陽光なし（参考）',
+          data: noSolarArr,
+          borderColor: '#9CA3AF',
+          backgroundColor: 'transparent',
+          borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.3,
+          borderDash: [3, 3],
         }
       ]
     },
+    plugins: [endLabelPlugin],
     options: {
       responsive: true,
       plugins: {
-        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
+        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10 } },
         tooltip: {
           callbacks: {
             label: ctx => `${ctx.dataset.label}: ${(ctx.raw / 10000).toFixed(1)}万円`
@@ -1273,8 +1102,11 @@ function renderChart(r) {
         x: {
           ticks: {
             font: { size: 10 },
-            maxTicksLimit: 6,
-            callback: (val, i) => (i + 1) % 5 === 0 ? r.labels[i] : '',
+            maxTicksLimit: 7,
+            callback: (val, i) => {
+              const yr = i + 1;
+              return [5, 10, 15, 20, 25, 30].includes(yr) ? yr + '年' : '';
+            }
           },
           grid: { display: false }
         },
@@ -1289,51 +1121,35 @@ function renderChart(r) {
   });
 }
 
-/* ===================================================
-   STEP 5: 送信
-=================================================== */
+/* ===== STEP6: 送信 ===== */
 async function submitInquiry() {
   const name = document.getElementById('inqName').value.trim();
   const tel  = document.getElementById('inqTel').value.trim();
-  const addr = document.getElementById('inqAddr').value.trim();
-  const note = document.getElementById('inqNote').value.trim();
   const errEl = document.getElementById('inqError');
-
-  if (!name || !tel) {
-    errEl.style.display = '';
-    return false;
-  }
+  if (!name || !tel) { errEl.style.display = ''; return false; }
   errEl.style.display = 'none';
 
   const r = state.calcResult;
   const payload = {
-    name, tel, addr, note,
-    leaseKey:    state.leaseKey,
-    ppaKey:      state.ppaKey,
-    ppaCap:      state.ppaCap,
-    monthlyKwh:  state.monthlyKwh,
-    utilKey:     state.utilKey,
-    ecoMode:     state.ecoMode,
-    lCum30:      r?.lCum30,
-    pCum30:      r?.pCum30,
-    diff30:      r?.diff30,
-    source:      'customer.html',
+    name, tel,
+    addr:       document.getElementById('inqAddr').value.trim(),
+    note:       document.getElementById('inqNote').value.trim(),
+    leaseKey:   state.leaseKey,
+    ppaKey:     state.ppaKey,
+    ppaCap:     state.ppaCap,
+    monthlyKwh: state.monthlyKwh,
+    utilKey:    state.utilKey,
+    ecoMode:    state.ecoMode,
+    lCum30:     r?.lCum30,
+    pCum30:     r?.pCum30,
+    diff30:     r?.diff30,
+    source:     'customer.html',
   };
 
-  // TODO: GAS WebアプリのURLに置き換える
-  const GAS_URL = '';
-
+  const GAS_URL = ''; // TODO: GAS WebアプリURLをここに入れる
   try {
-    if (GAS_URL) {
-      await fetch(GAS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-    }
-  } catch(e) {
-    console.warn('GAS送信エラー（無視）:', e);
-  }
+    if (GAS_URL) await fetch(GAS_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  } catch(e) { console.warn('GAS送信エラー:', e); }
 
   document.getElementById('inquiryForm').style.display = 'none';
   document.getElementById('formSent').style.display = '';
@@ -1342,53 +1158,35 @@ async function submitInquiry() {
   return true;
 }
 
-/* ===================================================
-   ステップナビゲーション
-=================================================== */
+/* ===== ナビゲーション ===== */
 function goStep(dir) {
-  // STEP5の送信ボタン
-  if (state.step === 5 && dir === 1) {
-    submitInquiry();
-    return;
-  }
-
-  // STEP3→4: 計算実行
+  if (state.step === 6 && dir === 1) { submitInquiry(); return; }
   if (state.step === 3 && dir === 1) {
-    if (!state.utilKey) {
-      alert('電力会社を選択してください（STEP1）');
-      return;
-    }
+    if (!state.utilKey) { alert('電力会社を選択してください（STEP1）'); return; }
     runCalc();
   }
-
   const next = state.step + dir;
-  if (next < 1 || next > 5) return;
-  if (!validateStep(state.step) && dir === 1) return;
+  if (next < 1 || next > 6) return;
+  if (!validateStep(state.step, dir)) return;
 
-  // 画面切り替え
-  document.getElementById(`step${state.step}`).classList.remove('active');
-  document.getElementById(`step${next}`).classList.add('active');
+  document.getElementById('step' + state.step).classList.remove('active');
+  document.getElementById('step' + next).classList.add('active');
   state.step = next;
-
   updateProgress();
   updateNavButtons();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function validateStep(step) {
-  if (step === 1) {
-    if (!state.utilKey) {
-      alert('電力会社を選択してください');
-      return false;
-    }
-  }
+function validateStep(step, dir) {
+  if (dir !== 1) return true;
+  if (step === 1 && !state.utilKey) { alert('電力会社を選択してください'); return false; }
   return true;
 }
 
 function updateProgress() {
   document.querySelectorAll('.ps-step').forEach(el => {
     const s = parseInt(el.dataset.step);
-    el.classList.remove('active', 'done');
+    el.classList.remove('active','done');
     if (s === state.step) el.classList.add('active');
     else if (s < state.step) el.classList.add('done');
   });
@@ -1398,17 +1196,8 @@ function updateNavButtons() {
   const btnBack = document.getElementById('btnBack');
   const btnNext = document.getElementById('btnNext');
   btnBack.style.display = state.step > 1 ? '' : 'none';
-  if (state.step === 5) {
-    btnNext.textContent = '送信する ✉️';
-  } else if (state.step === 4) {
-    btnNext.textContent = 'お問い合わせへ →';
-  } else {
-    btnNext.textContent = '次へ →';
-  }
-}
-
-function updateBtnNext() {
-  updateNavButtons();
+  const labels = { 4:'まとめへ →', 5:'お問い合わせへ →', 6:'送信する ✉️' };
+  btnNext.textContent = labels[state.step] || '次へ →';
 }
 </script>
 </body>
