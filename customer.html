@@ -971,31 +971,48 @@ function getEffUnit() {
 }
 
 function renderResult(r, effUnit) {
-  const lMan = (r.lCum30 / 10000).toFixed(1);
-  const pMan = (r.pCum30 / 10000).toFixed(1);
-  const dMan = Math.abs(r.diff30 / 10000).toFixed(1);
-  const leaseWins = r.diff30 >= 0;
-
-  // 支出ベースの節約額計算
-  // 「太陽光なし」の30年累積支出
-  const incR = 0.02;
-  let noSolarSpend30 = 0, leaseSpend30 = 0, ppaSpend30 = 0;
+  // ===== グラフと同じ支出累積ロジックで数値を統一 =====
+  let nsCum30 = 0, lsCum30 = 0, ppaCum30 = -(r.pInitCost);
+  const lscR = calcAutoSC(state.monthlyKwh, r.leasePlan.cap);
+  const pscR = calcAutoSC(state.monthlyKwh, r.ppaCap);
   for (let y = 1; y <= 30; y++) {
-    const pm = Math.pow(1 + incR, y - 1);
-    noSolarSpend30 += state.monthlyKwh * effUnit * 12 * pm;
+    const pm  = Math.pow(1.02, y - 1);
+    const eu  = effUnit * pm;
+    const gen  = r.leasePlan.cap * 1000 * Math.pow(0.995, y - 1);
+    const pGen = r.ppaCap        * 1000 * Math.pow(0.995, y - 1);
+    nsCum30 += state.monthlyKwh * eu * 12;
+    const lSv = gen * lscR * eu;
+    const lsu = y<=4 ? 24 : y<=r.leasePlan.term ? 8.3 : 7.15;
+    const lSl = gen * (1 - lscR) * lsu;
+    const lC  = y <= r.leasePlan.term ? r.leasePlan.monthly * 12 : 0;
+    const lP  = (y===15||y===30) ? 200000 : 0;
+    lsCum30 += state.monthlyKwh * eu * 12 - lSv - lSl + lC + lP;
+    const pPcon = (r.ppaPlan.pconCost ?? 400000);
+    const pP  = ((y===15||y===30) && pPcon > 0) ? pPcon : 0;
+    let ppaNet = 0;
+    if (r.ppaPlan.type === 'metered') {
+      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * (eu - (r.ppaPlan.selfUnitPrice||24)) + pP;
+    } else if (r.ppaPlan.type === 'monthly') {
+      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * eu + (r.ppaPlan.monthlyFee||0)*12 + pP;
+    } else {
+      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * eu + pP;
+    }
+    ppaCum30 += ppaNet;
   }
-  // リースの節約額 = 太陽光なし支出 - (太陽光なし支出 - 累積メリット)
-  // ≒ 累積メリット（電気代削減+売電-リース料-パワコン）
-  // ただし「節約額」として正の値で表示するため r.lCum30 をそのまま使用
-  const lSaving = r.lCum30;   // 太陽光なし比の節約額
-  const pSaving = r.pCum30;   // 同上
-  const lSavMan = (Math.abs(lSaving) / 10000).toFixed(1);
-  const pSavMan = (Math.abs(pSaving) / 10000).toFixed(1);
+  // 節約額（対 太陽光なし）
+  const lSaving  = nsCum30 - lsCum30;  // リースの節約額
+  const pSaving  = nsCum30 - ppaCum30; // PPAの節約額
+  const leaseWins = lSaving >= pSaving; // リースの方が節約額が大きいか
+  const lSavMan  = (lSaving / 10000).toFixed(1);
+  const pSavMan  = (pSaving / 10000).toFixed(1);
+  const dMan     = Math.abs((lSaving - pSaving) / 10000).toFixed(1);
 
   // ヒーロー
   document.getElementById('resLeaseCum').textContent = lSavMan;
-  document.getElementById('resHeroSub').textContent =
-    `${r.ppaPlan.name}と比較しても 約${dMan}万円 多く節約（30年累積）`;
+  const heroSub = leaseWins
+    ? `${r.ppaPlan.name}と比較しても 約${dMan}万円 多く節約（30年累積）`
+    : `${r.ppaPlan.name}と比較すると 約${dMan}万円 少ない節約（30年累積）`;
+  document.getElementById('resHeroSub').textContent = heroSub;
 
   // 比較カード
   document.getElementById('resLeaseCard').classList.toggle('winner', leaseWins);
