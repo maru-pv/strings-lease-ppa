@@ -3095,7 +3095,7 @@ function calc() {
 
     document.getElementById('ttSub').textContent =
       `${uname}・実効単価${effUnit.toFixed(2)}円/kWh${adjStr}・おひさまエコキュート込みで試算　`+
-      `SBIリース${lp.cap}kW / ${p.name}　差額 ${totalDiff>=0?'+':''}${fmt(totalDiff)}`;
+      `SBIリース${lp.cap}kW / ${p.name}${ppaCap}kW　差額 ${totalDiff>=0?'+':''}${fmt(totalDiff)}`;
 
     // ▼ バーグラフ：リース側をエコキュート込みの値に
     const maxVeco = Math.max(Math.abs(lCumEco), Math.abs(pCum), 1);
