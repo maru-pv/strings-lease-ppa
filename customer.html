@@ -1242,10 +1242,6 @@ async function submitInquiry() {
 /* ===== ナビゲーション ===== */
 function goStep(dir) {
   if (state.step === 6 && dir === 1) { submitInquiry(); return; }
-  if (state.step === 3 && dir === 1) {
-    if (!state.utilKey) { alert('電力会社を選択してください（STEP1）'); return; }
-    runCalc();
-  }
   const next = state.step + dir;
   if (next < 1 || next > 6) return;
   if (!validateStep(state.step, dir)) return;
@@ -1253,6 +1249,13 @@ function goStep(dir) {
   document.getElementById('step' + state.step).classList.remove('active');
   document.getElementById('step' + next).classList.add('active');
   state.step = next;
+
+  // STEP4に到達するたびに必ず再計算（どの方向から来ても）
+  if (state.step === 4) {
+    if (!state.utilKey) { alert('電力会社を選択してください（STEP1）'); return; }
+    runCalc();
+  }
+
   updateProgress();
   updateNavButtons();
   window.scrollTo({ top: 0, behavior: 'smooth' });
