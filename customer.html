@@ -988,7 +988,7 @@ function calcSpend30(r, effUnit, ecoParams) {
   const shiftR     = ecoOn ? (ECO_SHIFT_RATES[_ecoMode] || 0) : 0;
   const shiftedKwh = _ecoKwh * shiftR;
 
-  let nsCum=0, lsCum=0, ppaCum=-(r.pInitCost);
+  let nsCum=0, lsCum=0, ppaCum=0;
   const nsArr=[], lsArr=[], ppArr=[];
 
   for (let y = 1; y <= 30; y++) {
@@ -999,6 +999,8 @@ function calcSpend30(r, effUnit, ecoParams) {
 
     // 太陽光なし
     nsCum += state.monthlyKwh * eu * 12;
+    // PPA：初期費用を1年目に支出計上
+    if (y === 1) ppaCum += r.pInitCost;
 
     // リース：エコシフト計算
     const lsu_check = y<=4 ? 24 : y<=r.leasePlan.term ? 8.3 : 7.15;
@@ -1014,13 +1016,16 @@ function calcSpend30(r, effUnit, ecoParams) {
     // PPA
     const pPcon = (r.ppaPlan.pconCost ?? 400000);
     const pP    = ((y===15||y===30) && pPcon > 0) ? pPcon : 0;
+    // 建て得：契約期間後の売電収入（期間終了後に設備譲渡）
+    const pSl   = y > r.ppaPlan.term ? pGen * (1 - pscR) * (r.ppaPlan.pf3 || 7.15) : 0;
     let ppaNet  = 0;
     if (r.ppaPlan.type === 'metered') {
-      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * (eu - (r.ppaPlan.selfUnitPrice||24)) + pP;
+      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * (eu - (r.ppaPlan.selfUnitPrice||24)) - pSl + pP;
     } else if (r.ppaPlan.type === 'monthly') {
-      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * eu + (r.ppaPlan.monthlyFee||0)*12 + pP;
+      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * eu - pSl + (r.ppaPlan.monthlyFee||0)*12 + pP;
     } else {
-      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * eu + pP;
+      // zero型（建て得など）：期間後は売電収入が支出を減らす
+      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * eu - pSl + pP;
     }
     ppaCum += ppaNet;
 
@@ -1028,7 +1033,7 @@ function calcSpend30(r, effUnit, ecoParams) {
     lsArr.push(Math.round(lsCum));
     ppArr.push(Math.round(ppaCum));
   }
-  return { nsArr, lsArr, ppArr, nsCum, lsCum, ppaCum };
+  return { nsArr, lsArr, ppArr, nsCum, lsCum, ppaCum, pInitCost: r.pInitCost };
 }
 
 function renderResult(r, effUnit) {
