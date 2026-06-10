@@ -908,9 +908,14 @@ function updatePpaCapCard() {
   const card  = document.getElementById('ppaCapCard');
   const hint  = document.getElementById('ppaCapHint');
   const input = document.getElementById('ppaCap');
-  const needsInput = p.minCap >= 7 || ['osakagas','sharedenki','madsolar'].includes(state.ppaKey);
-  card.style.display = needsInput ? '' : 'none';
-  if (parseFloat(input.value) < p.minCap) { input.value = p.minCap; state.ppaCap = p.minCap; }
+  card.style.display = '';
+  // 初回選択時はデフォルト9kWをセット（minCapより9kWが大きければ9kW）
+  const defaultCap = Math.max(p.minCap, 9);
+  if (!input._initialized || parseFloat(input.value) < p.minCap) {
+    input.value = defaultCap;
+    state.ppaCap = defaultCap;
+    input._initialized = true;
+  }
   input.min = p.minCap;
   hint.textContent = `${p.capLbl}が必要です（現在 ${input.value} kW）`;
 }
@@ -978,8 +983,9 @@ function calcSpend30(r, effUnit, ecoParams) {
   const lscR = calcAutoSC(r.leasePlan.cap > 0 ? state.monthlyKwh : 600, r.leasePlan.cap);
   const pscR = calcAutoSC(r.ppaCap > 0 ? state.monthlyKwh : 600, r.ppaCap);
   // エコキュート設定
+  const ecoOn      = _ecoMode !== 'none';
   const ECO_SHIFT_RATES = { none:0.00, solar:0.40, ohisama:0.70 };
-  const shiftR     = ECO_SHIFT_RATES[_ecoMode] || 0;
+  const shiftR     = ecoOn ? (ECO_SHIFT_RATES[_ecoMode] || 0) : 0;
   const shiftedKwh = _ecoKwh * shiftR;
 
   let nsCum=0, lsCum=0, ppaCum=-(r.pInitCost);
