@@ -970,26 +970,43 @@ function getEffUnit() {
   return getEffUnitByKey(state.utilKey);
 }
 
-function renderResult(r, effUnit) {
-  // ===== グラフと同じ支出累積ロジックで数値を統一 =====
-  let nsCum30 = 0, lsCum30 = 0, ppaCum30 = -(r.pInitCost);
+// ===== 支出累積計算の共通関数（エコキュート対応）=====
+function calcSpend30(r, effUnit) {
   const lscR = calcAutoSC(state.monthlyKwh, r.leasePlan.cap);
   const pscR = calcAutoSC(state.monthlyKwh, r.ppaCap);
+  // エコキュート設定
+  const ecoOn    = state.hasEco && state.ecoMode !== 'none';
+  const ECO_SHIFT_RATES = { none:0.00, solar:0.40, ohisama:0.70 };
+  const shiftR   = ecoOn ? (ECO_SHIFT_RATES[state.ecoMode] || 0) : 0;
+  const shiftedKwh = state.ecoKwh * shiftR; // 年間シフト量(kWh)
+
+  let nsCum=0, lsCum=0, ppaCum=-(r.pInitCost);
+  const nsArr=[], lsArr=[], ppArr=[];
+
   for (let y = 1; y <= 30; y++) {
-    const pm  = Math.pow(1.02, y - 1);
-    const eu  = effUnit * pm;
+    const pm   = Math.pow(1.02, y - 1);
+    const eu   = effUnit * pm;
     const gen  = r.leasePlan.cap * 1000 * Math.pow(0.995, y - 1);
     const pGen = r.ppaCap        * 1000 * Math.pow(0.995, y - 1);
-    nsCum30 += state.monthlyKwh * eu * 12;
-    const lSv = gen * lscR * eu;
-    const lsu = y<=4 ? 24 : y<=r.leasePlan.term ? 8.3 : 7.15;
-    const lSl = gen * (1 - lscR) * lsu;
-    const lC  = y <= r.leasePlan.term ? r.leasePlan.monthly * 12 : 0;
-    const lP  = (y===15||y===30) ? 200000 : 0;
-    lsCum30 += state.monthlyKwh * eu * 12 - lSv - lSl + lC + lP;
+
+    // 太陽光なし
+    nsCum += state.monthlyKwh * eu * 12;
+
+    // リース：エコシフト計算
+    const lsu_check = y<=4 ? 24 : y<=r.leasePlan.term ? 8.3 : 7.15;
+    const ecoShiftEff = ecoOn && (lsu_check < eu);
+    const shiftRatio  = (gen > 0 && ecoShiftEff) ? Math.min(shiftedKwh / gen, 1 - lscR) : 0;
+    const lscREco     = lscR + shiftRatio;
+    const lSv  = gen * lscREco * eu;
+    const lSl  = gen * (1 - lscREco) * lsu_check;
+    const lC   = y <= r.leasePlan.term ? r.leasePlan.monthly * 12 : 0;
+    const lP   = (y===15||y===30) ? 200000 : 0;
+    lsCum += state.monthlyKwh * eu * 12 - lSv - lSl + lC + lP;
+
+    // PPA
     const pPcon = (r.ppaPlan.pconCost ?? 400000);
-    const pP  = ((y===15||y===30) && pPcon > 0) ? pPcon : 0;
-    let ppaNet = 0;
+    const pP    = ((y===15||y===30) && pPcon > 0) ? pPcon : 0;
+    let ppaNet  = 0;
     if (r.ppaPlan.type === 'metered') {
       ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * (eu - (r.ppaPlan.selfUnitPrice||24)) + pP;
     } else if (r.ppaPlan.type === 'monthly') {
@@ -997,12 +1014,22 @@ function renderResult(r, effUnit) {
     } else {
       ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * eu + pP;
     }
-    ppaCum30 += ppaNet;
+    ppaCum += ppaNet;
+
+    nsArr.push(Math.round(nsCum));
+    lsArr.push(Math.round(lsCum));
+    ppArr.push(Math.round(ppaCum));
   }
+  return { nsArr, lsArr, ppArr, nsCum, lsCum, ppaCum };
+}
+
+function renderResult(r, effUnit) {
+  const sp = calcSpend30(r, effUnit);
+  const { nsCum: nsCum30, lsCum: lsCum30, ppaCum: ppaCum30 } = sp;
   // 節約額（対 太陽光なし）
-  const lSaving  = nsCum30 - lsCum30;  // リースの節約額
-  const pSaving  = nsCum30 - ppaCum30; // PPAの節約額
-  const leaseWins = lSaving >= pSaving; // リースの方が節約額が大きいか
+  const lSaving  = nsCum30 - lsCum30;
+  const pSaving  = nsCum30 - ppaCum30;
+  const leaseWins = lSaving >= pSaving;
   const lSavMan  = (lSaving / 10000).toFixed(1);
   const pSavMan  = (pSaving / 10000).toFixed(1);
   const dMan     = Math.abs((lSaving - pSaving) / 10000).toFixed(1);
@@ -1059,49 +1086,12 @@ function renderChart(r) {
   const ctx = document.getElementById('resultChart').getContext('2d');
   if (chartInst) chartInst.destroy();
 
-  // 支出累積グラフ（大きいほど支出が多い＝損）
-  // 「太陽光なし」「SBIリース」「PPA」の3本を支出累積で表示
+  // calcSpend30()で計算（エコキュート対応・renderResultと完全統一）
   const eff = getEffUnit();
-  const noSolarSpendArr = [], leaseSpendArr = [], ppaSpendArr = [];
-  let nsCum = 0, lsCum = 0, ppaCum = -(r.pInitCost); // PPA初期費用を最初に計上
-  for (let y = 1; y <= 30; y++) {
-    const pm  = Math.pow(1.02, y - 1);
-    const eu  = eff * pm;
-    const gen  = r.leasePlan.cap * 1000 * Math.pow(0.995, y - 1);
-    const pGen = r.ppaCap        * 1000 * Math.pow(0.995, y - 1);
-    // calc.jsのcalcAutoSCを使用
-    const lscR = calcAutoSC(state.monthlyKwh, r.leasePlan.cap);
-    const pscR = calcAutoSC(state.monthlyKwh, r.ppaCap);
-
-    // 太陽光なし：電気代そのまま
-    nsCum += state.monthlyKwh * eu * 12;
-
-    // リース：電気代 - 節電 - 売電 + リース料 + パワコン
-    const lSv  = gen * lscR * eu;
-    const lsu  = y<=4 ? 24 : y<=r.leasePlan.term ? 8.3 : 7.15;
-    const lSl  = gen * (1 - lscR) * lsu;
-    const lC   = y <= r.leasePlan.term ? r.leasePlan.monthly * 12 : 0;
-    const lP   = (y===15||y===30) ? 200000 : 0;
-    lsCum += state.monthlyKwh * eu * 12 - lSv - lSl + lC + lP;
-
-    // PPA：電気代 - 節電（typeで分岐） + パワコン
-    const pPcon = (r.ppaPlan.pconCost ?? 400000);
-    const pP   = ((y===15||y===30) && pPcon > 0) ? pPcon : 0;
-    let ppaNet = 0;
-    if (r.ppaPlan.type === 'metered') {
-      const selfU = r.ppaPlan.selfUnitPrice || 24;
-      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * (eu - selfU) + pP;
-    } else if (r.ppaPlan.type === 'monthly') {
-      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * eu + (r.ppaPlan.monthlyFee||0)*12 + pP;
-    } else {
-      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * eu + pP;
-    }
-    ppaCum += ppaNet;
-
-    noSolarSpendArr.push(Math.round(nsCum));
-    leaseSpendArr.push(Math.round(lsCum));
-    ppaSpendArr.push(Math.round(ppaCum));
-  }
+  const sp = calcSpend30(r, eff);
+  const noSolarSpendArr = sp.nsArr;
+  const leaseSpendArr   = sp.lsArr;
+  const ppaSpendArr     = sp.ppArr;
 
   // 30年終点ラベル用プラグイン
   const endLabelPlugin = {
