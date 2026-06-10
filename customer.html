@@ -1076,8 +1076,8 @@ function renderResult(r, effUnit) {
     ['パワコン交換費用',         fmt(-r.lPconTotal), fmt(-r.pPconTotal)],
     ['初期費用',                '0円',              r.pInitCost ? fmt(-r.pInitCost) : '0円'],
     ['<strong>30年累積合計</strong>',
-      `<strong class="val-blue">${fmt(lSaving)}</strong>`,
-      `<strong class="val-orange">${fmt(pSaving)}</strong>`],
+      `<strong class="val-blue">${fmt(r.lCum30)}</strong>`,
+      `<strong class="val-orange">${fmt(r.pCum30)}</strong>`],
   ];
   document.getElementById('breakdownBody').innerHTML = rows.map(([l,a,b]) =>
     `<tr><td>${l}</td><td style="text-align:right">${a}</td><td style="text-align:right">${b}</td></tr>`
