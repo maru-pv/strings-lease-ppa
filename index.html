@@ -998,7 +998,7 @@ table.data-table { width: 100%; font-size: 11px; border-collapse: collapse; }
 
 <!-- HEADER -->
 <div class="header">
-  <div class="header-title">太陽光リース vs PPA 比較シミュレーター<span style="font-size:11px;font-weight:400;opacity:0.7;margin-left:8px">v2026.06.10-1</span></div>
+  <div class="header-title">太陽光リース vs PPA 比較シミュレーター<span style="font-size:11px;font-weight:400;opacity:0.7;margin-left:8px">v2026.06.08-1</span></div>
   <div style="display:flex;align-items:center;gap:8px">
     <div class="header-agent" id="headerAgent"></div>
     <!-- PDF出力ボタン（シンプルな直接ボタン） -->
@@ -1745,7 +1745,7 @@ table.data-table { width: 100%; font-size: 11px; border-collapse: collapse; }
                 <tr><td>電気代削減（30年）<div style="font-size:7pt;color:#9CA3AF">自家消費量は月間電力量の上限に依存</div></td><td class="lease" id="prDLs">—</td><td class="ppa" id="prDPs">—</td></tr>
                 <tr id="prEcoRow" style="display:none"><td style="padding-left:14px">└ おひさまエコキュート（30年）</td><td class="lease" id="prDLeco">—</td><td class="ppa" id="prPpaEco">—</td></tr>
                 <tr><td>売電収入<div style="font-size:7pt;color:#9CA3AF">リース：30年間 / 建て得：16年目〜</div></td><td class="lease" id="prDLse">—</td><td class="ppa" id="prDPse">—</td></tr>
-                <tr><td>月額費用 / 初期費用</td><td class="neg" id="prDLc">—</td><td class="neg" id="prDPi">—</td></tr>
+                <tr><td>リース料 / 契約期間中の売電損失</td><td class="neg" id="prDLc">—</td><td class="neg" id="prDPi">—</td></tr>
                 <tr><td>パワコン交換費用</td><td class="neg" id="prDLp">—</td><td class="neg" id="prDPp">—</td></tr>
                 <tr style="display:none"><td></td><td></td><td id="prDPl" style="display:none"></td></tr>
                 <tr class="total"><td>30年累積メリット</td><td class="lease" id="prDLtTable">—</td><td class="ppa" id="prDPtTable">—</td></tr>
@@ -3095,7 +3095,7 @@ function calc() {
 
     document.getElementById('ttSub').textContent =
       `${uname}・実効単価${effUnit.toFixed(2)}円/kWh${adjStr}・おひさまエコキュート込みで試算　`+
-      `SBIリース${lp.cap}kW / ${p.name}${ppaCap}kW　差額 ${totalDiff>=0?'+':''}${fmt(totalDiff)}`;
+      `SBIリース${lp.cap}kW / ${p.name}　差額 ${totalDiff>=0?'+':''}${fmt(totalDiff)}`;
 
     // ▼ バーグラフ：リース側をエコキュート込みの値に
     const maxVeco = Math.max(Math.abs(lCumEco), Math.abs(pCum), 1);
