@@ -971,14 +971,16 @@ function getEffUnit() {
 }
 
 // ===== 支出累積計算の共通関数（エコキュート対応）=====
-function calcSpend30(r, effUnit) {
-  const lscR = calcAutoSC(state.monthlyKwh, r.leasePlan.cap);
-  const pscR = calcAutoSC(state.monthlyKwh, r.ppaCap);
+function calcSpend30(r, effUnit, ecoParams) {
+  // ecoParams: { ecoMode, ecoKwh } をrunCalcから受け取る（state依存を排除）
+  const _ecoMode = ecoParams?.ecoMode || 'none';
+  const _ecoKwh  = ecoParams?.ecoKwh  || 0;
+  const lscR = calcAutoSC(r.leasePlan.cap > 0 ? state.monthlyKwh : 600, r.leasePlan.cap);
+  const pscR = calcAutoSC(r.ppaCap > 0 ? state.monthlyKwh : 600, r.ppaCap);
   // エコキュート設定
-  const ecoOn    = state.hasEco && state.ecoMode !== 'none';
   const ECO_SHIFT_RATES = { none:0.00, solar:0.40, ohisama:0.70 };
-  const shiftR   = ecoOn ? (ECO_SHIFT_RATES[state.ecoMode] || 0) : 0;
-  const shiftedKwh = state.ecoKwh * shiftR; // 年間シフト量(kWh)
+  const shiftR     = ECO_SHIFT_RATES[_ecoMode] || 0;
+  const shiftedKwh = _ecoKwh * shiftR;
 
   let nsCum=0, lsCum=0, ppaCum=-(r.pInitCost);
   const nsArr=[], lsArr=[], ppArr=[];
@@ -1024,7 +1026,7 @@ function calcSpend30(r, effUnit) {
 }
 
 function renderResult(r, effUnit) {
-  const sp = calcSpend30(r, effUnit);
+  const sp = calcSpend30(r, effUnit, { ecoMode: state.hasEco ? state.ecoMode : 'none', ecoKwh: state.ecoKwh });
   const { nsCum: nsCum30, lsCum: lsCum30, ppaCum: ppaCum30 } = sp;
   // 節約額（対 太陽光なし）
   const lSaving  = nsCum30 - lsCum30;
@@ -1063,8 +1065,8 @@ function renderResult(r, effUnit) {
     ['パワコン交換費用',         fmt(-r.lPconTotal), fmt(-r.pPconTotal)],
     ['初期費用',                '0円',              r.pInitCost ? fmt(-r.pInitCost) : '0円'],
     ['<strong>30年累積合計</strong>',
-      `<strong class="val-blue">${fmt(r.lCum30)}</strong>`,
-      `<strong class="val-orange">${fmt(r.pCum30)}</strong>`],
+      `<strong class="val-blue">${fmt(lSaving)}</strong>`,
+      `<strong class="val-orange">${fmt(pSaving)}</strong>`],
   ];
   document.getElementById('breakdownBody').innerHTML = rows.map(([l,a,b]) =>
     `<tr><td>${l}</td><td style="text-align:right">${a}</td><td style="text-align:right">${b}</td></tr>`
@@ -1088,7 +1090,7 @@ function renderChart(r) {
 
   // calcSpend30()で計算（エコキュート対応・renderResultと完全統一）
   const eff = getEffUnit();
-  const sp = calcSpend30(r, eff);
+  const sp = calcSpend30(r, eff, { ecoMode: state.hasEco ? state.ecoMode : 'none', ecoKwh: state.ecoKwh });
   const noSolarSpendArr = sp.nsArr;
   const leaseSpendArr   = sp.lsArr;
   const ppaSpendArr     = sp.ppArr;
