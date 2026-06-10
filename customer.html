@@ -1068,10 +1068,14 @@ function renderResult(r, effUnit) {
 
   // 内訳
   document.getElementById('brkPpaHeader').textContent = r.ppaPlan.name;
-  const fmt = n => (n >= 0 ? '+' : '') + (n / 10000).toFixed(1) + '万円';
+  const fmt    = n => (n >= 0 ? '+' : '') + (n / 10000).toFixed(1) + '万円';
+  const fmtAbs = n => Math.abs(n / 10000).toFixed(1) + '万円';
   const rows = [
     ['電気代節約（30年）',      fmt(r.lSvTotal),    fmt(r.pSvTotal)],
-    ['売電収入（30年）',        fmt(r.lSlTotal),    fmt(r.pSlTotal)],
+    ['売電収入（30年）',
+      `<span style="font-size:10px;color:#B91C1C;display:block;margin-bottom:2px">1年目〜30年目</span>${fmt(r.lSlTotal)}`,
+      `<span style="font-size:10px;color:#B91C1C;display:block;margin-bottom:2px">16年目〜30年目</span>${fmt(r.pSlTotal)}<br><span style="font-size:10px;color:var(--gray-500)">${r.pLossTotal ? '※1〜15年目の' + fmtAbs(r.pLossTotal) + 'は' + (r.ppaPlan?.provider==="lixil" ? "LIXIL" : "PPA事業者") + '側へ' : ''}</span>`
+    ],
     ['リース料（30年） / 契約期間中の売電損失',fmt(-r.lCostTotal), r.pLossTotal ? fmt(-r.pLossTotal) : '—'],
     ['パワコン交換費用',         fmt(-r.lPconTotal), fmt(-r.pPconTotal)],
     ['初期費用',                '0円',              r.pInitCost ? fmt(-r.pInitCost) : '0円'],
