@@ -1,0 +1,2584 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光熱費・太陽光 まるごと比較ナビ</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ===== 比較ナビ CSS ===== */
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Kaku Gothic ProN','Hiragino Sans',sans-serif;background:#F0F5FB;color:#111827}
+.hdr{background:#1A5EA8;color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px}
+.hdr-t{font-size:16px;font-weight:800}
+.hdr-s{font-size:11px;opacity:.75;margin-left:auto}
+.wrap{max-width:680px;margin:0 auto;padding:20px 16px 60px}
+.card{background:#fff;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.card-ttl{font-size:12px;font-weight:700;color:#6B7280;letter-spacing:.06em;margin-bottom:14px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fld{margin-bottom:14px}
+.fld:last-child{margin-bottom:0}
+.fld label{display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:5px}
+.req{color:#B91C1C}
+.urow{display:flex;align-items:center;gap:6px}
+.urow input{flex:1}
+.urow span{font-size:13px;color:#6B7280;white-space:nowrap}
+.fld input,.fld select,.fld textarea{width:100%;border:1.5px solid #D1D5DB;border-radius:8px;padding:10px 12px;font-size:15px;font-family:inherit;background:#fff}
+.fld input:focus,.fld select:focus{outline:none;border-color:#1A5EA8}
+.fld input.auto-set{border-color:#1A5EA8;background:#EBF2FB;color:#1A5EA8;font-weight:700}
+.ferr{color:#B91C1C;font-size:12px;margin-top:3px;display:none}
+.fsub{font-size:11px;color:#6B7280;margin-top:3px}
+.fsub-blue{font-size:11px;color:#1A5EA8;margin-top:3px;font-weight:600}
+.rg{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.rb{padding:8px 16px;border:1.5px solid #D1D5DB;border-radius:20px;font-size:13px;cursor:pointer;background:#fff;font-family:inherit}
+.rb.on{background:#1A5EA8;color:#fff;border-color:#1A5EA8}
+.btn-main{width:100%;background:#1A5EA8;color:#fff;border:none;border-radius:8px;padding:16px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px}
+.btn-main:hover{background:#2E72BF}
+.btn-orange{width:100%;background:#D97706;color:#fff;border:none;border-radius:8px;padding:16px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:8px}
+.btn-orange:hover{background:#B45309}
+.btn-back{background:none;border:none;color:#6B7280;font-size:14px;cursor:pointer;font-family:inherit;padding:8px 0;margin-bottom:8px}
+.btn-back:hover{color:#1A5EA8}
+.info-box{background:#EBF2FB;border-left:3px solid #1A5EA8;border-radius:0 8px 8px 0;padding:8px 12px;font-size:12px;color:#1A5EA8;margin-top:8px;display:none}
+.warn-box{background:#FFF7ED;border-left:3px solid #D97706;border-radius:0 8px 8px 0;padding:8px 12px;font-size:12px;color:#92400E;margin-top:8px}
+.scr{display:none}
+.scr.on{display:block}
+.sec{font-size:18px;font-weight:800;margin:24px 0 12px;border-left:4px solid #1A5EA8;padding-left:10px}
+.hero{background:linear-gradient(135deg,#1A5EA8,#2E72BF);border-radius:12px;padding:22px 20px;color:#fff;margin-bottom:14px}
+.hero-s{background:linear-gradient(135deg,#D97706,#F59E0B)}
+.hero-lbl{font-size:12px;opacity:.85;margin-bottom:6px}
+.hero-num{font-size:46px;font-weight:900;letter-spacing:-.03em;line-height:1}
+.hero-unit{font-size:16px;opacity:.9;margin-left:4px}
+.hero-sub{font-size:13px;opacity:.85;margin-top:8px;line-height:1.5}
+.hero-badge{display:inline-block;background:rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;margin-top:8px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.trio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.tc{border-radius:10px;padding:14px;text-align:center;border:1.5px solid}
+.tc .tlbl{font-size:10px;font-weight:700;margin-bottom:5px}
+.tc .tnum{font-size:22px;font-weight:900;line-height:1.1}
+.tc .tunit{font-size:10px;margin-top:3px;color:#6B7280}
+.tc .tsub{font-size:11px;margin-top:5px;color:#6B7280;line-height:1.4}
+.tc-g{background:#F3F4F6;border-color:#D1D5DB}.tc-g .tlbl,.tc-g .tnum{color:#6B7280}
+.tc-e{background:#EBF2FB;border-color:#1A5EA8}.tc-e .tlbl,.tc-e .tnum{color:#1A5EA8}
+.tc-s{background:#FFFBEB;border-color:#D97706}.tc-s .tlbl,.tc-s .tnum{color:#D97706}
+.tc-now{background:#F9FAFB;border:1.5px dashed #9CA3AF}.tc-now .tlbl{color:#9CA3AF}.tc-now .tnum{color:#9CA3AF}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar-lbl{width:96px;font-size:12px;font-weight:600;flex-shrink:0;text-align:right;color:#374151}
+.bar-track{flex:1;background:#F3F4F6;border-radius:4px;height:28px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;min-width:4px}
+.bar-val{font-size:12px;font-weight:800;color:#fff;white-space:nowrap}
+.bd{width:100%;border-collapse:collapse;font-size:13px}
+.bd th{background:#F3F4F6;padding:8px 10px;text-align:left;font-size:11px;color:#6B7280}
+.bd td{padding:9px 10px;border-bottom:1px solid #F3F4F6}
+.bd tr:last-child td{border-bottom:none;font-weight:700}
+.td-r{text-align:right}
+.notice{background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400E;line-height:1.7;margin-top:12px}
+.note-sm{background:#F3F4F6;border-radius:6px;padding:8px 12px;font-size:11px;color:#6B7280;margin-top:8px;line-height:1.7}
+.msg-pos{background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;padding:14px;margin-top:10px}
+.msg-pos .t{font-size:14px;font-weight:800;color:#15803D;margin-bottom:4px}
+.msg-pos .b{font-size:13px;color:#374151;line-height:1.6}
+.eg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.ec{background:#EBF2FB;border-radius:10px;padding:14px;border-left:4px solid #1A5EA8}
+.ec .i{font-size:18px;margin-bottom:4px}
+.ec .t{font-size:13px;font-weight:700;color:#1A5EA8;margin-bottom:3px}
+.ec .x{font-size:12px;color:#374151;line-height:1.5}
+.story{background:#FFFBEB;border:2px solid #F59E0B;border-radius:12px;padding:16px;margin:16px 0;font-size:14px;color:#92400E;line-height:1.8}
+.flow3{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:14px 0;font-size:12px}
+.flow3 .f{background:#fff;border:1.5px solid #1A5EA8;color:#1A5EA8;border-radius:18px;padding:4px 12px;font-weight:700}
+.flow3 .f.now{background:#1A5EA8;color:#fff}
+.flow3 .f.solar{border-color:#D97706;color:#D97706}
+.flow3 .f.solar.now{background:#D97706;color:#fff}
+.flow3 .a{color:#9CA3AF}
+.sim-line{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #F3F4F6;font-size:13px}
+.sim-line:last-child{border-bottom:none}
+.sim-total{background:#FFFBEB;margin:0 -20px;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;border-radius:0 0 12px 12px}
+.step-badge{display:inline-block;background:#1A5EA8;color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;margin-bottom:8px}
+.divider-label{display:flex;align-items:center;gap:8px;margin:16px 0 12px;font-size:11px;font-weight:700;color:#6B7280}
+.divider-label::before,.divider-label::after{content:'';flex:1;height:1px;background:#E5E7EB}
+.compare-now{display:flex;gap:8px;background:#F9FAFB;border:1px dashed #D1D5DB;border-radius:10px;padding:12px 14px;margin-bottom:12px;align-items:center;font-size:13px}
+.done{text-align:center;padding:48px 16px}
+.done .i{font-size:56px;margin-bottom:12px}
+.done .t{font-size:20px;font-weight:800;color:#1A5EA8;margin-bottom:8px}
+.done .x{font-size:13px;color:#6B7280;line-height:1.8}
+.tab-btn{flex:1;padding:10px 6px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:#6B7280;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s}
+.tab-btn.active{color:#1A5EA8;border-bottom-color:#1A5EA8}
+.tab-btn:hover{color:#1A5EA8}
+@media(max-width:540px){.duo,.trio,.frow,.eg{grid-template-columns:1fr}.hero-num{font-size:36px}}
+
+
+/* ===== 詳細シミュレーション CSS (customer.html) ===== */
+
+:root {
+  --blue:       #1A5EA8;
+  --blue-light: #EBF2FB;
+  --blue-mid:   #2E72BF;
+  --orange:     #C85A00;
+  --orange-light:#FEF3E8;
+  --green:      #15803D;
+  --green-light:#ECFDF5;
+  --red:        #B91C1C;
+  --gray-900:   #111827;
+  --gray-700:   #374151;
+  --gray-500:   #6B7280;
+  --gray-300:   #D1D5DB;
+  --gray-100:   #F3F4F6;
+  --white:      #FFFFFF;
+  --radius:     12px;
+  --radius-sm:  8px;
+  --shadow:     0 2px 12px rgba(0,0,0,0.08);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
+  background: #F0F5FB;
+  color: var(--gray-900);
+  min-height: 100vh;
+}
+
+/* ヘッダー */
+.site-header {
+  background: var(--blue);
+  color: var(--white);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.site-header .logo  { font-size: 13px; font-weight: 700; opacity: 0.9; }
+.site-header .title { font-size: 15px; font-weight: 700; }
+.site-header .ver   { font-size: 10px; opacity: 0.6; margin-left: auto; }
+
+/* プログレスバー */
+.progress-wrap {
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-300);
+  padding: 14px 20px 0;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.progress-steps {
+  display: flex;
+  max-width: 640px; margin: 0 auto;
+  position: relative;
+}
+.progress-steps::before {
+  content: '';
+  position: absolute;
+  top: 14px; left: 14px; right: 14px;
+  height: 2px; background: var(--gray-300); z-index: 0;
+}
+.ps-step {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  padding-bottom: 10px;
+  position: relative; z-index: 1;
+}
+.ps-circle {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  background: var(--gray-300); color: var(--gray-500);
+  transition: all 0.3s;
+  border: 3px solid var(--white);
+  box-shadow: 0 0 0 2px var(--gray-300);
+}
+.ps-step.done   .ps-circle { background: var(--blue); color: var(--white); box-shadow: 0 0 0 2px var(--blue); }
+.ps-step.active .ps-circle { background: var(--blue); color: var(--white); box-shadow: 0 0 0 2px var(--blue), 0 0 0 4px var(--blue-light); }
+.ps-label { font-size: 9px; color: var(--gray-500); text-align: center; line-height: 1.2; }
+.ps-step.active .ps-label { color: var(--blue); font-weight: 700; }
+.ps-step.done   .ps-label { color: var(--blue); }
+
+/* メイン */
+.steps-container { max-width: 640px; margin: 0 auto; padding: 24px 16px 120px; }
+.step-screen { display: none; animation: fadeIn 0.25s ease; }
+.step-screen.active { display: block; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+.step-head { margin-bottom: 20px; }
+.step-eyebrow { font-size: 11px; color: var(--blue); font-weight: 700; letter-spacing: 0.08em; margin-bottom: 4px; }
+.step-head h2 { font-size: 20px; font-weight: 800; line-height: 1.3; }
+.step-head p  { font-size: 13px; color: var(--gray-500); margin-top: 6px; line-height: 1.6; }
+
+.card {
+  background: var(--white); border-radius: var(--radius);
+  padding: 20px; margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+.card-title { font-size: 12px; font-weight: 700; color: var(--gray-500); letter-spacing: 0.05em; margin-bottom: 12px; }
+
+/* フォーム */
+.field { margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+.field label { display: block; font-size: 13px; font-weight: 700; color: var(--gray-700); margin-bottom: 6px; }
+.field .sublabel { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
+.field input[type="number"],
+.field input[type="text"],
+.field input[type="tel"],
+.field select {
+  width: 100%;
+  border: 1.5px solid var(--gray-300); border-radius: var(--radius-sm);
+  padding: 11px 14px; font-size: 15px; font-family: inherit;
+  background: var(--white); color: var(--gray-900);
+  transition: border-color 0.2s; -webkit-appearance: none;
+}
+.field input:focus, .field select:focus {
+  outline: none; border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-light);
+}
+.field .unit { display: flex; align-items: center; gap: 8px; }
+.field .unit input { flex: 1; }
+.field .unit span { font-size: 13px; color: var(--gray-500); white-space: nowrap; }
+
+/* 電力会社セレクト：オール電化ラベル */
+.util-opt-ev   { color: #1A5EA8; font-weight: 600; }
+.util-opt-std  { color: var(--gray-700); }
+optgroup { font-weight: 700; }
+
+/* 選択ボタン */
+.sel-group { display: grid; gap: 8px; }
+.sel-group.col2 { grid-template-columns: 1fr 1fr; }
+.sel-group.col3 { grid-template-columns: repeat(3,1fr); }
+.sel-btn {
+  border: 2px solid var(--gray-300); border-radius: var(--radius-sm);
+  background: var(--white); padding: 12px 8px;
+  cursor: pointer; text-align: center; transition: all 0.2s;
+  font-family: inherit;
+}
+.sel-btn:hover    { border-color: var(--blue); background: var(--blue-light); }
+.sel-btn.selected { border-color: var(--blue); background: var(--blue-light); box-shadow: 0 0 0 1px var(--blue); }
+.sel-btn .sb-main { font-size: 15px; font-weight: 800; color: var(--gray-900); }
+.sel-btn .sb-sub  { font-size: 10px; color: var(--gray-500); margin-top: 2px; }
+.sel-btn.selected .sb-main { color: var(--blue); }
+
+/* PPAタブ */
+.ppa-tabs {
+  display: flex; gap: 0;
+  border-bottom: 2px solid var(--gray-300);
+  margin-bottom: 16px;
+}
+.ppa-tab {
+  flex: 1; border: none; background: transparent;
+  padding: 10px 4px; font-size: 12px; font-weight: 700;
+  color: var(--gray-500); cursor: pointer;
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+  font-family: inherit; transition: all 0.2s;
+}
+.ppa-tab.active { color: var(--orange); border-bottom-color: var(--orange); }
+.ppa-panel { display: none; }
+.ppa-panel.active { display: block; }
+
+.ppa-card {
+  border: 2px solid var(--gray-300); border-radius: var(--radius-sm);
+  padding: 14px; cursor: pointer; transition: all 0.2s; margin-bottom: 8px;
+}
+.ppa-card:last-child { margin-bottom: 0; }
+.ppa-card:hover    { border-color: var(--orange); background: var(--orange-light); }
+.ppa-card.selected { border-color: var(--orange); background: var(--orange-light); box-shadow: 0 0 0 1px var(--orange); }
+.ppa-card .pc-name { font-size: 14px; font-weight: 800; color: var(--gray-900); }
+.ppa-card.selected .pc-name { color: var(--orange); }
+.ppa-card .pc-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+.ppa-card .pc-tag  { font-size: 10px; padding: 2px 6px; background: var(--gray-100); color: var(--gray-500); border-radius: 4px; font-weight: 600; }
+.ppa-card .pc-note { font-size: 11px; color: var(--gray-500); margin-top: 6px; line-height: 1.5; }
+
+/* トグル */
+.toggle-row {
+  display: flex; align-items: center;
+  justify-content: space-between; padding: 14px 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-row .tr-label { font-size: 14px; font-weight: 700; }
+.toggle-row .tr-sub   { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
+.toggle { position: relative; width: 44px; height: 26px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0;
+  background: var(--gray-300); border-radius: 13px;
+  cursor: pointer; transition: background 0.2s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute;
+  width: 20px; height: 20px; left: 3px; top: 3px;
+  background: var(--white); border-radius: 50%;
+  transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle input:checked + .toggle-slider { background: var(--blue); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+/* 情報ボックス */
+.info-box {
+  background: var(--blue-light); border-left: 3px solid var(--blue);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 10px 14px; font-size: 12px; color: var(--blue);
+  line-height: 1.6; margin-top: 8px;
+}
+.warn-box {
+  background: var(--orange-light); border-left: 3px solid var(--orange);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 10px 14px; font-size: 12px; color: var(--orange);
+  line-height: 1.6; margin-top: 8px;
+}
+
+/* kWh目安テーブル */
+.kwh-guide {
+  display: none;
+  margin-top: 10px; padding: 14px;
+  background: var(--blue-light); border-radius: var(--radius-sm);
+  font-size: 12px;
+}
+.kwh-guide.open { display: block; }
+.kwh-guide table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+.kwh-guide th { padding: 4px 8px; text-align: left; color: var(--blue); background: rgba(26,94,168,.1); }
+.kwh-guide td { padding: 4px 8px; border-top: 1px solid rgba(26,94,168,.1); }
+.kwh-guide .note { color: var(--gray-500); line-height: 1.7; font-size: 11px; }
+.guide-toggle {
+  background: none; border: 1px solid var(--blue);
+  color: var(--blue); border-radius: 20px;
+  padding: 3px 10px; font-size: 11px; font-weight: 700;
+  cursor: pointer; margin-left: 6px; font-family: inherit;
+}
+
+/* STEP4 結果 */
+.result-hero {
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
+  border-radius: var(--radius); padding: 24px 20px;
+  color: var(--white); text-align: center;
+  margin-bottom: 14px; box-shadow: var(--shadow-lg);
+}
+.result-hero .rh-label   { font-size: 11px; opacity: 0.85; margin-bottom: 4px; }
+.result-hero .rh-value   { font-size: 42px; font-weight: 900; letter-spacing: -0.02em; line-height: 1; }
+.result-hero .rh-unit    { font-size: 16px; font-weight: 400; opacity: 0.9; margin-left: 4px; }
+.result-hero .rh-compare { font-size: 12px; opacity: 0.8; margin-top: 6px; }
+.result-hero .rh-sub     { font-size: 13px; opacity: 0.9; margin-top: 4px; font-weight: 700; }
+
+.compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.compare-card {
+  background: var(--white); border-radius: var(--radius-sm);
+  padding: 14px; box-shadow: var(--shadow); text-align: center;
+}
+.compare-card.winner { border: 2px solid var(--blue); background: var(--blue-light); }
+.compare-card .cc-label { font-size: 11px; color: var(--gray-500); margin-bottom: 4px; }
+.compare-card .cc-name  { font-size: 12px; font-weight: 800; color: var(--gray-700); margin-bottom: 6px; }
+.compare-card.winner .cc-name { color: var(--blue); }
+.compare-card .cc-val   { font-size: 22px; font-weight: 900; color: var(--gray-900); }
+.compare-card.winner .cc-val  { color: var(--blue); }
+.compare-card .cc-unit  { font-size: 10px; color: var(--gray-500); }
+.winner-badge {
+  display: inline-block; background: var(--blue); color: var(--white);
+  font-size: 10px; font-weight: 700; padding: 2px 8px;
+  border-radius: 10px; margin-bottom: 4px;
+}
+
+.chart-wrap {
+  background: var(--white); border-radius: var(--radius);
+  padding: 16px; box-shadow: var(--shadow); margin-bottom: 14px;
+}
+.chart-wrap h3 { font-size: 13px; font-weight: 700; color: var(--gray-700); margin-bottom: 12px; }
+.chart-wrap canvas { max-height: 240px; }
+
+.breakdown-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.breakdown-table th { background: var(--gray-100); padding: 8px 10px; text-align: left; font-weight: 700; color: var(--gray-500); font-size: 11px; }
+.breakdown-table td { padding: 9px 10px; border-bottom: 1px solid var(--gray-100); }
+.breakdown-table tr:last-child td { border-bottom: none; }
+.val-blue   { color: var(--blue); font-weight: 700; }
+.val-orange { color: var(--orange); font-weight: 700; }
+
+/* STEP5 まとめ */
+.nudge-section { margin-bottom: 14px; }
+.nudge-header {
+  background: var(--blue); color: var(--white);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 12px 16px; font-size: 13px; font-weight: 700;
+}
+.nudge-body {
+  background: var(--white); border-radius: 0 0 var(--radius) var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.nudge-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--gray-100);
+}
+.nudge-row:last-child { border-bottom: none; }
+.nudge-cell {
+  padding: 12px 14px;
+}
+.nudge-cell.lease { border-right: 1px solid var(--gray-100); }
+.nudge-cell-label {
+  font-size: 10px; font-weight: 700; margin-bottom: 6px;
+  padding: 3px 8px; border-radius: 10px; display: inline-block;
+}
+.lease .nudge-cell-label { background: var(--blue-light); color: var(--blue); }
+.ppa   .nudge-cell-label { background: var(--orange-light); color: var(--orange); }
+.nudge-item {
+  display: flex; gap: 6px; margin-bottom: 4px;
+  font-size: 12px; line-height: 1.5; align-items: flex-start;
+}
+.nudge-item:last-child { margin-bottom: 0; }
+.ico-ok  { color: #15803D; font-weight: 700; flex-shrink: 0; }
+.ico-ng  { color: var(--red); font-weight: 700; flex-shrink: 0; }
+.ico-tri { color: #92400E; font-weight: 700; flex-shrink: 0; }
+
+.eco-nudge {
+  background: #F0F9FF; border: 1px solid #BAE6FD;
+  border-radius: var(--radius-sm); padding: 14px;
+  margin-bottom: 14px;
+}
+.eco-nudge h4 { font-size: 13px; color: #0369A1; font-weight: 700; margin-bottom: 8px; }
+.eco-nudge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.eco-side {
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  font-size: 11px; line-height: 1.6;
+}
+.eco-side.lease { background: var(--blue-light); border: 1px solid #BCD4F5; }
+.eco-side.ppa   { background: var(--orange-light); border: 1px solid #FED7AA; }
+.eco-side .eco-name { font-size: 12px; font-weight: 800; margin-bottom: 4px; }
+.eco-side.lease .eco-name { color: var(--blue); }
+.eco-side.ppa   .eco-name { color: var(--orange); }
+
+/* STEP6 お問い合わせ */
+.form-sent { display: none; text-align: center; padding: 40px 20px; }
+.form-sent .sent-icon { font-size: 48px; margin-bottom: 16px; }
+.form-sent h3 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+.form-sent p  { font-size: 13px; color: var(--gray-500); line-height: 1.7; }
+
+/* ナビバー */
+.nav-bar-outer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--white); border-top: 1px solid var(--gray-300);
+  z-index: 200; padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+.nav-bar-inner { max-width: 640px; margin: 0 auto; display: flex; gap: 10px; }
+.btn {
+  border: none; border-radius: var(--radius-sm);
+  padding: 14px 20px; font-size: 15px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.btn-primary   { background: var(--blue); color: var(--white); flex: 1; box-shadow: 0 2px 8px rgba(26,94,168,0.3); }
+.btn-primary:hover   { background: var(--blue-mid); }
+.btn-primary:active  { transform: scale(0.98); }
+.btn-secondary { background: var(--gray-100); color: var(--gray-700); width: 56px; }
+.btn-secondary:hover { background: var(--gray-300); }
+.btn-primary:disabled { background: var(--gray-300); box-shadow: none; cursor: not-allowed; }
+
+
+/* ===== 統合追加CSS ===== */
+#scrCustomer { display: none; }
+#scrCustomer.on { display: block; }
+.handoff-banner {
+  background: #F0FDF4; border: 1px solid #86EFAC;
+  border-radius: 8px; padding: 10px 14px;
+  font-size: 12px; color: #15803D;
+  line-height: 1.6; margin-bottom: 14px; display: none;
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-t">光熱費まるごと比較ナビ</div>
+  <div class="hdr-s">住宅営業支援ツール v5.0</div>
+</header>
+
+<div class="wrap">
+
+<!-- 画面1：入力 -->
+<div class="scr on" id="scrInput">
+  <div class="flow3">
+    <span class="f now">① 条件入力</span><span class="a">→</span>
+    <span class="f">② オール電化なら？</span><span class="a">→</span>
+    <span class="f solar">③ さらに太陽光なら？</span>
+  </div>
+
+  <div class="card">
+    <div class="card-ttl">基本情報</div>
+    <div class="frow">
+      <div class="fld">
+        <label>家族人数<span class="req">*</span></label>
+        <div class="rg" id="rFamily">
+          <button type="button" class="rb" data-v="1人">1人</button>
+          <button type="button" class="rb" data-v="2人">2人</button>
+          <button type="button" class="rb" data-v="3人">3人</button>
+          <button type="button" class="rb" data-v="4人">4人</button>
+          <button type="button" class="rb" data-v="5人">5人</button>
+          <button type="button" class="rb" data-v="6人以上">6人以上</button>
+        </div>
+        <div class="ferr" id="eFamily">家族人数を選択してください</div>
+      </div>
+      <div class="fld">
+        <label>居住エリア<span class="req">*</span></label>
+        <select id="iUtil">
+          <option value="">-- 選択 --</option>
+          <option value="kyushu">九州（九州電力）</option>
+          <option value="chugoku">中国（中国電力）</option>
+          <option value="kansai">関西（関西電力）</option>
+          <option value="shikoku">四国（四国電力）</option>
+          <option value="chubu">中部（中部電力）</option>
+          <option value="tepco">東京（東京電力EP）</option>
+          <option value="tohoku">東北（東北電力）</option>
+          <option value="hokuriku">北陸（北陸電力）</option>
+          <option value="hokkaido">北海道（北海道電力）</option>
+        </select>
+        <div class="ferr" id="eUtil">エリアを選択してください</div>
+      </div>
+    </div>
+    <div class="fld" style="margin-bottom:0">
+      <label>日中の在宅時間<span class="req">*</span></label>
+      <div class="rg" id="rHome">
+        <button type="button" class="rb" data-v="少ない">少ない（共働き等）</button>
+        <button type="button" class="rb" data-v="普通">普通（1〜2人在宅）</button>
+        <button type="button" class="rb" data-v="多い">多い（ほぼ終日）</button>
+      </div>
+      <div class="ferr" id="eHome">日中在宅を選択してください</div>
+    </div>
+  </div>
+
+  <!-- 現在の光熱費 -->
+  <div class="card">
+    <div class="step-badge">現在の賃貸・光熱費</div>
+    <p style="font-size:13px;color:#6B7280;margin-bottom:12px;line-height:1.6">今お住まいのアパート・マンションの光熱費を入力してください。新築後との比較に使います。</p>
+    <div class="frow">
+      <div class="fld">
+        <label>現在の月間電気代</label>
+        <div class="urow"><input type="number" id="iElNow" placeholder="8000" min="0"><span>円</span></div>
+      </div>
+      <div class="fld">
+        <label>現在の月間ガス代</label>
+        <div class="urow"><input type="number" id="iGasNow" placeholder="3000" min="0"><span>円</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新築後の想定 -->
+  <div class="card">
+    <div class="step-badge" style="background:#D97706">新築戸建ての想定光熱費</div>
+    <p style="font-size:13px;color:#6B7280;margin-bottom:12px;line-height:1.6">家族人数・エリアを選ぶと統計データから自動で入ります。実態に近ければそのままでOKです。</p>
+    <div class="frow">
+      <div class="fld">
+        <label>新築後の月間電気代<span class="req">*</span></label>
+        <div class="urow"><input type="number" id="iEl" placeholder="家族人数を選択" min="0"><span>円</span></div>
+        <div class="fsub-blue" id="elStat">家族人数・エリアを選ぶと自動入力されます</div>
+        <div class="ferr" id="eEl">正しい金額を入力してください</div>
+      </div>
+      <div class="fld">
+        <label>新築後の月間ガス代<span class="req">*</span></label>
+        <div class="urow"><input type="number" id="iGas" placeholder="家族人数を選択" min="0"><span>円</span></div>
+        <div class="fsub-blue" id="gasStat">家族人数・エリアを選ぶと自動入力されます</div>
+        <div class="ferr" id="eGas">正しい金額を入力してください</div>
+      </div>
+    </div>
+    <div class="warn-box">
+      <strong>なぜ今より高い？</strong><br>
+      戸建ては集合住宅より床面積・部屋数が多く、冷暖房・照明の使用量が増えます。統計では戸建ては集合住宅より電気代が平均2,000円以上高い傾向があります（日本生協連調査）。
+    </div>
+  </div>
+
+  <button class="btn-main" id="btnCalc">⚡ オール電化にしたらいくら？を見る</button>
+</div>
+
+<!-- 画面2：ガス併用 vs オール電化 -->
+<div class="scr" id="scrResult">
+  <button class="btn-back" id="btnBack">← 入力に戻る</button>
+  <div class="flow3">
+    <span class="f">① 条件入力</span><span class="a">→</span>
+    <span class="f now">② オール電化なら？</span><span class="a">→</span>
+    <span class="f solar">③ さらに太陽光なら？</span>
+  </div>
+
+  <!-- 現在の賃貸との比較（任意表示） -->
+  <div id="nowCompare" style="display:none">
+    <div class="compare-now">
+      <div style="flex:1">
+        <div style="font-size:11px;color:#9CA3AF;font-weight:700;margin-bottom:2px">現在の賃貸（参考）</div>
+        <div style="font-size:18px;font-weight:800;color:#9CA3AF" id="nowTotal">—</div>
+        <div style="font-size:11px;color:#9CA3AF">/月</div>
+      </div>
+      <div style="font-size:20px;color:#D1D5DB">→</div>
+      <div style="flex:2;font-size:12px;color:#6B7280;line-height:1.6" id="nowComment">—</div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-lbl">新築でオール電化にすると、電気ガス併用より</div>
+    <div><span class="hero-num" id="heroNum">—</span><span class="hero-unit">円/月</span></div>
+    <div class="hero-sub" id="heroSub">—</div>
+    <div class="hero-badge" id="heroBadge">—</div>
+  </div>
+
+  <div class="duo">
+    <div class="tc tc-g"><div class="tlbl">新築・電気ガス併用</div><div class="tnum" id="tcG">—</div><div class="tunit">円/月</div><div class="tsub">電気代＋ガス代</div></div>
+    <div class="tc tc-e"><div class="tlbl">⚡ 新築・オール電化</div><div class="tnum" id="tcE">—</div><div class="tunit">円/月</div><div class="tsub">電気代に一本化</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-ttl">月額光熱費 比較</div>
+    <div id="barM"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-ttl">試算の内訳</div>
+    <table class="bd">
+      <thead><tr><th>項目</th><th class="td-r">電気ガス併用</th><th class="td-r">オール電化</th></tr></thead>
+      <tbody id="bdBody"></tbody>
+    </table>
+  </div>
+
+  <div class="sec">なぜオール電化は安くなるの？</div>
+  <div class="eg">
+    <div class="ec"><div class="i">🔥→⚡</div><div class="t">エコキュートの省エネ性</div><div class="x">エコキュートはCOP3〜4。ガス給湯器（効率78%）と比べ、同じお湯を沸かすコストが約1/3になります。</div></div>
+    <div class="ec"><div class="i">📋</div><div class="t">基本料金の一本化</div><div class="x">電気ガス併用ではそれぞれに基本料金が発生。オール電化ではガス契約が不要になり固定費が減ります。</div></div>
+    <div class="ec"><div class="i">🕐</div><div class="t">夜間電力の活用</div><div class="x">オール電化専用プランでは深夜電力が割安。エコキュートを夜間稼働させるとさらにコスト削減できます。</div></div>
+    <div class="ec"><div class="i">🛡️</div><div class="t">暮らしの安心</div><div class="x">IHは火を使わず掃除もラク。エコキュートのタンクは災害時の生活用水としても役立ちます。</div></div>
+  </div>
+
+  <div class="note-sm">本シミュレーションは概算です。実際の光熱費は電力プラン・ガス種別・使用量・設備仕様により異なります。</div>
+
+  <div class="story">
+    ここまでで、光熱費を<strong>電気に一本化するメリット</strong>を見てきました。<br>
+    ところで——オール電化にすると、家庭のエネルギーの中心は「電気」になります。<br>
+    その電気、<strong>全部買い続けますか？ それとも一部を自宅で作りますか？</strong>
+  </div>
+  <button class="btn-orange" id="btnSolar">☀️ さらに太陽光を設置すると？を見る</button>
+</div>
+
+<!-- 画面3：太陽光 -->
+<div class="scr" id="scrSolar">
+  <button class="btn-back" id="btnBackR">← オール電化の比較に戻る</button>
+  <div class="flow3">
+    <span class="f">① 条件入力</span><span class="a">→</span>
+    <span class="f">② オール電化なら？</span><span class="a">→</span>
+    <span class="f solar now">③ さらに太陽光なら？</span>
+  </div>
+
+  <div style="background:var(--blue-l,#EBF2FB);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:14px;color:#1A5EA8;line-height:1.7">
+    オール電化にすると家庭のエネルギーが電気に集約されます。その電気を<strong>どう調達するか</strong>で、30年間の家計負担が大きく変わります。
+  </div>
+
+  <!-- 3方式タブ -->
+  <div style="display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid #E5E7EB;padding-bottom:0">
+    <button class="tab-btn active" id="tab-lease" onclick="switchTab('lease')">💳 リース</button>
+    <button class="tab-btn" id="tab-buy"   onclick="switchTab('buy')">🏠 購入</button>
+    <button class="tab-btn" id="tab-ppa"   onclick="switchTab('ppa')">☀️ 建て得</button>
+  </div>
+
+  <!-- リースパネル -->
+  <div id="panel-lease">
+    <div class="hero hero-s">
+      <div class="hero-lbl">リースなら、30年間で</div>
+      <div><span class="hero-num" id="leaseHeroNum">—</span><span class="hero-unit">万円の経済効果</span></div>
+      <div class="hero-sub">太陽光なし（オール電化）と比べた30年間の差額（概算）</div>
+      <div class="hero-badge" id="leaseHeroBadge">—</div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">💳 リース 月々のイメージ（初年度・概算）</div>
+      <div class="sim-line"><span>オール電化の電気代</span><span id="lsL1" style="font-weight:700">—</span></div>
+      <div class="sim-line"><span>自家消費による削減</span><span id="lsL2" style="font-weight:700;color:#15803D">—</span></div>
+      <div class="sim-line"><span>余剰電力の売電収入</span><span id="lsL3" style="font-weight:700;color:#15803D">—</span></div>
+      <div class="sim-line"><span>リース料（月額・税込）</span><span id="lsL4" style="font-weight:700;color:#B91C1C">—</span></div>
+      <div class="sim-total"><span style="font-size:14px;font-weight:800">実質の月額負担</span><span id="lsL5" style="font-size:18px;font-weight:900;color:#D97706">—</span></div>
+    </div>
+    <div class="story">ポイントは<strong>リース終了後（11年目以降）</strong>。リース料がなくなり、削減効果と売電収入がまるごと家計のプラスになります。設備は無償譲渡されます。</div>
+  </div>
+
+  <!-- 購入パネル -->
+  <div id="panel-buy" style="display:none">
+    <div class="hero" style="background:linear-gradient(135deg,#374151,#6B7280)">
+      <div class="hero-lbl">購入なら、30年間で</div>
+      <div><span class="hero-num" id="buyHeroNum">—</span><span class="hero-unit">万円の経済効果</span></div>
+      <div class="hero-sub">初期費用がかかりますが、長期では最大のリターンが期待できます</div>
+      <div class="hero-badge" id="buyHeroBadge">—</div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">🏠 購入 月々のイメージ（初年度・概算）</div>
+      <div class="sim-line"><span>初期費用（8kW・税込）</span><span id="buyCost" style="font-weight:700;color:#B91C1C">—</span></div>
+      <div class="sim-line"><span>自家消費による削減</span><span id="buyL2" style="font-weight:700;color:#15803D">—</span></div>
+      <div class="sim-line"><span>余剰電力の売電収入</span><span id="buyL3" style="font-weight:700;color:#15803D">—</span></div>
+      <div class="sim-line"><span>リース料</span><span style="color:#9CA3AF">なし</span></div>
+      <div class="sim-total"><span style="font-size:14px;font-weight:800">月額削減効果</span><span id="buyL5" style="font-size:18px;font-weight:900;color:#374151">—</span></div>
+    </div>
+    <div class="story">初期費用の回収後は<strong>光熱費削減がまるごと収益</strong>になります。初期費用・kW単価は工務店側で設定できます。</div>
+  </div>
+
+  <!-- PPAパネル -->
+  <div id="panel-ppa" style="display:none">
+    <div class="hero" style="background:linear-gradient(135deg,#15803D,#16A34A)">
+      <div class="hero-lbl">建て得（PPA）なら、30年間で</div>
+      <div><span class="hero-num" id="ppaHeroNum">—</span><span class="hero-unit">万円の経済効果</span></div>
+      <div class="hero-sub">初期費用ゼロ。自家消費した分だけ電気代を削減できます</div>
+      <div class="hero-badge" id="ppaHeroBadge">—</div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">☀️ 建て得 月々のイメージ（初年度・概算）</div>
+      <div class="sim-line"><span>初期費用</span><span style="color:#15803D;font-weight:700">0円</span></div>
+      <div class="sim-line"><span>自家消費した電気代</span><span style="color:#9CA3AF">0円（無償利用）</span></div>
+      <div class="sim-line"><span>余剰売電（期間中）</span><span style="color:#9CA3AF" id="ppaL3">事業者側</span></div>
+      <div class="sim-line"><span>月額費用</span><span style="color:#15803D;font-weight:700">0円</span></div>
+      <div class="sim-total"><span style="font-size:14px;font-weight:800">実質の月額負担</span><span id="ppaL5" style="font-size:18px;font-weight:900;color:#15803D">—</span></div>
+    </div>
+    <div class="story">初期費用・月額ゼロで太陽光を設置できます。<strong id="ppaTerm">15年</strong>後に設備が無償譲渡され、以降の売電収入もすべて手元に残ります。</div>
+  </div>
+
+  <!-- 3方式30年比較 -->
+  <div class="card" style="margin-top:14px">
+    <div class="card-ttl">3方式の30年累積支出 比較</div>
+    <div id="barS30"></div>
+    <div class="msg-pos" style="margin-top:10px">
+      <div class="t" id="sLongT">—</div>
+      <div class="b" id="sLongB">—</div>
+    </div>
+  </div>
+
+  <div class="notice">本試算は標準的な屋根条件（1kWあたり年間発電量1,000kWh・劣化率0.5%/年・パワコン交換15/30年目）での概算です。実際は屋根の向き・面積・地域・設置容量によって大きく変わります。</div>
+  <div class="story">ここまでは<strong>標準条件での概算</strong>です。実際の屋根・図面に合わせた正確な金額は、<strong>無料の詳細シミュレーション</strong>でご確認いただけます。</div>
+  <button class="btn-orange" id="btnReq">📝 具体的なシミュレーション試算はこちら（無料）</button>
+</div>
+
+<!-- ========== 画面4：詳細シミュレーション（customer.html統合） ========== -->
+<div class="scr" id="scrCustomer">
+  <!-- プログレスバー（customer部分） -->
+  <div class="progress-wrap" style="position:sticky;top:0;z-index:100">
+    <div class="progress-steps" id="progressSteps">
+      <div class="ps-step active" data-step="1"><div class="ps-circle">1</div><div class="ps-label">電気代</div></div>
+      <div class="ps-step" data-step="2"><div class="ps-circle">2</div><div class="ps-label">プラン</div></div>
+      <div class="ps-step" data-step="3"><div class="ps-circle">3</div><div class="ps-label">オプション</div></div>
+      <div class="ps-step" data-step="4"><div class="ps-circle">4</div><div class="ps-label">試算結果</div></div>
+      <div class="ps-step" data-step="5"><div class="ps-circle">5</div><div class="ps-label">まとめ</div></div>
+      <div class="ps-step" data-step="6"><div class="ps-circle">6</div><div class="ps-label">お問い合わせ</div></div>
+    </div>
+  </div>
+
+  <div class="steps-container">
+    <!-- 引き継ぎバナー -->
+    <div class="handoff-banner" id="naviHandoffBanner"></div>
+<div class="steps-container">
+
+  <!-- STEP1: 電気代 -->
+  <div class="step-screen active" id="step1">
+    <div class="step-head">
+      <div class="step-eyebrow">Step 1 / 6</div>
+      <h2>毎月の電気使用量を<br>教えてください</h2>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label>
+          月間電力使用量
+          <button class="guide-toggle" onclick="toggleKwhGuide()">目安を見る</button>
+        </label>
+        <div class="unit">
+          <input type="number" id="monthlyKwh" value="600" min="200" max="1200" step="10" oninput="onKwhInput()">
+          <span>kWh / 月</span>
+        </div>
+        <div class="sublabel">オール電化戸建て目安：500〜800kWh/月</div>
+        <div id="kwhWarning" style="font-size:11px;margin-top:4px;display:none;color:var(--red)"></div>
+      </div>
+      <div class="kwh-guide" id="kwhGuide">
+        <div style="font-weight:700;color:var(--blue);margin-bottom:8px">オール電化戸建て世帯の月間使用量の目安</div>
+        <table>
+          <thead><tr><th>家族構成</th><th style="text-align:center">月間目安</th><th style="text-align:center">月間電気代目安</th></tr></thead>
+          <tbody>
+            <tr><td>2人世帯</td><td style="text-align:center">450〜550 kWh</td><td style="text-align:center">約1.5〜2万円</td></tr>
+            <tr><td><strong>3人世帯（夫婦＋子1人）</strong></td><td style="text-align:center"><strong>550〜700 kWh</strong></td><td style="text-align:center"><strong>約1.8〜2.5万円</strong></td></tr>
+            <tr><td>4人世帯</td><td style="text-align:center">650〜800 kWh</td><td style="text-align:center">約2.2〜3万円</td></tr>
+            <tr><td>5人以上</td><td style="text-align:center">750〜950 kWh</td><td style="text-align:center">約2.5〜3.5万円</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          ※ 夏（7〜8月）・冬（12〜2月）は通常月の1.3〜1.5倍になります。年間平均として入力してください。<br>
+          ※ 600kWhの目安：3〜4人家族・共働き・エコキュート＋IH使用・月2〜2.5万円程度。<br>
+          ※ 電気代は電力プランや燃料費調整額によって変動します。
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ご契約の電力会社・プラン</div>
+      <div class="field">
+        <select id="utilSelect" onchange="onUtilChange()"></select>
+      </div>
+      <div id="utilHint" class="info-box" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- STEP2: プラン -->
+  <div class="step-screen" id="step2">
+    <div class="step-head">
+      <div class="step-eyebrow">Step 2 / 6</div>
+      <h2>設置プランを<br>選んでください</h2>
+    </div>
+
+    <div class="card">
+      <div class="card-title">SBIリース 搭載容量</div>
+      <div class="sel-group col3">
+        <button class="sel-btn" onclick="selectLease('6',this)">
+          <div class="sb-main">6kW</div><div class="sb-sub">12,000円/月（税抜）</div>
+        </button>
+        <button class="sel-btn selected" onclick="selectLease('8',this)">
+          <div class="sb-main">8kW</div><div class="sb-sub">16,000円/月（税抜）</div>
+        </button>
+        <button class="sel-btn" onclick="selectLease('12',this)">
+          <div class="sb-main">12kW</div><div class="sb-sub">24,000円/月（税抜）</div>
+        </button>
+      </div>
+      <div class="info-box" style="margin-top:12px">リース料は月額一定・10年間。10年後は無償で設備が手に入ります。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">比較するPPAサービス</div>
+      <div class="ppa-tabs">
+        <button class="ppa-tab active" onclick="switchPpaTab('tatekoku',this)">建て得（LIXIL）</button>
+        <button class="ppa-tab" onclick="switchPpaTab('other',this)">その他のPPA</button>
+      </div>
+
+      <!-- 建て得パネル -->
+      <div class="ppa-panel active" id="panel-tatekoku">
+        <div class="ppa-card selected" onclick="selectPpa('smile',this)">
+          <div class="pc-name">建て得スマイル</div>
+          <div class="pc-tags"><span class="pc-tag">初期費用49.5万</span><span class="pc-tag">自家消費0円</span><span class="pc-tag">15年</span><span class="pc-tag">4.5kW〜</span></div>
+          <div class="pc-note">初期費用あり・自家消費は無料。15年後に設備譲渡。</div>
+        </div>
+        <div class="ppa-card" onclick="selectPpa('life',this)">
+          <div class="pc-name">建て得ライフ</div>
+          <div class="pc-tags"><span class="pc-tag">初期費用33万</span><span class="pc-tag">自家消費0円</span><span class="pc-tag">15年</span><span class="pc-tag">4.5kW〜</span></div>
+          <div class="pc-note">スマイルより初期費用を抑えたプラン。</div>
+        </div>
+        <div class="ppa-card" onclick="selectPpa('value',this)">
+          <div class="pc-name">建て得バリュー</div>
+          <div class="pc-tags"><span class="pc-tag">初期費用0円</span><span class="pc-tag">自家消費0円</span><span class="pc-tag">15年</span><span class="pc-tag">9kW〜</span></div>
+          <div class="pc-note">初期費用ゼロ。9kW以上の搭載が必要です。</div>
+        </div>
+      </div>
+
+      <!-- その他PPAパネル -->
+      <div class="ppa-panel" id="panel-other">
+        <div class="ppa-card" onclick="selectPpa('osakagas',this)">
+          <div class="pc-name">大阪ガス スマイルーフ</div>
+          <div class="pc-tags"><span class="pc-tag">初期費用0円</span><span class="pc-tag">自家消費24円/kWh</span><span class="pc-tag">15年</span><span class="pc-tag">関西エリア限定</span></div>
+          <div class="pc-note">自家消費は有料（24円/kWh）。関西エリアのみ。</div>
+        </div>
+        <div class="ppa-card" onclick="selectPpa('sharedenki',this)">
+          <div class="pc-name">シェアでんき</div>
+          <div class="pc-tags"><span class="pc-tag">初期費用0円</span><span class="pc-tag">自家消費25円/kWh</span><span class="pc-tag">15年</span><span class="pc-tag">全国対応</span></div>
+          <div class="pc-note">パワコン交換も事業者負担。全国（一部除く）。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PPA容量入力（必要時のみ表示） -->
+    <div class="card" id="ppaCapCard" style="display:none">
+      <div class="card-title">PPAサービスの搭載容量</div>
+      <div class="field">
+        <div class="unit">
+          <input type="number" id="ppaCap" value="9" min="4.5" max="20" step="0.5" oninput="onPpaCapChange()">
+          <span>kW</span>
+        </div>
+      </div>
+      <div class="info-box" id="ppaCapHint"></div>
+    </div>
+  </div>
+
+  <!-- STEP3: オプション -->
+  <div class="step-screen" id="step3">
+    <div class="step-head">
+      <div class="step-eyebrow">Step 3 / 6</div>
+      <h2>エコキュートの<br>設定を教えてください</h2>
+      <p>太陽光と組み合わせると電気代をさらに節約できます。</p>
+    </div>
+
+    <div class="card">
+      <div class="toggle-row">
+        <div>
+          <div class="tr-label">エコキュートを導入済み・導入予定ですか？</div>
+          <div class="tr-sub">おひさまエコキュート・ソーラーモード対応機種も含む</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="hasEco" onchange="onHasEcoChange()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div id="ecoDetail" style="display:none">
+      <div class="card">
+        <div class="card-title">エコキュートのタイプ</div>
+        <div class="sel-group col2" id="ecoModeGroup">
+          <button class="sel-btn" id="ecoBtn_solar" onclick="selectEcoMode('solar',this)">
+            <div class="sb-main">☀️ ソーラーモード</div>
+            <div class="sb-sub">一般的なエコキュート</div>
+          </button>
+          <button class="sel-btn selected" id="ecoBtn_ohisama" onclick="selectEcoMode('ohisama',this)">
+            <div class="sb-main">🌟 おひさまECO</div>
+            <div class="sb-sub">専用機種（推奨）</div>
+          </button>
+        </div>
+        <div class="info-box" id="ecoModeHint" style="margin-top:12px">
+          おひさまエコキュートは昼間の太陽光で優先的に沸き上げ。電気代の節約効果が特に高くなります。
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">年間のエコキュート使用電力量</div>
+        <div class="sel-group col2" id="ecoKwhGroup">
+          <button class="sel-btn" onclick="selectEcoKwh(800,this)">
+            <div class="sb-main">800 kWh</div><div class="sb-sub">1〜2人世帯</div>
+          </button>
+          <button class="sel-btn selected" id="ecoKwhDefault" onclick="selectEcoKwh(1200,this)">
+            <div class="sb-main">1,200 kWh</div><div class="sb-sub">3〜4人世帯（標準）</div>
+          </button>
+          <button class="sel-btn" onclick="selectEcoKwh(1500,this)">
+            <div class="sb-main">1,500 kWh</div><div class="sb-sub">4〜5人世帯</div>
+          </button>
+          <button class="sel-btn" onclick="selectEcoKwh(2000,this)">
+            <div class="sb-main">2,000 kWh</div><div class="sb-sub">5人以上</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP4: 試算結果 -->
+  <div class="step-screen" id="step4">
+    <div class="step-head">
+      <div class="step-eyebrow">Step 4 / 6</div>
+      <h2>30年間の試算結果</h2>
+    </div>
+
+    <div class="result-hero">
+      <div class="rh-label">SBIリースを導入すると、30年間で</div>
+      <div><span class="rh-value" id="resLeaseCum">—</span><span class="rh-unit">万円</span></div>
+      <div class="rh-compare">電気代を節約できます（太陽光なしと比較）</div>
+      <div class="rh-sub" id="resHeroSub">—</div>
+    </div>
+
+    <div class="compare-row">
+      <div class="compare-card winner" id="resLeaseCard">
+        <div class="winner-badge" id="resLeaseBadge">おすすめ</div>
+        <div class="cc-label">SBIリース</div>
+        <div class="cc-name" id="resLeaseName">—</div>
+        <div class="cc-val"  id="resLeaseVal">—</div>
+        <div class="cc-unit">30年間の節約額（太陽光なし比）</div>
+      </div>
+      <div class="compare-card" id="resPpaCard">
+        <div class="cc-label" id="resPpaLabel">PPA</div>
+        <div class="cc-name" id="resPpaName">—</div>
+        <div class="cc-val"  id="resPpaVal">—</div>
+        <div class="cc-unit">30年間の節約額（太陽光なし比）</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>📊 30年間の累積支出比較</h3>
+      <canvas id="resultChart"></canvas>
+    </div>
+
+    <div class="card">
+      <div class="card-title">内訳サマリー</div>
+      <table class="breakdown-table">
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th style="text-align:right">SBIリース</th>
+            <th style="text-align:right" id="brkPpaHeader">PPA</th>
+          </tr>
+        </thead>
+        <tbody id="breakdownBody"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">試算条件</div>
+      <div style="font-size:12px;color:var(--gray-500);line-height:1.8" id="calcCondition">—</div>
+    </div>
+  </div>
+
+  <!-- STEP5: まとめ -->
+  <div class="step-screen" id="step5">
+    <div class="step-head">
+      <div class="step-eyebrow">Step 5 / 6</div>
+      <h2>数字以外でも<br>リースが選ばれる理由</h2>
+      <p>経済効果がほぼ同等でも、SBIリースには3つの大きなメリットがあります。</p>
+    </div>
+
+    <!-- 理由①パワコン -->
+    <div class="nudge-section">
+      <div class="nudge-header">① 停電時も家中まるごと使える全負荷パワコン</div>
+      <div class="nudge-body">
+        <div class="nudge-row">
+          <div class="nudge-cell lease">
+            <div class="nudge-cell-label">SBIリース（Q.READY）</div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span><strong>全負荷型・1台</strong>で家中すべてのコンセント・照明が使える</span></div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>最大 <strong>5.9kW</strong> まで使用可能</span></div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>パワコン交換費用 <strong>20万円/回</strong>（1台）</span></div>
+          </div>
+          <div class="nudge-cell ppa">
+            <div class="nudge-cell-label" id="nudgePpaLabel1">建て得</div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span><strong>特定負荷型</strong>のため使えるのは一部の回路のみ</span></div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span>最大 <strong>1.5kW程度</strong> に制限</span></div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span>バリューはパワコン2台以上・<strong>40万円/回</strong></span></div>
+          </div>
+        </div>
+        <div style="padding:10px 14px;font-size:11px;color:var(--gray-500);background:var(--gray-100)">
+          ※ 発電中の自立運転について。蓄電池とは異なります。
+        </div>
+      </div>
+    </div>
+
+    <!-- 理由②蓄電池・EV -->
+    <div class="nudge-section">
+      <div class="nudge-header">② 蓄電池・EVを将来いつでも自由に追加できる</div>
+      <div class="nudge-body">
+        <div class="nudge-row">
+          <div class="nudge-cell lease">
+            <div class="nudge-cell-label">SBIリース</div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>蓄電池・EVをいつでも<strong>自由に後付け</strong>できる</span></div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>V2H（電気自動車から給電）にも対応</span></div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>メーカー・建材の縛りなし</span></div>
+          </div>
+          <div class="nudge-cell ppa">
+            <div class="nudge-cell-label" id="nudgePpaLabel2">建て得</div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span>契約15年間は<strong>蓄電池の後付けが不可</strong></span></div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span>EV・V2Hも制限あり</span></div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span>建材・設備が<strong>LIXIL製に限定</strong></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 理由③売電収入 -->
+    <div class="nudge-section">
+      <div class="nudge-header">③ 売電収入が初日からすべてお客様のもの</div>
+      <div class="nudge-body">
+        <div class="nudge-row">
+          <div class="nudge-cell lease">
+            <div class="nudge-cell-label">SBIリース</div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>FIT売電収入が<strong>初日から全額</strong>お客様へ</span></div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>リース終了後は売電・節電を<strong>完全独占</strong></span></div>
+            <div class="nudge-item"><span class="ico-ok">✓</span><span>モジュール出力保証 <strong>30年</strong></span></div>
+          </div>
+          <div class="nudge-cell ppa">
+            <div class="nudge-cell-label" id="nudgePpaLabel3">建て得</div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span>15年間の売電収入は<strong>すべて事業者側</strong>へ</span></div>
+            <div class="nudge-item"><span class="ico-ng">✗</span><span>お客様には売電収入が入りません</span></div>
+            <div class="nudge-item"><span class="ico-tri">△</span><span>15年後の譲渡後はお客様のものになります</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- エコキュートの差別化 -->
+    <div class="eco-nudge">
+      <h4>☀️ エコキュートの昼間沸き上げで電気代をさらに削減</h4>
+      <p style="font-size:12px;color:var(--gray-700);margin-bottom:10px;line-height:1.6">
+        太陽光の電力でお湯を沸かす「昼間沸き上げ」を活用すると、夜間の買電が減り電気代削減効果がさらに高まります。<strong>この機能を使えるかどうかが、リースと建て得の大きな差別化ポイントです。</strong>
+      </p>
+      <div class="eco-nudge-grid">
+        <div class="eco-side lease">
+          <div class="eco-name">SBIリース</div>
+          <div class="nudge-item"><span class="ico-ok">✓</span><span>制限なく<strong>自由に活用可能</strong></span></div>
+          <div class="nudge-item"><span class="ico-ok">✓</span><span><strong>ソーラーモード</strong>（追加費用なし）</span></div>
+          <div class="nudge-item"><span class="ico-ok">✓</span><span><strong>おひさまECO</strong>（専用機種・最大効果）</span></div>
+        </div>
+        <div class="eco-side ppa">
+          <div class="eco-name" id="ecoNudgePpaName">建て得</div>
+          <div class="nudge-item"><span class="ico-ng">✗</span><span><strong>原則使用・設置不可</strong>（契約条件）</span></div>
+          <div class="nudge-item"><span class="ico-ng">✗</span><span>違反は契約解除・違約金の対象</span></div>
+          <div class="nudge-item"><span class="ico-tri">△</span><span>19.8万円のオプションで利用可</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP6: お問い合わせ -->
+  <div class="step-screen" id="step6">
+    <div class="step-head">
+      <div class="step-eyebrow">Step 6 / 6</div>
+      <h2>詳細シミュレーションを<br>ご希望の方へ</h2>
+      <p>住所・屋根情報をもとに、実際のパネル枚数・kW数・30年収支の詳細をお作りします。</p>
+    </div>
+
+    <div id="inquiryForm">
+      <div class="card">
+        <div class="card-title">お客様情報</div>
+        <div class="field">
+          <label>お名前 <span style="color:var(--red)">*</span></label>
+          <input type="text" id="inqName" placeholder="山田 太郎">
+        </div>
+        <div class="field">
+          <label>電話番号 <span style="color:var(--red)">*</span></label>
+          <input type="tel" id="inqTel" placeholder="090-0000-0000">
+        </div>
+        <div class="field">
+          <label>住所（市区町村まで）</label>
+          <input type="text" id="inqAddr" placeholder="広島県広島市中区">
+        </div>
+        <div class="field">
+          <label>ご質問・ご要望</label>
+          <input type="text" id="inqNote" placeholder="任意">
+        </div>
+      </div>
+      <div class="card" style="background:var(--blue-light);border:1.5px solid var(--blue)">
+        <div style="font-size:12px;color:var(--blue);line-height:1.7">
+          ✉️ 送信後、担当者よりご連絡差し上げます。<br>
+          いただいた情報は詳細シミュレーション作成のみに使用します。
+        </div>
+      </div>
+      <div id="inqError" class="warn-box" style="display:none">お名前と電話番号を入力してください。</div>
+    </div>
+
+    <div class="form-sent" id="formSent">
+      <div class="sent-icon">✅</div>
+      <h3>送信が完了しました</h3>
+      <p>内容を受け付けました。<br>担当者より改めてご連絡いたします。</p>
+    </div>
+  </div>
+
+</div>
+  </div>
+
+  <div class="nav-bar-outer">
+    <div class="nav-bar-inner">
+      <button class="btn btn-secondary" id="btnBack" onclick="cGoStep(-1)" style="display:none">←</button>
+      <button class="btn btn-primary" id="btnNext" onclick="cGoStep(1)">次へ →</button>
+    </div>
+  </div>
+</div><!-- /#scrCustomer -->
+
+<script>
+/* ===== calc.js 埋め込み ===== */
+/**
+ * calc.js - 太陽光リース vs PPA 共通計算ロジック
+ * ※ このファイルはDOM操作を一切行わない純粋な計算モジュールです
+ * ※ index.html / customer.html の両方から読み込まれます
+ * version: v2026.06.10-1
+ */
+
+/* ===================================================
+   定数・マスターデータ
+=================================================== */
+
+var DAY_CONSUME_RATE = 0.30; // 日中消費割合（オール電化世帯基準・固定）
+
+var UTIL_DATA = {
+  chugoku:     { name:'中国電力 / 従量電灯A（エリア標準）',              unit:36.32, fuel:1.21, ren:4.18, priority:1 },
+  chugoku_ev:  { name:'中国電力 / 電化Styleコース（オール電化・昼間）',  unit:44.40, fuel:1.21, ren:4.18, priority:1 },
+  kyushu:      { name:'九州電力 / 従量電灯B（エリア標準）',              unit:31.14, fuel:1.41, ren:4.18, priority:2 },
+  kyushu_ev:   { name:'九州電力 / 電化でナイト・セレクト（オール電化）', unit:29.50, fuel:1.41, ren:4.18, priority:2 },
+  kansai:      { name:'関西電力 / 従量電灯A（エリア標準）',              unit:32.65, fuel:2.10, ren:4.18, priority:3 },
+  kansai_ev:   { name:'関西電力 / はぴeタイムR（オール電化）',           unit:31.96, fuel:2.10, ren:4.18, priority:3 },
+  shikoku:     { name:'四国電力 / 従量電灯A（エリア標準）',              unit:37.29, fuel:2.23, ren:4.18, priority:4 },
+  shikoku_ev:  { name:'四国電力 / タイム（オール電化）',                 unit:34.50, fuel:2.23, ren:4.18, priority:4 },
+  tepco:       { name:'東京電力EP / 従量電灯B',                         unit:40.49, fuel:1.80, ren:4.18, priority:5 },
+  tepco_ev:    { name:'東京電力EP / スマートライフS（オール電化）',      unit:34.62, fuel:1.80, ren:4.18, priority:5 },
+  tohoku:      { name:'東北電力 / 従量電灯B',                           unit:38.65, fuel:0.90, ren:4.18, priority:6 },
+  chubu:       { name:'中部電力 / 従量電灯B',                           unit:36.00, fuel:1.20, ren:4.18, priority:7 },
+  hokuriku:    { name:'北陸電力 / 従量電灯B',                           unit:44.47, fuel:1.10, ren:4.18, priority:8 },
+  hokkaido:    { name:'北海道電力 / 従量電灯B',                         unit:44.26, fuel:2.47, ren:4.18, priority:9 },
+  okinawa:     { name:'沖縄電力 / 従量電灯',                            unit:39.37, fuel:4.28, ren:4.18, priority:10 },
+  manual:      { name:'新電力・手動入力',                                unit:0,     fuel:0,    ren:4.18, priority:99 }
+};
+
+var PPA_PLANS = {
+  // 建て得（LIXIL）: 自家消費0円型
+  smile: { name:'建て得スマイル', provider:'lixil', type:'zero',    init:495000, term:15, sc:30, pf3:7.15, minCap:4.5, capLbl:'4.5kW以上', pconCost:400000 },
+  life:  { name:'建て得ライフ',   provider:'lixil', type:'zero',    init:330000, term:15, sc:30, pf3:7.15, minCap:4.5, capLbl:'4.5kW以上', pconCost:400000 },
+  value: { name:'建て得バリュー', provider:'lixil', type:'zero',    init:0,      term:15, sc:30, pf3:7.15, minCap:9.0, capLbl:'9kW以上',   pconCost:400000 },
+  // 大阪ガス スマイルーフ: 従量課金型
+  osakagas: {
+    name:'大阪ガス スマイルーフ', provider:'osakagas', type:'metered',
+    init:0, term:15, pf3:7.15, minCap:1.06, capLbl:'1.06kW以上',
+    selfUnitPrice:24, pconCost:200000,
+    area:'大阪ガス都市ガス供給エリア限定',
+    note:'自家消費分を24円/kWhで購入。売電収入は大阪ガス側（15年間）。15年後無償譲渡。'
+  },
+  // シェアでんき: 従量課金型
+  sharedenki: {
+    name:'シェアでんき', provider:'sharedenki', type:'metered',
+    init:0, term:15, pf3:7.15, minCap:5.625, capLbl:'5.625kW以上',
+    selfUnitPrice:25, pconCost:0,
+    area:'全国（一部除く）',
+    note:'自家消費分を25円/kWhで購入。売電収入はシェアリングエネルギー側。パワコン交換は事業者負担。15年後無償譲渡。'
+  },
+  // マドそら（YKKAP × 東京ガス IGNITURE）: 月額固定型
+  madsolar: {
+    name:'マドそら（IGNITUREソーラー）', provider:'madsolar', type:'monthly',
+    init:0, term:10, pf3:7.15, minCap:4.0, capLbl:'要確認',
+    monthlyFee:null, pconCost:200000,
+    area:'全国（北海道・北陸・沖縄・離島など一部除く）',
+    note:'月額サービス料を支払い、自家消費0円・売電収入は東京ガス側（10年間）。'
+  }
+};
+
+var LEASE_PLANS = {
+  '6':  { cap:6,  monthly:12000, term:10 },
+  '8':  { cap:8,  monthly:16000, term:10 },
+  '12': { cap:12, monthly:24000, term:10 }
+};
+
+// FIT売電単価デフォルト
+var DEFAULT_LF1 = 24;   // 1〜4年目
+var DEFAULT_LF2 = 8.3;  // 5年目〜リース期間終了
+var DEFAULT_LF3 = 7.15; // リース終了後
+
+/* ===================================================
+   ユーティリティ
+=================================================== */
+
+/**
+ * 数値を「+XX万円」形式にフォーマット
+ */
+function fmtMan(n, d = 1) {
+  var man = n / 10000;
+  return (man >= 0 ? '+' : '') + man.toFixed(d) + '万円';
+}
+
+/**
+ * 数値を「XX万円」形式にフォーマット（符号なし）
+ */
+function fmtManAbs(n, d = 1) {
+  return Math.abs(n / 10000).toFixed(d) + '万円';
+}
+
+/* ===================================================
+   コア計算関数
+=================================================== */
+
+/**
+ * 自家消費率を自動計算
+ * @param {number} monthlyKwh - 月間電力使用量（kWh）
+ * @param {number} capKw - パネル容量（kW）
+ * @returns {number} 自家消費率（0〜0.85）
+ */
+function calcAutoSC(monthlyKwh, capKw) {
+  var monthlyGen = capKw * 1000 / 12;
+  var dayConsume = monthlyKwh * DAY_CONSUME_RATE;
+  return Math.min(dayConsume / monthlyGen, 0.85);
+}
+
+/**
+ * 電力会社キーから実効単価を計算
+ * @param {string} utilKey - UTIL_DATAのキー
+ * @param {number|null} manualUnit - 手動入力単価（manual選択時）
+ * @returns {number} 実効単価（円/kWh）
+ */
+function getEffUnitByKey(utilKey, manualUnit = null) {
+  var d = UTIL_DATA[utilKey];
+  if (!d) return 0;
+  if (utilKey === 'manual') return (manualUnit || 0) + d.ren;
+  return d.unit + d.fuel + d.ren;
+}
+
+/**
+ * 月間電気代からkWhを逆算（簡易）
+ * @param {number} monthlyBill - 月間電気代（円）
+ * @param {number} effUnit - 実効単価（円/kWh）
+ * @returns {number} 月間kWh
+ */
+function billToKwh(monthlyBill, effUnit) {
+  if (!effUnit) return 600;
+  return Math.round(monthlyBill / effUnit);
+}
+
+/**
+ * メイン計算関数（DOM非依存）
+ *
+ * @param {Object} params - 計算パラメータ
+ * @param {number}  params.effUnit      - 実効単価（円/kWh）
+ * @param {number}  params.monthlyKwh   - 月間電力使用量（kWh）
+ * @param {string}  params.leaseKey     - リースプランキー ('6'|'8'|'12'|'custom')
+ * @param {number}  [params.leaseCapCustom] - カスタム容量（leaseKey='custom'時）
+ * @param {string}  params.ppaKey       - PPAプランキー
+ * @param {number}  params.ppaCap       - PPA容量（kW）
+ * @param {string}  params.ecoMode      - エコモード ('none'|'solar'|'ohisama')
+ * @param {number}  params.ecoKwh       - エコキュート年間使用量（kWh）
+ * @param {boolean} params.ppaEcoOption - 建て得ECOオプション有無
+ * @param {number}  [params.madsolarFee]- マドそら月額（円）
+ * @param {number}  [params.incRate]    - 電気代上昇率（%、デフォルト2）
+ * @param {number}  [params.lf1]        - FIT単価1〜4年目
+ * @param {number}  [params.lf2]        - FIT単価5年目〜期間終了
+ * @param {number}  [params.lf3]        - FIT単価期間終了後
+ *
+ * @returns {Object} 計算結果
+ */
+function calcMain(params) {
+  var {
+    effUnit,
+    monthlyKwh,
+    leaseKey,
+    leaseCapCustom,
+    ppaKey,
+    ppaCap: ppaCapRaw,
+    ecoMode      = 'none',
+    ecoKwh       = 1200,
+    ppaEcoOption = false,
+    madsolarFee  = 0,
+    incRate      = 2,
+    lf1 = DEFAULT_LF1,
+    lf2 = DEFAULT_LF2,
+    lf3 = DEFAULT_LF3,
+  } = params;
+
+  // プラン取得
+  var lp = leaseKey === 'custom'
+    ? { cap: leaseCapCustom || 6, monthly: (leaseCapCustom || 6) * 2000, term: 10 }
+    : LEASE_PLANS[leaseKey] || LEASE_PLANS['6'];
+
+  var p = PPA_PLANS[ppaKey] || PPA_PLANS['smile'];
+  var ppaType = p.type || 'zero';
+  var ppaCap = Math.max(p.minCap || 4.5, ppaCapRaw || lp.cap);
+
+  // エコ設定
+  var ECO_SHIFT_RATES = { none: 0.00, solar: 0.40, ohisama: 0.70 };
+  var ecoOnCheck = ecoMode !== 'none';
+  var shiftR = ECO_SHIFT_RATES[ecoMode] || 0;
+  var shiftedKwh = ecoKwh * shiftR;
+
+  // 建て得ECOオプションコスト
+  var pEcoCost = (ppaEcoOption && ecoOnCheck) ? 198000 : 0;
+  var pinit = p.init + pEcoCost;
+  var pterm = p.term;
+  var pf3_val = p.pf3 || lf3;
+
+  // 定数
+  var DR   = 0.005;
+  var AGEN = lp.cap * 1000;
+  var pAGEN = ppaCap * 1000;
+  var YRS  = 30;
+  var incR = incRate / 100;
+
+  // 自家消費率
+  var lscR = calcAutoSC(monthlyKwh, lp.cap);
+  var pscR = calcAutoSC(monthlyKwh, ppaCap);
+
+  // ベースライン（太陽光なし）
+  var monthlyBillBase = monthlyKwh * effUnit;
+
+  // 累積変数
+  let lCum = 0, pCum = -pinit;
+  let lCumEco = 0; // ECO込みリース累積（PDF用）
+  let lBep = null, cross = null;
+  var la = [], pa = [], labs = [];
+  var annualLease = [], annualPPA = [];
+  let lSvT=0, lSlT=0, lCT=0, lPT=0;
+  let pSvT=0, pSlT=0, pLT=0, pPT=0;
+
+  for (let y = 1; y <= YRS; y++) {
+    var pm  = Math.pow(1 + incR, y - 1);
+    var eu  = effUnit * pm;
+    var gen  = AGEN  * Math.pow(1 - DR, y - 1);
+    var pGen = pAGEN * Math.pow(1 - DR, y - 1);
+
+    // リース：ECOシフト計算
+    var lsu_check = y <= 4 ? lf1 : y <= lp.term ? lf2 : lf3;
+    var ecoShiftEffective = ecoOnCheck && (lsu_check < eu);
+    var _shiftRatio = (gen > 0 && ecoShiftEffective)
+      ? Math.min(shiftedKwh / gen, 1 - lscR) : 0;
+    var lscREco = lscR + _shiftRatio;
+
+    var lSv  = gen * lscREco * eu;
+    var lsu  = y <= 4 ? lf1 : y <= lp.term ? lf2 : lf3;
+    var lSl  = gen * (1 - lscREco) * lsu;
+    var lC   = y <= lp.term ? lp.monthly * 12 : 0;
+    var lP   = (y === 15 || y === 30) ? 200000 : 0;
+    var lAnnual = lSv + lSl - lC - lP;
+    lSvT += lSv; lSlT += lSl; lCT += lC; lPT += lP;
+    lCum += lAnnual;
+
+    // ECO込み累積（メイン表示用）
+    lCumEco = lCum;
+
+    annualLease.push(Math.round(lAnnual));
+
+    // PPA：ECOシフト計算
+    var ppaEcoOn = ppaEcoOption && ecoOnCheck;
+    var _pShiftRatio = (ppaEcoOn && pGen > 0)
+      ? Math.min(shiftedKwh / pGen, 1 - pscR) : 0;
+    var pscREco = pscR + _pShiftRatio;
+
+    var pPconCost = p.pconCost ?? 400000;
+    var pP = ((y === 15 || y === 30) && pPconCost > 0) ? pPconCost : 0;
+
+    let pSv, pSl, pLoss, pAnnual;
+    if (ppaType === 'metered') {
+      const selfUnitPrice = p.selfUnitPrice || 24;
+      pSv    = pGen * pscREco * (eu - selfUnitPrice);
+      pSl    = y > pterm ? pGen * (1 - pscREco) * pf3_val : 0;
+      pLoss  = y <= pterm ? pGen * (1 - pscREco) * (y <= 4 ? 24 : 8.3) : 0;
+      pAnnual = pSv + pSl - pP;
+    } else if (ppaType === 'monthly') {
+      const mFee = madsolarFee || 0;
+      pSv    = pGen * pscREco * eu;
+      pSl    = y > pterm ? pGen * (1 - pscREco) * pf3_val : 0;
+      const pMonthly = y <= pterm ? mFee * 12 : 0;
+      pLoss  = y <= pterm ? pGen * (1 - pscREco) * (y <= 4 ? 24 : 8.3) : 0;
+      pAnnual = pSv + pSl - pMonthly - pP;
+    } else {
+      // zero型（建て得）
+      pSv    = pGen * pscREco * eu;
+      pSl    = y > pterm ? pGen * (1 - pscREco) * pf3_val : 0;
+      pLoss  = y <= pterm ? pGen * (1 - pscREco) * (y <= 4 ? 24 : 8.3) : 0;
+      pAnnual = pSv + pSl - pP;
+    }
+    pSvT += pSv; pSlT += pSl; pLT += pLoss; pPT += pP;
+    pCum += pAnnual;
+
+    annualPPA.push(Math.round(pAnnual));
+
+    if (lBep === null && lCum > 0) lBep = y;
+    if (cross === null && lCum > pCum) cross = y;
+    la.push(Math.round(lCum));
+    pa.push(Math.round(pCum));
+    labs.push(y + '年');
+  }
+
+  var diff = lCumEco - pCum;
+
+  return {
+    // 累積メリット
+    lCum30:     Math.round(lCumEco),   // リース30年累積（ECO込み）
+    pCum30:     Math.round(pCum),      // PPA30年累積
+    diff30:     Math.round(diff),      // 差額（正=リース有利）
+    // 損益分岐
+    leaseBep:   lBep,                  // リース単体の回収年
+    crossYear:  cross,                 // リースがPPAを上回る年
+    // グラフ用配列
+    leaseArr:   la,
+    ppaArr:     pa,
+    labels:     labs,
+    // 年次データ
+    annualLease,
+    annualPPA,
+    // 内訳合計
+    lSvTotal:   Math.round(lSvT),
+    lSlTotal:   Math.round(lSlT),
+    lCostTotal: Math.round(lCT),
+    lPconTotal: Math.round(lPT),
+    pSvTotal:   Math.round(pSvT),
+    pSlTotal:   Math.round(pSlT),
+    pLossTotal: Math.round(pLT),
+    pPconTotal: Math.round(pPT),
+    pInitCost:  pinit,
+    // プラン情報（表示用）
+    leasePlan:  lp,
+    ppaPlan:    p,
+    ppaCap,
+    lscR:       Math.round(lscR * 100),
+    pscR:       Math.round(pscR * 100),
+  };
+}
+
+
+/* ===== 比較ナビ JS ===== */
+
+/* ================================================================
+   マスタデータ
+================================================================ */
+var UTIL = {
+  kyushu:   {name:'九州電力',   eff:36.73},
+  chugoku:  {name:'中国電力',   eff:41.71},
+  kansai:   {name:'関西電力',   eff:38.93},
+  shikoku:  {name:'四国電力',   eff:43.70},
+  chubu:    {name:'中部電力',   eff:41.38},
+  tepco:    {name:'東京電力EP', eff:46.47},
+  tohoku:   {name:'東北電力',   eff:43.73},
+  hokuriku: {name:'北陸電力',   eff:49.75},
+  hokkaido: {name:'北海道電力', eff:52.91}
+};
+
+/* 新築戸建て・電気ガス併用の統計ベース想定値
+   出典：総務省家計調査2024年 + 戸建て補正+2,069円（日本生協連調査） */
+var STAT_ELEC = {'1人':8500,'2人':13000,'3人':14500,'4人':15000,'5人':16500,'6人以上':19000};
+/* 出典：総務省家計調査2024年（都市ガス・プロパン混在平均） */
+var STAT_GAS  = {'1人':2500,'2人':4000,'3人':5000,'4人':5000,'5人':5500,'6人以上':6500};
+/* 賃貸（集合住宅）の統計平均 = 戸建て統計 - 2,069円
+   autoFill()で「賃貸実額 ÷ 賃貸平均 = 生活スタイル係数」を計算し新築想定値に反映 */
+var STAT_ELEC_RENTAL = {'1人':6431,'2人':10931,'3人':12431,'4人':12931,'5人':14431,'6人以上':16931};
+var STAT_GAS_RENTAL  = {'1人':2000,'2人':3500,'3人':4500,'4人':4500,'5人':5000,'6人以上':6000};
+
+/* 日中在宅による電気使用量・電気代の補正係数
+   出典：環境省「家庭の省エネハンドブック」在宅時間と電気使用量の関係
+   少ない（共働き等）:−10% / 普通:基準 / 多い（終日在宅）:+20% */
+var HOME_ELEC_MULT = {'少ない':0.90, '普通':1.00, '多い':1.20};
+/* 在宅が多いほど月間kWh（消費量）も増える → 自家消費率に連動 */
+var HOME_KWH_MULT  = {'少ない':0.90, '普通':1.00, '多い':1.20};
+
+/* オール電化後の月間kWh（環境省・LIXIL統計ベース）
+   index.htmlと同じ考え方：kWhを直接設定して計算 */
+var FAMILY_KWH = {'1人':380,'2人':520,'3人':600,'4人':700,'5人':800,'6人以上':900};
+var FAMILY_HOT = {'1人':0.50,'2人':0.58,'3人':0.65,'4人':0.70,'5人':0.73,'6人以上':0.75};
+var LEASE = [
+  {cap:6,  monthly:12000, term:10},
+  {cap:8,  monthly:17600, term:10}, /* 2,000円/kW・税別×10%=17,600円/月 */
+  {cap:12, monthly:24000, term:10}
+];
+var LF1=24, LF2=8.3, LF3=7.15;
+
+/* ================================================================
+   比較ナビ → customer.html へのutil変換マップ
+   比較ナビは従量電灯キー、customer.htmlはオール電化プランキーで受け取る
+================================================================ */
+var UTIL_TO_EV = {
+  kyushu:'kyushu_ev', chugoku:'chugoku_ev', kansai:'kansai_ev',
+  shikoku:'shikoku_ev', chubu:'chubu', tepco:'tepco_ev',
+  tohoku:'tohoku', hokuriku:'hokuriku', hokkaido:'hokkaido'
+};
+
+/* ================================================================
+   工務店別設定（URLパラメータ ?client=xxx で切り替え）
+================================================================ */
+var CLIENT_CONFIG = {
+  default: {
+    name: 'MIRAIE',
+    leaseMonthlyPerKw: 2000,
+    buyPricePerKw: 300000,
+    ppaKey: 'smile',
+    ppaCap: 8,
+    ppaName: '建て得スマイル',
+    ppaTerm: 15,
+    ppaPconCost: 400000,
+    webhookUrl: ''
+  },
+  architects: {
+    name: 'アーキテックス',
+    leaseMonthlyPerKw: 2000,
+    buyPricePerKw: 280000,
+    ppaKey: 'smile',
+    ppaCap: 8,
+    ppaName: '建て得スマイル',
+    ppaTerm: 15,
+    ppaPconCost: 400000,
+    webhookUrl: ''
+  }
+};
+
+function getClientConfig() {
+  var params = new URLSearchParams(window.location.search);
+  var key = (params.get('client') || 'default').toLowerCase();
+  return CLIENT_CONFIG[key] || CLIENT_CONFIG['default'];
+}
+
+var R = null;
+var CFG = null;
+
+/* ================================================================
+   ユーティリティ
+================================================================ */
+function $id(x){ return document.getElementById(x); }
+function fy(n){ return '\u00A5' + Math.round(n).toLocaleString('ja-JP'); }
+function fman(n){ return Math.round(Math.abs(n)/10000).toLocaleString('ja-JP'); }
+function fmd(n){ return fman(n) + '\u4E07\u5186'; }
+function goScreen(id){
+  var ss = document.querySelectorAll('.scr');
+  for(var i=0;i<ss.length;i++) ss[i].classList.remove('on');
+  $id(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+function getRadio(gid){
+  var s = document.querySelector('#'+gid+' .rb.on');
+  return s ? s.getAttribute('data-v') : '';
+}
+
+/* ================================================================
+   家族人数・エリア・賃貸実績 → 新築想定値を自動計算して入力
+   【計算式】
+   賃貸実額 ÷ 賃貸統計平均 = 生活スタイル係数
+   新築想定 = 新築統計値 × エリア係数 × 生活スタイル係数
+   ※ 賃貸未入力の場合は統計値をそのまま使用
+================================================================ */
+function autoFill(){
+  var fam  = getRadio('rFamily');
+  var ukey = $id('iUtil').value;
+  if(!fam) return;
+
+  /* エリア補正係数（エリア実効単価 / 全国平均36.73） */
+  var areaRatio = ukey && UTIL[ukey] ? UTIL[ukey].eff / 36.73 : 1.0;
+
+  /* 賃貸の入力値を取得 */
+  var nowEl  = parseFloat($id('iElNow').value) || 0;
+  var nowGas = parseFloat($id('iGasNow').value) || 0;
+
+  /* 生活スタイル係数（賃貸実額 ÷ 全世帯共通の固定平均）
+     家族人数別平均で割ると家族増加の効果が打ち消されるため、
+     全世帯共通の固定平均（電気12,000円・ガス4,500円）を分母に使用。
+     未入力の場合は1.0（補正なし）、極端な値を0.5〜2.0にクランプ */
+  var AVG_RENTAL_ELEC = 12000; /* 全世帯賃貸の電気代平均 */
+  var AVG_RENTAL_GAS  = 4500;  /* 全世帯賃貸のガス代平均 */
+  var elStyleRatio  = nowEl  > 0 ? Math.min(Math.max(nowEl  / AVG_RENTAL_ELEC, 0.5), 2.0) : 1.0;
+  var gasStyleRatio = nowGas > 0 ? Math.min(Math.max(nowGas / AVG_RENTAL_GAS,  0.5), 2.0) : 1.0;
+
+  /* 在宅補正係数 */
+  var home = getRadio('rHome');
+  var homeElecMult = home && HOME_ELEC_MULT[home] ? HOME_ELEC_MULT[home] : 1.0;
+
+  /* 新築想定値 = 統計値 × エリア係数 × 生活スタイル係数 × 在宅補正、500円単位丸め */
+  var elecVal = Math.round((STAT_ELEC[fam] || 14500) * areaRatio * elStyleRatio * homeElecMult / 500) * 500;
+  var gasVal  = Math.round((STAT_GAS[fam]  || 5000)  * gasStyleRatio / 500) * 500;
+
+  var elInput  = $id('iEl');
+  var gasInput = $id('iGas');
+  elInput.value  = elecVal;
+  gasInput.value = gasVal;
+  elInput.classList.add('auto-set');
+  gasInput.classList.add('auto-set');
+
+  /* 説明文の更新 */
+  var uname = ukey && UTIL[ukey] ? UTIL[ukey].name : '';
+  var homeLabel = home ? '(日中在宅:' + home + ')' : '';
+  var styleNote = (nowEl > 0 ? '賣貸実績・在宅時間を反映して補正済み' : '家族人数・エリア・在宅時間の統計平均値') + homeLabel + (uname ? '（' + uname + '）' : '');
+  $id('elStat').textContent  = styleNote;
+  var gasNote = (nowGas > 0 ? '賣貸実績を反映して補正済み' : '家族人数の統計平均値') + homeLabel;
+  $id('gasStat').textContent = gasNote;
+}
+
+/* ================================================================
+   オール電化計算
+================================================================ */
+function doCalc(){
+  var elv  = parseFloat($id('iEl').value);
+  var gasv = parseFloat($id('iGas').value);
+  var ukey = $id('iUtil').value;
+  var fam  = getRadio('rFamily');
+  var home = getRadio('rHome');
+  var elNow  = parseFloat($id('iElNow').value) || 0;
+  var gasNow = parseFloat($id('iGasNow').value) || 0;
+
+  $id('eEl').style.display     = (isNaN(elv)||elv<=0)  ? 'block':'none';
+  $id('eGas').style.display    = (isNaN(gasv)||gasv<0) ? 'block':'none';
+  $id('eUtil').style.display   = !ukey ? 'block':'none';
+  $id('eFamily').style.display = !fam  ? 'block':'none';
+  $id('eHome').style.display   = !home ? 'block':'none';
+  if(isNaN(elv)||elv<=0||isNaN(gasv)||gasv<0||!ukey||!fam||!home) return;
+
+  var util = UTIL[ukey];
+  var hotRatio = FAMILY_HOT[fam] || 0.65;
+  var gasHot   = gasv * hotRatio;
+  var gasCook  = gasv * (1 - hotRatio);
+  var ecoElec  = gasHot * 0.364;
+  var ihElec   = gasCook * 0.55;
+  var combined = elv + gasv;
+  var allElec  = Math.round(elv + ecoElec + ihElec - 600);
+  var nowTotal = elNow + gasNow;
+
+  R = {
+    utilName:util.name, utilKey:ukey, eff:util.eff, fam:fam, home:home,
+    elv:elv, gasv:gasv, hotRatio:hotRatio,
+    ecoElec:ecoElec, ihElec:ihElec,
+    combined:combined, allElec:allElec, diff1:combined-allElec,
+    nowTotal:nowTotal, elNow:elNow, gasNow:gasNow
+  };
+
+  renderResult();
+  goScreen('scrResult');
+}
+
+function renderResult(){
+  var r=R, d=r.diff1;
+
+  /* 現在の賃貸との比較 */
+  if(r.nowTotal > 0){
+    $id('nowCompare').style.display = '';
+    $id('nowTotal').textContent = fy(r.nowTotal);
+    var diff = r.combined - r.nowTotal;
+    $id('nowComment').textContent =
+      '\u65B0\u7BC9\u6238\u5EFA\u3066\uFF08\u96FB\u6C17\u30AC\u30B9\u4F75\u7528\uFF09\u306F ' + fy(r.combined) + '/\u6708\u306E\u60F3\u5B9A\u3067\u3059\u3002' +
+      (diff > 0
+        ? '\u623F\u304C\u5E83\u304F\u306A\u308B\u5206\u3001\u5149\u71B1\u8CBB\u304C\u6708 ' + Math.round(diff).toLocaleString('ja-JP') + '\u5186\u4E0A\u304C\u308B\u898B\u8FBC\u307F\u3067\u3059\u3002\u30B3\u30B9\u30C8\u5BFE\u7B56\u304C\u91CD\u8981\u306B\u306A\u308A\u307E\u3059\u3002'
+        : '\u73FE\u5728\u3068\u5B9A\u6E96\u306E\u5149\u71B1\u8CBB\u306F\u3068\u3093\u3069\u5909\u308F\u3089\u306A\u3044\u3067\u3059\u3002');
+  } else {
+    $id('nowCompare').style.display = 'none';
+  }
+
+  $id('heroNum').textContent = (d>=0 ? '-' : '+') + Math.abs(Math.round(d)).toLocaleString('ja-JP');
+  if(d>=0){
+    $id('heroSub').textContent  = '\u65B0\u7BC9\u30FB\u96FB\u6C17\u30AC\u30B9\u4F75\u7528 '+fy(r.combined)+'/\u6708 \u2192 \u65B0\u7BC9\u30FB\u30AA\u30FC\u30EB\u96FB\u5316 '+fy(r.allElec)+'/\u6708';
+    $id('heroBadge').textContent = '\u5E74\u9593 '+fmd(d*12)+' \u306E\u7BC0\u7D04\u304C\u898B\u8FBC\u3081\u307E\u3059';
+  } else {
+    $id('heroSub').textContent  = '\u4ECA\u306E\u5165\u529B\u5024\u3067\u306F\u5DEE\u306F\u5C0F\u3055\u3081\u3067\u3059\u3002\u5BB6\u8A08\u7BA1\u7406\u306E\u4E00\u672C\u5316\u30FB\u592A\u967D\u5149\u3068\u306E\u76F8\u6027\u306F\u5909\u308F\u3089\u305A\u25CE';
+    $id('heroBadge').textContent = '\u8A73\u7D30\u306F\u500B\u5225\u30B7\u30DF\u30E5\u30EC\u30FC\u30B7\u30E7\u30F3\u3067';
+  }
+  $id('tcG').textContent = Math.round(r.combined).toLocaleString('ja-JP');
+  $id('tcE').textContent = Math.round(r.allElec).toLocaleString('ja-JP');
+
+  renderBar('barM',[
+    {lbl:'\u96FB\u6C17\u30AC\u30B9\u4F75\u7528', val:r.combined, color:'#9CA3AF'},
+    {lbl:'\u30AA\u30FC\u30EB\u96FB\u5316',       val:r.allElec,  color:'#1A5EA8'}
+  ]);
+
+  var tbody=$id('bdBody'); tbody.innerHTML='';
+  var rows=[
+    ['\u96FB\u6C17\u4EE3', fy(r.elv), fy(r.elv)],
+    ['\u30AC\u30B9\u4EE3\uFF08\u7D66\u6E6F\u30FB'+Math.round(r.hotRatio*100)+'%\uFF09', fy(Math.round(r.gasv*r.hotRatio)), '\u30A8\u30B3\u30AD\u30E5\u30FC\u30C8 '+fy(Math.round(r.ecoElec))],
+    ['\u30AC\u30B9\u4EE3\uFF08\u8ABF\u7406\u30FB'+Math.round((1-r.hotRatio)*100)+'%\uFF09', fy(Math.round(r.gasv*(1-r.hotRatio))), 'IH\u96FB\u6C17\u4EE3 '+fy(Math.round(r.ihElec))],
+    ['\u30AC\u30B9\u57FA\u672C\u6599\u91D1', '\u542B\u3080', '\u4E0D\u8981\uFF08-\u00A5600\uFF09'],
+    ['\u5408\u8A08', fy(r.combined), fy(r.allElec)]
+  ];
+  for(var i=0;i<rows.length;i++){
+    var tr=document.createElement('tr');
+    for(var c=0;c<3;c++){
+      var td=document.createElement('td'); td.textContent=rows[i][c];
+      if(c>0) td.className='td-r';
+      if(i===rows.length-1){ if(c===1) td.style.color='#6B7280'; if(c===2) td.style.color='#1A5EA8'; }
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+}
+
+/* ================================================================
+   太陽光計算（index.html / calc.js完全準拠）
+================================================================ */
+function doSolar(){
+  var r=R; if(!r) return;
+
+  var monthlyKwh = Math.round((FAMILY_KWH[r.fam]||600) * (HOME_KWH_MULT[r.home]||1.0));
+  var CAP=8, AGEN=CAP*1000;
+  var rawSC = (monthlyKwh*(1/3)) / (AGEN/12);
+  var scR   = Math.max(Math.min(rawSC, 0.85), 0.25);
+  var monthlyBillBase = monthlyKwh * r.eff;
+  var INC=0.02, DR=0.005;
+
+  /* 購入初期費用（税込） */
+  var initCostTax = Math.round(CAP * CFG.buyPricePerKw * 1.10);
+  /* リース 8kW固定 */
+  var lp = LEASE[1];
+  /* PPA */
+  var ppaTerm  = CFG.ppaTerm    || 15;
+  var ppaPcon  = CFG.ppaPconCost || 400000;
+
+  var noS=0, buyS=initCostTax, leaseS=0, ppaS=0;
+  var cumBuy=-initCostTax, cumLease=0, ppaMerit=0;
+  var buyBep=null, leaseBep=null, ppaBep=null;
+
+  for(var y=1;y<=30;y++){
+    var pm   = Math.pow(1+INC,y-1);
+    var eu   = r.eff*pm;
+    var genY = AGEN*Math.pow(1-DR,y-1);
+    var svY  = genY*scR*eu;
+    var fitBuy   = y<=4?LF1:LF3;
+    var fitLease = y<=4?LF1:y<=lp.term?LF2:LF3;
+    var fitPpa   = y>ppaTerm ? LF3 : 0;
+    var slBuy    = genY*(1-scR)*fitBuy;
+    var slLease  = genY*(1-scR)*fitLease;
+    var slPpa    = genY*(1-scR)*fitPpa;
+    var lcY      = y<=lp.term ? lp.monthly*12 : 0;
+    var pcBuy    = (y===15||y===30) ? 200000 : 0;
+    var pcLease  = (y===15||y===30) ? 200000 : 0;
+    var pcPpa    = (y===15||y===30) ? ppaPcon : 0;
+    var base     = monthlyBillBase*12*pm;
+
+    noS    += base;
+    buyS   += base-(svY+slBuy-pcBuy);
+    leaseS += base-(svY+slLease-lcY-pcLease);
+    ppaS   += base-(svY+slPpa-pcPpa);
+
+    cumBuy   += svY+slBuy-pcBuy;
+    cumLease += svY+slLease-lcY-pcLease;
+    ppaMerit += svY+slPpa-pcPpa;
+    if(buyBep===null   && cumBuy>0)   buyBep=y;
+    if(leaseBep===null && cumLease>0) leaseBep=y;
+    if(ppaBep===null   && ppaMerit>0) ppaBep=y;
+  }
+
+  var genM  = AGEN/12;
+  var saveM = Math.round(genM*scR*r.eff);
+  var sellM = Math.round(genM*(1-scR)*LF1);
+
+  R.solar = {
+    cap:CAP, monthlyKwh:monthlyKwh, scR:scR, scPct:Math.round(scR*100),
+    saveM:saveM, sellM:sellM, noS30:Math.round(noS),
+    buy:   {initCost:initCostTax, netM:r.allElec-saveM-sellM, cum30:Math.round(buyS), merit30:Math.round(noS-buyS), bep:buyBep},
+    lease: {monthly:lp.monthly, term:lp.term, netM:r.allElec-saveM-sellM+lp.monthly, cum30:Math.round(leaseS), merit30:Math.round(noS-leaseS), bep:leaseBep},
+    ppa:   {name:CFG.ppaName||'建て得', term:ppaTerm, netM:r.allElec, cum30:Math.round(ppaS), merit30:Math.round(noS-ppaS), bep:ppaBep}
+  };
+
+  renderSolar();
+  goScreen('scrSolar');
+}
+
+function renderSolar(){
+  var r=R, s=R.solar;
+  var fy2=fy, fmd2=fmd;
+
+  /* リース */
+  var ls=s.lease;
+  document.getElementById('leaseHeroNum').textContent   = fman(ls.merit30);
+  document.getElementById('leaseHeroBadge').textContent = ls.bep ? 'メリットがリース費用を上回るのは'+ls.bep+'年目から' : '詳細は個別試算で';
+  document.getElementById('lsL1').textContent = fy(r.allElec);
+  document.getElementById('lsL2').textContent = '-'+fy(s.saveM)+'（自家消費率'+s.scPct+'%）';
+  document.getElementById('lsL3').textContent = '-'+fy(s.sellM);
+  document.getElementById('lsL4').textContent = '+'+fy(ls.monthly)+'/月';
+  document.getElementById('lsL5').textContent = fy(ls.netM);
+
+  /* 購入 */
+  var bu=s.buy;
+  document.getElementById('buyHeroNum').textContent   = fman(bu.merit30);
+  document.getElementById('buyHeroBadge').textContent = bu.bep ? '初期費用回収は'+bu.bep+'年目' : '詳細は個別試算で';
+  document.getElementById('buyCost').textContent = fy(bu.initCost)+'（'+Math.round(bu.initCost/10000)+'万円）';
+  document.getElementById('buyL2').textContent   = '-'+fy(s.saveM);
+  document.getElementById('buyL3').textContent   = '-'+fy(s.sellM);
+  document.getElementById('buyL5').textContent   = '+'+fy(s.saveM+s.sellM)+'/月';
+
+  /* PPA */
+  var pp=s.ppa;
+  document.getElementById('ppaHeroNum').textContent   = fman(pp.merit30);
+  document.getElementById('ppaHeroBadge').textContent = pp.bep ? pp.bep+'年目からメリットが発生' : '詳細は個別試算で';
+  document.getElementById('ppaTerm').textContent = pp.term+'年';
+  document.getElementById('ppaL5').textContent   = fy(r.allElec);
+
+  /* 3方式バーグラフ */
+  renderBar('barS30',[
+    {lbl:'太陽光なし',  val:s.noS30,     color:'#9CA3AF'},
+    {lbl:'購入',                    val:bu.cum30,    color:'#374151'},
+    {lbl:'リース',              val:ls.cum30,    color:'#D97706'},
+    {lbl:'建て得（PPA）',val:pp.cum30,  color:'#15803D'}
+  ]);
+
+  /* メッセージ */
+  var best = bu.merit30 >= ls.merit30 && bu.merit30 >= pp.merit30 ? '購入' :
+             ls.merit30 >= pp.merit30 ? 'リース' : '建て得';
+  document.getElementById('sLongT').textContent = '30年間の経済効果：購入 '+fmd(bu.merit30)+' / リース '+fmd(ls.merit30)+' / 建て得 '+fmd(pp.merit30);
+  document.getElementById('sLongB').textContent = '初期費用の有無やリスク許容度によって最適な方式は異なります。詳細は屋根・図面をもとに個別シミュレーションでご確認ください。';
+}
+
+function switchTab(tab){
+  ['lease','buy','ppa'].forEach(function(t){
+    var btn=document.getElementById('tab-'+t);
+    var panel=document.getElementById('panel-'+t);
+    if(btn)   btn.classList.toggle('active', t===tab);
+    if(panel) panel.style.display = t===tab ? '' : 'none';
+  });
+}
+
+
+function renderBar(id,rows){
+  var wrap=$id(id); wrap.innerHTML='';
+  var max=0;
+  for(var i=0;i<rows.length;i++) if(rows[i].val>max) max=rows[i].val;
+  for(var j=0;j<rows.length;j++){
+    var d=rows[j];
+    var pct=max>0?Math.min(100,Math.round(d.val/max*100)):0;
+    var row=document.createElement('div'); row.className='bar-row';
+    var lbl=document.createElement('div'); lbl.className='bar-lbl'; lbl.textContent=d.lbl;
+    var track=document.createElement('div'); track.className='bar-track';
+    var fill=document.createElement('div'); fill.className='bar-fill';
+    fill.style.width=pct+'%'; fill.style.background=d.color;
+    var v=document.createElement('span'); v.className='bar-val';
+    v.textContent=d.val>9999999?fmd(d.val):fy(d.val);
+    fill.appendChild(v); track.appendChild(fill);
+    row.appendChild(lbl); row.appendChild(track);
+    wrap.appendChild(row);
+  }
+}
+
+/* ================================================================
+   依頼フォーム
+================================================================ */
+function showForm(){
+  if(!R||!R.solar) return;
+  var s=$id('inheritSummary');
+  s.textContent =
+    '電気代 '+fy(R.elv)+'/月'+
+    '　ガス代 '+fy(R.gasv)+'/月'+
+    '　家族 '+R.fam+
+    '　エリア '+R.utilName+
+    '　／　オール電化で月 '+fy(Math.max(0,R.diff1))+' 節約'+
+    '　／　太陽光'+R.solar.cap+'kWで030年 '+fmd(R.solar.merit30)+' 経済効果';
+
+  /* customer.htmlへのURL生成 */
+  var utilEv = UTIL_TO_EV[R.utilKey] || (R.utilKey+'_ev');
+  var params = new URLSearchParams({
+    kwh:     R.solar.monthlyKwh,
+    util:    utilEv,
+    ppa:     CFG.ppaKey || 'smile',
+    cap:     R.solar.cap,
+    lease:   '8',
+    elBill:  R.elv,
+    gasBill: R.gasv,
+    fam:     R.fam,
+    from:    'navi'
+  });
+  var btnLink = $id('btnToCustomer');
+  if(btnLink){
+    btnLink.href = 'customer.html?' + params.toString();
+    btnLink.style.display = '';
+  }
+  goScreen('scrForm');
+}
+
+function submitReq(){
+  var name=($id('rqName').value||'').trim();
+  var loc=($id('rqLoc').value||'').trim();
+  var builder=($id('rqBuilder').value||'').trim();
+  var staff=($id('rqStaff').value||'').trim();
+  $id('erqName').style.display    = !name?'block':'none';
+  $id('erqLoc').style.display     = !loc?'block':'none';
+  $id('erqBuilder').style.display = !builder?'block':'none';
+  $id('erqStaff').style.display   = !staff?'block':'none';
+  if(!name||!loc||!builder||!staff){ $id('erqGen').style.display='block'; return; }
+  $id('erqGen').style.display='none';
+  var GAS_URL=window.GAS_WEBHOOK_URL||'';
+  if(GAS_URL&&R){
+    var payload=JSON.stringify({
+      createdAt:new Date().toISOString(),
+      customerName:name, tel:$id('rqTel').value, email:$id('rqEmail').value,
+      buildingLocation:loc, builderName:builder, salesPersonName:staff,
+      note:$id('rqNote').value,
+      family:R.fam, home:R.home, utilName:R.utilName,
+      elBill:R.elv, gasBill:R.gasv,
+      combined:R.combined, allElec:R.allElec,
+      solarCap:R.solar?R.solar.cap:null,
+      solarNetM:R.solar?R.solar.netM:null,
+      merit30:R.solar?R.solar.merit30:null
+    });
+    try{ fetch(GAS_URL,{method:'POST',body:payload}); }catch(e){}
+  }
+  goScreen('scrDone');
+}
+
+/* ================================================================
+   初期化
+================================================================ */
+function initRadios(gid){
+  var btns=document.querySelectorAll('#'+gid+' .rb');
+  for(var i=0;i<btns.length;i++){
+    (function(btn){
+      btn.addEventListener('click',function(){
+        for(var k=0;k<btns.length;k++) btns[k].classList.remove('on');
+        btn.classList.add('on');
+        autoFill();
+      });
+    })(btns[i]);
+  }
+}
+
+function initAll(){
+  CFG = getClientConfig();
+  initRadios('rFamily');
+  initRadios('rHome');
+  /* 在宅選択変更時にも新築想定値を再計算 */
+  document.querySelectorAll('#rHome .rb').forEach(function(btn){
+    btn.addEventListener('click', function(){ setTimeout(autoFill, 0); });
+  });
+  $id('btnCalc').addEventListener('click', doCalc);
+  $id('btnBack').addEventListener('click', function(){ goScreen('scrInput'); });
+  $id('btnSolar').addEventListener('click', doSolar);
+  $id('btnBackR').addEventListener('click', function(){ goScreen('scrResult'); });
+  $id('btnReq').addEventListener('click', showForm);
+  $id('btnBack2').addEventListener('click', function(){ goScreen('scrSolar'); });
+  $id('btnSubmit').addEventListener('click', submitReq);
+  $id('btnTop').addEventListener('click', function(){ goScreen('scrInput'); });
+
+  /* エリア変更でも自動入力を更新 */
+  $id('iUtil').addEventListener('change', function(){
+    autoFill();
+    var key=$id('iUtil').value;
+    var hint=$id('utilHint');
+    if(hint){
+      if(key&&UTIL[key]){
+        hint.textContent='\u5B9F\u52B9\u5358\u4FA1 \u7D04'+UTIL[key].eff.toFixed(1)+' \u5186/kWh\uFF08'+UTIL[key].name+'\uFF09';
+        hint.style.display='block';
+      } else hint.style.display='none';
+    }
+  });
+
+  /* 賃貸入力が変わったら新築想定を再計算 */
+  [$id('iElNow'),$id('iGasNow')].forEach(function(inp){
+    inp.addEventListener('input', autoFill);
+  });
+
+  /* 手動入力時はauto-setを外す */
+  [$id('iEl'),$id('iGas')].forEach(function(inp){
+    inp.addEventListener('input',function(){ inp.classList.remove('auto-set'); });
+  });
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initAll);
+} else {
+  initAll();
+}
+
+/* ================================================================
+   比較ナビ → 詳細シミュレーション (customer部分) への遷移
+================================================================ */
+function goToCustomer() {
+  var r = R, s = R && R.solar;
+  if (!r || !s) return;
+
+  /* customer部分のstateに比較ナビの値を引き継ぐ */
+  var utilEv = UTIL_TO_EV[r.utilKey] || (r.utilKey + '_ev');
+  state.utilKey    = utilEv;
+  state.monthlyKwh = s.monthlyKwh;
+  state.leaseKey   = '8';
+  state.ppaKey     = CFG.ppaKey || 'smile';
+  state.ppaCap     = Math.max((window.PPA_PLANS && PPA_PLANS[state.ppaKey] ? PPA_PLANS[state.ppaKey].minCap : 4.5), 9);
+  state.cstep      = 1;
+  state.fromNavi   = true;
+  state.naviData   = {
+    elBill:  r.elv,  gasBill: r.gasv, fam: r.fam,
+    diff1: r.diff1, merit30: s.lease.merit30
+  };
+
+  /* customer部分の初期表示を更新 */
+  var kwhEl = document.getElementById('monthlyKwh');
+  if (kwhEl) { kwhEl.value = s.monthlyKwh; onKwhInput(); }
+
+  buildUtilSelect();
+  setTimeout(function() {
+    var sel = document.getElementById('utilSelect');
+    if (sel) { sel.value = state.utilKey; onUtilChange(); }
+    cUpdateNavButtons();
+    cUpdateProgress();
+  }, 0);
+
+  /* 引き継ぎバナーを設定 */
+  var banner = document.getElementById('naviHandoffBanner');
+  if (banner && r) {
+    banner.innerHTML =
+      '<strong>✅ 比較ナビから引き継ぎました<\/strong><br>' +
+      '月間使用量: ' + s.monthlyKwh + ' kWh　' +
+      '電力会社: ' + r.utilName + '　' +
+      'オール電化で月 ' + (r.diff1>=0?'-':'+') + Math.abs(Math.round(r.diff1)).toLocaleString() + '円節約';
+    banner.style.display = '';
+  }
+
+  /* customer部分の画面に切り替え */
+  goScreen('scrCustomer');
+}
+
+
+/* ===== 詳細シミュレーション JS (customer.html) ===== */
+
+
+
+/* ===== 状態 ===== */
+const state = {
+  cstep: 1,
+  monthlyKwh: 600,
+  utilKey: 'chugoku_ev',
+  leaseKey: '8',
+  ppaKey: 'smile',
+  ppaCap: 9,
+  hasEco: false,
+  ecoMode: 'ohisama',
+  ecoKwh: 1200,
+  calcResult: null,
+};
+
+/* ===== 初期化 ===== */
+window.addEventListener('DOMContentLoaded', () => {
+  buildUtilSelect();
+  updatePpaCapCard();
+  cUpdateNavButtons();
+});
+
+/* ===== 電力会社セレクト構築 ===== */
+function buildUtilSelect() {
+  const sel = document.getElementById('utilSelect');
+
+  // オール電化プランを先頭グループに
+  const evKeys    = Object.entries(UTIL_DATA).filter(([k,v]) => k.endsWith('_ev')).sort((a,b)=>a[1].priority-b[1].priority);
+  const stdKeys   = Object.entries(UTIL_DATA).filter(([k,v]) => !k.endsWith('_ev') && k!=='manual').sort((a,b)=>a[1].priority-b[1].priority);
+  const manualKey = [['manual', UTIL_DATA.manual]];
+
+  const grpEv  = document.createElement('optgroup');
+  grpEv.label  = '⚡ オール電化プラン（推奨）';
+  evKeys.forEach(([k,d]) => {
+    const o = document.createElement('option');
+    o.value = k;
+    // 電力会社名のみ簡潔に
+    o.textContent = d.name.replace(' / ', '／');
+    grpEv.appendChild(o);
+  });
+
+  const grpStd  = document.createElement('optgroup');
+  grpStd.label  = '📋 従量電灯プラン';
+  stdKeys.forEach(([k,d]) => {
+    const o = document.createElement('option');
+    o.value = k;
+    o.textContent = d.name.replace(' / ', '／');
+    grpStd.appendChild(o);
+  });
+
+  const grpOther  = document.createElement('optgroup');
+  grpOther.label  = 'その他';
+  manualKey.forEach(([k,d]) => {
+    const o = document.createElement('option'); o.value = k; o.textContent = d.name;
+    grpOther.appendChild(o);
+  });
+
+  sel.appendChild(grpEv);
+  sel.appendChild(grpStd);
+  sel.appendChild(grpOther);
+
+  sel.value = state.utilKey;
+  showUtilHint(state.utilKey);
+}
+
+function onUtilChange() {
+  state.utilKey = document.getElementById('utilSelect').value;
+  showUtilHint(state.utilKey);
+}
+
+function showUtilHint(key) {
+  const hint = document.getElementById('utilHint');
+  if (!key || key === 'manual') { hint.style.display = 'none'; return; }
+  const d = UTIL_DATA[key];
+  if (!d) { hint.style.display = 'none'; return; }
+  const eff = d.unit + d.fuel + d.ren;
+  hint.textContent = `実効単価 ${eff.toFixed(2)} 円/kWh（単価 ${d.unit} ＋ 燃調 ${d.fuel} ＋ 再エネ ${d.ren}）`;
+  hint.style.display = '';
+}
+
+/* ===== STEP1 ===== */
+function onKwhInput() {
+  const kwh = parseFloat(document.getElementById('monthlyKwh').value) || 0;
+  state.monthlyKwh = kwh;
+  const warn = document.getElementById('kwhWarning');
+  if (kwh < 300) {
+    warn.textContent = '⚠️ 300kWh未満は一般的なオール電化世帯より低い使用量です。入力値をご確認ください。';
+    warn.style.display = '';
+  } else if (kwh < 500) {
+    warn.textContent = 'ℹ️ 500kWh未満：2人世帯や省エネ設備充実の場合は適正なこともあります。';
+    warn.style.display = '';
+    warn.style.color = '#92400E';
+  } else {
+    warn.style.display = 'none';
+  }
+}
+
+function toggleKwhGuide() {
+  document.getElementById('kwhGuide').classList.toggle('open');
+}
+
+/* ===== STEP2 ===== */
+function selectLease(key, el) {
+  state.leaseKey = key;
+  el.closest('.sel-group').querySelectorAll('.sel-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  updatePpaCapCard();
+}
+
+function switchPpaTab(tab, el) {
+  document.querySelectorAll('.ppa-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ppa-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function selectPpa(key, el) {
+  state.ppaKey = key;
+  document.querySelectorAll('.ppa-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  updatePpaCapCard();
+  // まとめページのPPA名も更新
+  const ppaName = PPA_PLANS[key]?.name || 'PPA';
+  ['nudgePpaLabel1','nudgePpaLabel2','nudgePpaLabel3','ecoNudgePpaName'].forEach(id => {
+    const el2 = document.getElementById(id);
+    if (el2) el2.textContent = ppaName;
+  });
+}
+
+function updatePpaCapCard() {
+  const p = PPA_PLANS[state.ppaKey];
+  if (!p) return;
+  const card  = document.getElementById('ppaCapCard');
+  const hint  = document.getElementById('ppaCapHint');
+  const input = document.getElementById('ppaCap');
+  card.style.display = '';
+  // 初回選択時はデフォルト9kWをセット（minCapより9kWが大きければ9kW）
+  const defaultCap = Math.max(p.minCap, 9);
+  if (!input._initialized || parseFloat(input.value) < p.minCap) {
+    input.value = defaultCap;
+    state.ppaCap = defaultCap;
+    input._initialized = true;
+  }
+  input.min = p.minCap;
+  hint.textContent = `${p.capLbl}が必要です（現在 ${input.value} kW）`;
+}
+
+function onPpaCapChange() {
+  state.ppaCap = parseFloat(document.getElementById('ppaCap').value) || 9;
+  updatePpaCapCard();
+}
+
+/* ===== STEP3 ===== */
+function onHasEcoChange() {
+  state.hasEco = document.getElementById('hasEco').checked;
+  document.getElementById('ecoDetail').style.display = state.hasEco ? '' : 'none';
+  if (!state.hasEco) state.ecoMode = 'none';
+  else state.ecoMode = 'ohisama';
+}
+
+function selectEcoMode(mode, el) {
+  state.ecoMode = mode;
+  // ecoModeGroupの中のボタンだけ対象にする（kWhグループに影響しない）
+  document.getElementById('ecoModeGroup').querySelectorAll('.sel-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  const hint = document.getElementById('ecoModeHint');
+  hint.textContent = mode === 'ohisama'
+    ? 'おひさまエコキュートは昼間の太陽光で優先的に沸き上げ。電気代の節約効果が特に高くなります。'
+    : 'ソーラーモードは余剰電力で沸き上げ。おひさまECOより節約効果はやや小さめです。';
+}
+
+function selectEcoKwh(kwh, el) {
+  state.ecoKwh = kwh;
+  // ecoKwhGroupの中のボタンだけ対象にする（ecoModeGroupに影響しない）
+  document.getElementById('ecoKwhGroup').querySelectorAll('.sel-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+/* ===== STEP4: 計算・表示 ===== */
+function runCalc() {
+  const eff = getEffUnit();
+  if (!eff) return;
+  const ppaCap = state.ppaCap || LEASE_PLANS[state.leaseKey]?.cap || 8;
+  const result = calcMain({
+    effUnit:     eff,
+    monthlyKwh:  state.monthlyKwh,
+    leaseKey:    state.leaseKey,
+    ppaKey:      state.ppaKey,
+    ppaCap:      ppaCap,
+    ecoMode:     state.hasEco ? state.ecoMode : 'none',
+    ecoKwh:      state.ecoKwh,
+    ppaEcoOption:false,
+    incRate:     2,
+  });
+  state.calcResult = result;
+  cRenderResult(result, eff);
+}
+
+function getEffUnit() {
+  return getEffUnitByKey(state.utilKey);
+}
+
+// ===== 支出累積計算の共通関数（エコキュート対応）=====
+function calcSpend30(r, effUnit, ecoParams) {
+  // ecoParams: { ecoMode, ecoKwh } をrunCalcから受け取る（state依存を排除）
+  const _ecoMode = ecoParams?.ecoMode || 'none';
+  const _ecoKwh  = ecoParams?.ecoKwh  || 0;
+  const lscR = calcAutoSC(r.leasePlan.cap > 0 ? state.monthlyKwh : 600, r.leasePlan.cap);
+  const pscR = calcAutoSC(r.ppaCap > 0 ? state.monthlyKwh : 600, r.ppaCap);
+  // エコキュート設定
+  const ecoOn      = _ecoMode !== 'none';
+  const ECO_SHIFT_RATES = { none:0.00, solar:0.40, ohisama:0.70 };
+  const shiftR     = ecoOn ? (ECO_SHIFT_RATES[_ecoMode] || 0) : 0;
+  const shiftedKwh = _ecoKwh * shiftR;
+
+  let nsCum=0, lsCum=0, ppaCum=0;
+  const nsArr=[], lsArr=[], ppArr=[];
+
+  for (let y = 1; y <= 30; y++) {
+    const pm   = Math.pow(1.02, y - 1);
+    const eu   = effUnit * pm;
+    const gen  = r.leasePlan.cap * 1000 * Math.pow(0.995, y - 1);
+    const pGen = r.ppaCap        * 1000 * Math.pow(0.995, y - 1);
+
+    // 太陽光なし
+    nsCum += state.monthlyKwh * eu * 12;
+    // PPA：初期費用を1年目に支出計上
+    if (y === 1) ppaCum += r.pInitCost;
+
+    // リース：エコシフト計算
+    const lsu_check = y<=4 ? 24 : y<=r.leasePlan.term ? 8.3 : 7.15;
+    const ecoShiftEff = ecoOn && (lsu_check < eu);
+    const shiftRatio  = (gen > 0 && ecoShiftEff) ? Math.min(shiftedKwh / gen, 1 - lscR) : 0;
+    const lscREco     = lscR + shiftRatio;
+    const lSv  = gen * lscREco * eu;
+    const lSl  = gen * (1 - lscREco) * lsu_check;
+    const lC   = y <= r.leasePlan.term ? r.leasePlan.monthly * 12 : 0;
+    const lP   = (y===15||y===30) ? 200000 : 0;
+    lsCum += state.monthlyKwh * eu * 12 - lSv - lSl + lC + lP;
+
+    // PPA
+    const pPcon = (r.ppaPlan.pconCost ?? 400000);
+    const pP    = ((y===15||y===30) && pPcon > 0) ? pPcon : 0;
+    // 建て得：契約期間後の売電収入（期間終了後に設備譲渡）
+    const pSl   = y > r.ppaPlan.term ? pGen * (1 - pscR) * (r.ppaPlan.pf3 || 7.15) : 0;
+    let ppaNet  = 0;
+    if (r.ppaPlan.type === 'metered') {
+      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * (eu - (r.ppaPlan.selfUnitPrice||24)) - pSl + pP;
+    } else if (r.ppaPlan.type === 'monthly') {
+      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * eu - pSl + (r.ppaPlan.monthlyFee||0)*12 + pP;
+    } else {
+      // zero型（建て得など）：期間後は売電収入が支出を減らす
+      ppaNet = state.monthlyKwh * eu * 12 - pGen * pscR * eu - pSl + pP;
+    }
+    ppaCum += ppaNet;
+
+    nsArr.push(Math.round(nsCum));
+    lsArr.push(Math.round(lsCum));
+    ppArr.push(Math.round(ppaCum));
+  }
+  return { nsArr, lsArr, ppArr, nsCum, lsCum, ppaCum, pInitCost: r.pInitCost };
+}
+
+function cRenderResult(r, effUnit) {
+  const sp = calcSpend30(r, effUnit, { ecoMode: state.hasEco ? state.ecoMode : 'none', ecoKwh: state.ecoKwh });
+  const { nsCum: nsCum30, lsCum: lsCum30, ppaCum: ppaCum30 } = sp;
+  // 節約額（対 太陽光なし）
+  const lSaving  = nsCum30 - lsCum30;
+  const pSaving  = nsCum30 - ppaCum30;
+  const leaseWins = lSaving >= pSaving;
+  const lSavMan  = (lSaving / 10000).toFixed(1);
+  const pSavMan  = (pSaving / 10000).toFixed(1);
+  const dMan     = Math.abs((lSaving - pSaving) / 10000).toFixed(1);
+
+  // ヒーロー
+  document.getElementById('resLeaseCum').textContent = lSavMan;
+  const heroSub = leaseWins
+    ? `${r.ppaPlan.name}と比較しても 約${dMan}万円 多く節約（30年累積）`
+    : `${r.ppaPlan.name}と比較すると 約${dMan}万円 少ない節約（30年累積）`;
+  document.getElementById('resHeroSub').textContent = heroSub;
+
+  // 比較カード
+  document.getElementById('resLeaseCard').classList.toggle('winner', leaseWins);
+  document.getElementById('resPpaCard').classList.toggle('winner', !leaseWins);
+  document.getElementById('resLeaseBadge').style.display = leaseWins ? '' : 'none';
+  document.getElementById('resLeaseName').textContent = `SBIリース ${r.leasePlan.cap}kW`;
+  document.getElementById('resLeaseVal').textContent  = lSavMan + '万円';
+  document.getElementById('resPpaLabel').textContent  = r.ppaPlan.name;
+  document.getElementById('resPpaName').textContent   = `${r.ppaPlan.name} ${r.ppaCap}kW`;
+  document.getElementById('resPpaVal').textContent    = pSavMan + '万円';
+
+  renderChart(r);
+
+  // 内訳
+  document.getElementById('brkPpaHeader').textContent = r.ppaPlan.name;
+  const fmt    = n => (n >= 0 ? '+' : '') + (n / 10000).toFixed(1) + '万円';
+  const fmtAbs = n => Math.abs(n / 10000).toFixed(1) + '万円';
+  const rows = [
+    ['電気代節約（30年）',      fmt(r.lSvTotal),    fmt(r.pSvTotal)],
+    ['売電収入（30年）',
+      `<span style="font-size:10px;color:#B91C1C;display:block;margin-bottom:2px">1年目〜30年目<\/span>${fmt(r.lSlTotal)}`,
+      `<span style="font-size:10px;color:#B91C1C;display:block;margin-bottom:2px">16年目〜30年目<\/span>${fmt(r.pSlTotal)}<br><span style="font-size:10px;color:var(--gray-500)">${r.pLossTotal ? '※1〜15年目の' + fmtAbs(r.pLossTotal) + 'は' + (r.ppaPlan?.provider==="lixil" ? "LIXIL" : "PPA事業者") + '側へ' : ''}<\/span>`
+    ],
+    ['リース料（30年） / 契約期間中の売電損失',fmt(-r.lCostTotal), r.pLossTotal ? fmt(-r.pLossTotal) : '—'],
+    ['パワコン交換費用',         fmt(-r.lPconTotal), fmt(-r.pPconTotal)],
+    ['初期費用',                '0円',              r.pInitCost ? fmt(-r.pInitCost) : '0円'],
+    ['<strong>30年累積合計<\/strong>',
+      `<strong class="val-blue">${fmt(r.lCum30)}<\/strong>`,
+      `<strong class="val-orange">${fmt(r.pCum30)}<\/strong>`],
+  ];
+  document.getElementById('breakdownBody').innerHTML = rows.map(([l,a,b]) =>
+    `<tr><td>${l}<\/td><td style="text-align:right">${a}<\/td><td style="text-align:right">${b}<\/td><\/tr>`
+  ).join('');
+
+  // 試算条件
+  document.getElementById('calcCondition').innerHTML =
+    `電力会社：${UTIL_DATA[state.utilKey]?.name || '—'}<br>` +
+    `実効単価：${effUnit.toFixed(2)}円/kWh　月間使用量：${state.monthlyKwh} kWh<br>` +
+    `SBIリース：${r.leasePlan.cap}kW・月額${r.leasePlan.monthly.toLocaleString()}円（税抜）・10年<br>` +
+    `${r.ppaPlan.name}：${r.ppaCap}kW・初期費用${(r.pInitCost/10000).toFixed(1)}万円・${r.ppaPlan.term}年<br>` +
+    `エコキュート：${state.hasEco
+      ? (state.ecoMode === 'ohisama' ? 'おひさまECO' : 'ソーラーモード') + `（年${state.ecoKwh}kWh）`
+      : 'なし'}　電気代上昇率：年2%（固定）`;
+}
+
+let chartInst = null;
+function renderChart(r) {
+  const ctx = document.getElementById('resultChart').getContext('2d');
+  if (chartInst) chartInst.destroy();
+
+  // calcSpend30()で計算（エコキュート対応・renderResultと完全統一）
+  const eff = getEffUnit();
+  const sp = calcSpend30(r, eff, { ecoMode: state.hasEco ? state.ecoMode : 'none', ecoKwh: state.ecoKwh });
+  const noSolarSpendArr = sp.nsArr;
+  const leaseSpendArr   = sp.lsArr;
+  const ppaSpendArr     = sp.ppArr;
+
+  // 30年終点ラベル用プラグイン
+  const endLabelPlugin = {
+    id: 'endLabels',
+    afterDatasetsDraw(chart) {
+      const { ctx, scales: { x, y } } = chart;
+      chart.data.datasets.forEach((ds, i) => {
+        const last = ds.data[ds.data.length - 1];
+        if (last == null) return;
+        const xPos = x.getPixelForValue(29);
+        const yPos = y.getPixelForValue(last);
+        const man  = (last / 10000).toFixed(0) + '万円';
+        ctx.save();
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillStyle = ds.borderColor;
+        ctx.textAlign = 'left';
+        ctx.fillText(man, xPos + 4, yPos + 4);
+        ctx.restore();
+      });
+      // 「太陽光なし」と「SBIリース」の差額を矢印で強調
+      if (chart.data.datasets.length >= 2) {
+        const ns30  = chart.data.datasets[0].data[29];
+        const ls30  = chart.data.datasets[1].data[29];
+        if (ns30 != null && ls30 != null) {
+          const xPos  = x.getPixelForValue(28);
+          const yNs   = y.getPixelForValue(ns30);
+          const yLs   = y.getPixelForValue(ls30);
+          const saving = ((ns30 - ls30) / 10000).toFixed(0);
+          const midY  = (yNs + yLs) / 2;
+          ctx.save();
+          ctx.strokeStyle = '#15803D';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([]);
+          ctx.beginPath(); ctx.moveTo(xPos - 20, yNs); ctx.lineTo(xPos - 20, yLs); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(xPos - 24, yNs + 4); ctx.lineTo(xPos - 20, yNs); ctx.lineTo(xPos - 16, yNs + 4); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(xPos - 24, yLs - 4); ctx.lineTo(xPos - 20, yLs); ctx.lineTo(xPos - 16, yLs - 4); ctx.stroke();
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillStyle = '#15803D';
+          ctx.textAlign = 'right';
+          ctx.fillText('節約 ' + saving + '万円', xPos - 24, midY + 4);
+          ctx.restore();
+        }
+      }
+    }
+  };
+
+  chartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: r.labels,
+      datasets: [
+        {
+          label: '太陽光なし',
+          data: noSolarSpendArr,
+          borderColor: '#9CA3AF',
+          backgroundColor: 'rgba(156,163,175,0.08)',
+          borderWidth: 2, pointRadius: 0, fill: true, tension: 0.3,
+          borderDash: [4, 3],
+        },
+        {
+          label: 'SBIリース',
+          data: leaseSpendArr,
+          borderColor: '#1A5EA8',
+          backgroundColor: 'rgba(26,94,168,0.10)',
+          borderWidth: 2.5, pointRadius: 0, fill: true, tension: 0.3,
+        },
+        {
+          label: r.ppaPlan.name,
+          data: ppaSpendArr,
+          borderColor: '#C85A00',
+          backgroundColor: 'rgba(200,90,0,0.05)',
+          borderWidth: 2, pointRadius: 0, fill: false, tension: 0.3,
+          borderDash: [5, 3],
+        }
+      ]
+    },
+    plugins: [endLabelPlugin],
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.dataset.label}: 累積支出 ${(ctx.raw / 10000).toFixed(1)}万円`
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            font: { size: 10 },
+            maxTicksLimit: 7,
+            callback: (val, i) => {
+              const yr = i + 1;
+              return [5, 10, 15, 20, 25, 30].includes(yr) ? yr + '年' : '';
+            }
+          },
+          grid: { display: false }
+        },
+        y: {
+          ticks: {
+            font: { size: 10 },
+            callback: v => (v / 10000).toFixed(0) + '万'
+          }
+        }
+      }
+    }
+  });
+}
+
+/* ===== STEP6: 送信 ===== */
+async function submitInquiry() {
+  const name = document.getElementById('inqName').value.trim();
+  const tel  = document.getElementById('inqTel').value.trim();
+  const errEl = document.getElementById('inqError');
+  if (!name || !tel) { errEl.style.display = ''; return false; }
+  errEl.style.display = 'none';
+
+  const r = state.calcResult;
+  const payload = {
+    name, tel,
+    addr:       document.getElementById('inqAddr').value.trim(),
+    note:       document.getElementById('inqNote').value.trim(),
+    leaseKey:   state.leaseKey,
+    ppaKey:     state.ppaKey,
+    ppaCap:     state.ppaCap,
+    monthlyKwh: state.monthlyKwh,
+    utilKey:    state.utilKey,
+    ecoMode:    state.ecoMode,
+    lCum30:     r?.lCum30,
+    pCum30:     r?.pCum30,
+    diff30:     r?.diff30,
+    source:     'customer.html',
+  };
+
+  const GAS_URL = ''; // TODO: GAS WebアプリURLをここに入れる
+  try {
+    if (GAS_URL) await fetch(GAS_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  } catch(e) { console.warn('GAS送信エラー:', e); }
+
+  document.getElementById('inquiryForm').style.display = 'none';
+  document.getElementById('formSent').style.display = '';
+  document.getElementById('btnNext').style.display = 'none';
+  document.getElementById('btnBack').style.display = 'none';
+  return true;
+}
+
+/* ===== ナビゲーション ===== */
+function cGoStep(dir) {
+  if (state.cstep === 6 && dir === 1) { submitInquiry(); return; }
+  const next = state.cstep + dir;
+  if (next < 1 || next > 6) return;
+  if (!cValidateStep(state.cstep, dir)) return;
+
+  document.getElementById('step' + state.cstep).classList.remove('active');
+  document.getElementById('step' + next).classList.add('active');
+  state.cstep = next;
+
+  // STEP4に到達するたびに必ず再計算（どの方向から来ても）
+  if (state.cstep === 4) {
+    if (!state.utilKey) { alert('電力会社を選択してください（STEP1）'); return; }
+    runCalc();
+  }
+
+  cUpdateProgress();
+  cUpdateNavButtons();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function cValidateStep(step, dir) {
+  if (dir !== 1) return true;
+  if (step === 1 && !state.utilKey) { alert('電力会社を選択してください'); return false; }
+  return true;
+}
+
+function cUpdateProgress() {
+  document.querySelectorAll('.ps-step').forEach(el => {
+    const s = parseInt(el.dataset.step);
+    el.classList.remove('active','done');
+    if (s === state.cstep) el.classList.add('active');
+    else if (s < state.cstep) el.classList.add('done');
+  });
+}
+
+function cUpdateNavButtons() {
+  const btnBack = document.getElementById('btnBack');
+  const btnNext = document.getElementById('btnNext');
+  btnBack.style.display = state.cstep > 1 ? '' : 'none';
+  const labels = { 4:'まとめへ →', 5:'お問い合わせへ →', 6:'送信する ✉️' };
+  btnNext.textContent = labels[state.cstep] || '次へ →';
+}
+
+</script>
+</body>
+</html>
