@@ -131,8 +131,15 @@ var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 })();
 
 function redirectToNavi(){
-  var base = window.location.href.replace(/\/[^\/]*$/, '/');
-  window.location.href = base + 'navi';
+  /* returnUrlパラメータがあればそこへ、なければnaviへ */
+  var params = new URLSearchParams(window.location.search);
+  var returnUrl = params.get('return');
+  if(returnUrl){
+    window.location.href = decodeURIComponent(returnUrl);
+  } else {
+    var base = window.location.href.replace(/\/[^\/]*$/, '/');
+    window.location.href = base + 'navi';
+  }
 }
 
 /* ============================================================
