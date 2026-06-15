@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>光熱費・太陽光 まるごと比較ナビ</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 /* ===== 比較ナビ CSS ===== */
@@ -479,7 +480,18 @@ optgroup { font-weight: 700; }
 
 <header class="hdr">
   <div class="hdr-t">光熱費まるごと比較ナビ</div>
-  <div class="hdr-s">住宅営業支援ツール v5.0</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="hdr-s" id="userInfo" style="display:none">
+      <span id="userCompany"></span> / <span id="userName"></span>
+    </div>
+    <button id="btnLogout" onclick="doLogout()"
+      style="display:none;padding:4px 10px;font-size:11px;
+             background:rgba(255,255,255,.15);color:#fff;
+             border:1px solid rgba(255,255,255,.3);border-radius:12px;
+             cursor:pointer;font-family:inherit;white-space:nowrap">
+      ログアウト
+    </button>
+  </div>
 </header>
 
 <div class="wrap">
@@ -490,6 +502,29 @@ optgroup { font-weight: 700; }
     <span class="f now">① 条件入力</span><span class="a">→</span>
     <span class="f">② オール電化なら？</span><span class="a">→</span>
     <span class="f solar">③ さらに太陽光なら？</span>
+  </div>
+
+  <!-- 工務店・担当者・案件情報 -->
+  <div class="card" style="border:1.5px solid #1A5EA8">
+    <div class="card-ttl" style="color:#1A5EA8">🏢 工務店・担当者情報</div>
+    <div class="frow">
+      <div class="fld">
+        <label>工務店名<span class="req">*</span></label>
+        <input type="text" id="iBuilder" placeholder="例：アーキテックス" style="width:100%;padding:10px 12px;border:1.5px solid #D1D5DB;border-radius:8px;font-size:15px;font-family:inherit">
+        <div class="ferr" id="eBuilder" style="color:#B91C1C;font-size:12px;margin-top:3px;display:none">工務店名を入力してください</div>
+      </div>
+      <div class="fld">
+        <label>担当者名<span class="req">*</span></label>
+        <input type="text" id="iStaff" placeholder="例：田中 一郎" style="width:100%;padding:10px 12px;border:1.5px solid #D1D5DB;border-radius:8px;font-size:15px;font-family:inherit">
+        <div class="ferr" id="eStaff" style="color:#B91C1C;font-size:12px;margin-top:3px;display:none">担当者名を入力してください</div>
+      </div>
+    </div>
+    <div class="fld" style="margin-bottom:0">
+      <label>案件名 / お客様名<span class="req">*</span></label>
+      <input type="text" id="iCase" placeholder="例：山田様邸・久留米市の件" style="width:100%;padding:10px 12px;border:1.5px solid #D1D5DB;border-radius:8px;font-size:15px;font-family:inherit">
+      <div style="font-size:11px;color:#6B7280;margin-top:3px">どの案件のシミュレーションか記録されます</div>
+      <div class="ferr" id="eCase" style="color:#B91C1C;font-size:12px;margin-top:3px;display:none">案件名を入力してください</div>
+    </div>
   </div>
 
   <div class="card">
@@ -640,7 +675,23 @@ optgroup { font-weight: 700; }
     ところで——オール電化にすると、家庭のエネルギーの中心は「電気」になります。<br>
     その電気、<strong>全部買い続けますか？ それとも一部を自宅で作りますか？</strong>
   </div>
-  <button class="btn-orange" id="btnSolar">☀️ さらに太陽光を設置すると？を見る</button>
+  <!-- 断面図への誘導 -->
+  <div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:12px;padding:16px;margin:12px 0">
+    <div style="font-size:13px;font-weight:700;color:#15803D;margin-bottom:6px">
+      💡 そもそも太陽光って、どうやって電気代が安くなるの？
+    </div>
+    <div style="font-size:12px;color:#374151;line-height:1.7;margin-bottom:12px">
+      仕組みを直感的に理解してから比較すると、どのプランが自分に合うか判断しやすくなります。
+    </div>
+    <button class="btn-main" onclick="openSolarSim()" style="background:#15803D;margin-bottom:8px">
+      🏠 太陽光の仕組みをインタラクティブに体感する
+    </button>
+    <div style="text-align:center;font-size:11px;color:#6B7280">
+      ※ 仕組みは後でも確認できます
+    </div>
+  </div>
+
+  <button class="btn-orange" id="btnSolar">☀️ 仕組みはわかった！導入方法を比較する</button>
 </div>
 
 <!-- 画面3：太陽光 -->
@@ -690,8 +741,19 @@ optgroup { font-weight: 700; }
       <div class="hero-sub">初期費用がかかりますが、長期では最大のリターンが期待できます</div>
       <div class="hero-badge" id="buyHeroBadge">—</div>
     </div>
+    <div class="card" style="background:#F9FAFB;border:1.5px solid #D1D5DB">
+      <div class="card-ttl">⚙️ 購入価格の設定（工務店専用）</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <input type="number" id="buyKwInput" placeholder="300000" min="100000" max="600000" step="10000"
+          style="flex:1;padding:10px 12px;border:1.5px solid #D1D5DB;border-radius:8px;font-size:15px;font-family:inherit"
+          oninput="onBuyKwChange()">
+        <span style="font-size:13px;color:#6B7280;white-space:nowrap">円 / kW（税別）</span>
+      </div>
+      <div style="font-size:11px;color:#6B7280">工務店側で設定。8kWの場合の総額（税込）が自動計算されます。</div>
+    </div>
     <div class="card">
       <div class="card-ttl">🏠 購入 月々のイメージ（初年度・概算）</div>
+      <div class="sim-line"><span>kW単価（税別）</span><span id="buyCostKw" style="font-weight:700;color:#374151">—</span></div>
       <div class="sim-line"><span>初期費用（8kW・税込）</span><span id="buyCost" style="font-weight:700;color:#B91C1C">—</span></div>
       <div class="sim-line"><span>自家消費による削減</span><span id="buyL2" style="font-weight:700;color:#15803D">—</span></div>
       <div class="sim-line"><span>余剰電力の売電収入</span><span id="buyL3" style="font-weight:700;color:#15803D">—</span></div>
@@ -1474,19 +1536,31 @@ function calcMain(params) {
 /* ===== 比較ナビ JS ===== */
 
 /* ================================================================
+   Supabase 初期化
+================================================================ */
+var SUPABASE_URL  = 'https://iqgtknxypkqfrhbktxsy.supabase.co';
+var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlxZ3Rrbnh5cGtxZnJoYmt0eHN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MzkxMzIsImV4cCI6MjA5NjQxNTEzMn0.HcLrC9LImbBpVu7nVrfV7ME3VtoRCDOQGR81DaI54LM';
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+var CURRENT_USER    = null; /* ログイン中のusersレコード */
+var CURRENT_COMPANY = null; /* ログイン中の工務店レコード */
+var CURRENT_SIM_ID  = null; /* 現在のシミュレーションID */
+
+/* ============================================================
    マスタデータ
 ================================================================ */
 var UTIL = {
-  kyushu:   {name:'九州電力',   eff:36.73},
-  chugoku:  {name:'中国電力',   eff:41.71},
-  kansai:   {name:'関西電力',   eff:38.93},
-  shikoku:  {name:'四国電力',   eff:43.70},
-  chubu:    {name:'中部電力',   eff:41.38},
-  tepco:    {name:'東京電力EP', eff:46.47},
-  tohoku:   {name:'東北電力',   eff:43.73},
-  hokuriku: {name:'北陸電力',   eff:49.75},
-  hokkaido: {name:'北海道電力', eff:52.91}
+  kyushu:   {name:'九州電力',   eff:36.73, effEv:35.09},
+  chugoku:  {name:'中国電力',   eff:41.71, effEv:49.79},
+  kansai:   {name:'関西電力',   eff:38.93, effEv:38.24},
+  shikoku:  {name:'四国電力',   eff:43.70, effEv:40.73},
+  chubu:    {name:'中部電力',   eff:41.38, effEv:39.50},
+  tepco:    {name:'東京電力EP', eff:46.47, effEv:40.60},
+  tohoku:   {name:'東北電力',   eff:43.73, effEv:43.73},
+  hokuriku: {name:'北陸電力',   eff:49.75, effEv:49.75},
+  hokkaido: {name:'北海道電力', eff:52.91, effEv:52.91}
 };
+/* doSolar計算時はオール電化プランの実効単価を使用（customer.htmlと整合） */
+function getEvEff(utilKey){ var u=UTIL[utilKey]; return u ? (u.effEv||u.eff) : 36.73; }
 
 /* 新築戸建て・電気ガス併用の統計ベース想定値
    出典：総務省家計調査2024年 + 戸建て補正+2,069円（日本生協連調査） */
@@ -1645,12 +1719,18 @@ function doCalc(){
   var elNow  = parseFloat($id('iElNow').value) || 0;
   var gasNow = parseFloat($id('iGasNow').value) || 0;
 
+  var builder = ($id('iBuilder').value||'').trim();
+  var staff   = ($id('iStaff').value||'').trim();
+  var caseNm  = ($id('iCase').value||'').trim();
+  $id('eBuilder').style.display = !builder ? 'block':'none';
+  $id('eStaff').style.display   = !staff   ? 'block':'none';
+  $id('eCase').style.display    = !caseNm  ? 'block':'none';
   $id('eEl').style.display     = (isNaN(elv)||elv<=0)  ? 'block':'none';
   $id('eGas').style.display    = (isNaN(gasv)||gasv<0) ? 'block':'none';
   $id('eUtil').style.display   = !ukey ? 'block':'none';
   $id('eFamily').style.display = !fam  ? 'block':'none';
   $id('eHome').style.display   = !home ? 'block':'none';
-  if(isNaN(elv)||elv<=0||isNaN(gasv)||gasv<0||!ukey||!fam||!home) return;
+  if(!builder||!staff||!caseNm||isNaN(elv)||elv<=0||isNaN(gasv)||gasv<0||!ukey||!fam||!home) return;
 
   var util = UTIL[ukey];
   var hotRatio = FAMILY_HOT[fam] || 0.65;
@@ -1664,6 +1744,8 @@ function doCalc(){
 
   R = {
     utilName:util.name, utilKey:ukey, eff:util.eff, fam:fam, home:home,
+    builder:builder, staff:staff, caseNm:caseNm,
+    buyPricePerKw: CFG ? CFG.buyPricePerKw : 300000,
     elv:elv, gasv:gasv, hotRatio:hotRatio,
     ecoElec:ecoElec, ihElec:ihElec,
     combined:combined, allElec:allElec, diff1:combined-allElec,
@@ -1671,6 +1753,7 @@ function doCalc(){
   };
 
   renderResult();
+  saveSimulation('result');
   goScreen('scrResult');
 }
 
@@ -1733,68 +1816,86 @@ function renderResult(){
 function doSolar(){
   var r=R; if(!r) return;
 
+  /* calc.js準拠：オール電化プランの実効単価 */
+  var effEv = getEvEff(r.utilKey);
+
+  /* kWh：家族人数ベース × 在宅補正 */
   var monthlyKwh = Math.round((FAMILY_KWH[r.fam]||600) * (HOME_KWH_MULT[r.home]||1.0));
+
+  /* リース 8kW固定 */
   var CAP=8, AGEN=CAP*1000;
-  var rawSC = (monthlyKwh*(1/3)) / (AGEN/12);
-  var scR   = Math.max(Math.min(rawSC, 0.85), 0.25);
-  var monthlyBillBase = monthlyKwh * r.eff;
+
+  /* calc.js準拠：DAY_CONSUME_RATE=0.30固定で自家消費率計算 */
+  var lscR = Math.min(monthlyKwh*0.30/(AGEN/12), 0.85);
+
+  /* 建て得スマイル calc.js準拠：9kW・初期49.5万・15年・パワコン40万 */
+  var PPA_CAP=9, PPA_INIT=495000, PPA_T=15, PPA_PCON=400000;
+  var AGEN_P=PPA_CAP*1000;
+  var pscR = Math.min(monthlyKwh*0.30/(AGEN_P/12), 0.85);
+
+  /* 購入：工務店設定のkW単価（税込）*/
+  var buyKwPrice  = R.buyPricePerKw || CFG.buyPricePerKw;
+  var initCostTax = Math.round(CAP * buyKwPrice * 1.10);
+
+  /* 月間電気代ベース（customer.htmlのgetMonthlyBillEstimate相当）*/
+  var monthlyBillBase = monthlyKwh * effEv;
   var INC=0.02, DR=0.005;
 
-  /* 購入初期費用（税込） */
-  var initCostTax = Math.round(CAP * CFG.buyPricePerKw * 1.10);
-  /* リース 8kW固定 */
-  var lp = LEASE[1];
-  /* PPA */
-  var ppaTerm  = CFG.ppaTerm    || 15;
-  var ppaPcon  = CFG.ppaPconCost || 400000;
+  /* リース：税別16，000円/月（calc.js/customer.html準拠）*/
+  var LEASE_M=16000, LEASE_T=10;
 
-  var noS=0, buyS=initCostTax, leaseS=0, ppaS=0;
-  var cumBuy=-initCostTax, cumLease=0, ppaMerit=0;
-  var buyBep=null, leaseBep=null, ppaBep=null;
+  var noS=0, leaseS=0, ppaS=PPA_INIT, buyS=initCostTax;
+  var cumLease=0, ppaMerit=0, cumBuy=-initCostTax;
+  var leaseBep=null, ppaBep=null, buyBep=null;
 
   for(var y=1;y<=30;y++){
-    var pm   = Math.pow(1+INC,y-1);
-    var eu   = r.eff*pm;
-    var genY = AGEN*Math.pow(1-DR,y-1);
-    var svY  = genY*scR*eu;
-    var fitBuy   = y<=4?LF1:LF3;
-    var fitLease = y<=4?LF1:y<=lp.term?LF2:LF3;
-    var fitPpa   = y>ppaTerm ? LF3 : 0;
-    var slBuy    = genY*(1-scR)*fitBuy;
-    var slLease  = genY*(1-scR)*fitLease;
-    var slPpa    = genY*(1-scR)*fitPpa;
-    var lcY      = y<=lp.term ? lp.monthly*12 : 0;
-    var pcBuy    = (y===15||y===30) ? 200000 : 0;
-    var pcLease  = (y===15||y===30) ? 200000 : 0;
-    var pcPpa    = (y===15||y===30) ? ppaPcon : 0;
-    var base     = monthlyBillBase*12*pm;
-
-    noS    += base;
-    buyS   += base-(svY+slBuy-pcBuy);
-    leaseS += base-(svY+slLease-lcY-pcLease);
-    ppaS   += base-(svY+slPpa-pcPpa);
-
-    cumBuy   += svY+slBuy-pcBuy;
-    cumLease += svY+slLease-lcY-pcLease;
-    ppaMerit += svY+slPpa-pcPpa;
-    if(buyBep===null   && cumBuy>0)   buyBep=y;
-    if(leaseBep===null && cumLease>0) leaseBep=y;
-    if(ppaBep===null   && ppaMerit>0) ppaBep=y;
+    var pm=Math.pow(1+INC,y-1), eu=effEv*pm;
+    var genY =AGEN  *Math.pow(1-DR,y-1);
+    var genYp=AGEN_P*Math.pow(1-DR,y-1);
+    var svL=genY *lscR*eu, svP=genYp*pscR*eu;
+    var fitL=y<=4?LF1:y<=LEASE_T?LF2:LF3;
+    var fitP=y>PPA_T?LF3:0;
+    var fitBuy=y<=4?LF1:LF3;
+    var slL=genY *(1-lscR)*fitL;
+    var slP=genYp*(1-pscR)*fitP;
+    var slBuy=genY*(1-lscR)*fitBuy;
+    var lcL=y<=LEASE_T?LEASE_M*12:0;
+    var pcL=(y===15||y===30)?200000:0;
+    var pcP=(y===15||y===30)?PPA_PCON:0;
+    var pcBuy=(y===15||y===30)?200000:0;
+    var base=monthlyBillBase*12*pm;
+    noS    +=base;
+    leaseS +=base-svL-slL+lcL+pcL;
+    ppaS   +=base-svP-slP+pcP;
+    buyS   +=base-svL-slBuy+pcBuy;
+    cumLease+=svL+slL-lcL-pcL;
+    ppaMerit+=svP+slP-pcP;
+    cumBuy  +=svL+slBuy-pcBuy;
+    if(leaseBep===null&&cumLease>0) leaseBep=y;
+    if(ppaBep===null&&ppaMerit>0)   ppaBep=y;
+    if(buyBep===null&&cumBuy>0)     buyBep=y;
   }
 
-  var genM  = AGEN/12;
-  var saveM = Math.round(genM*scR*r.eff);
-  var sellM = Math.round(genM*(1-scR)*LF1);
+  var genM=AGEN/12;
+  var saveM=Math.round(genM*lscR*effEv);
+  var sellM=Math.round(genM*(1-lscR)*LF1);
 
-  R.solar = {
-    cap:CAP, monthlyKwh:monthlyKwh, scR:scR, scPct:Math.round(scR*100),
+  R.solar={
+    cap:CAP, ppaCap:PPA_CAP, monthlyKwh:monthlyKwh,
+    lscR:lscR, lscPct:Math.round(lscR*100),
     saveM:saveM, sellM:sellM, noS30:Math.round(noS),
-    buy:   {initCost:initCostTax, netM:r.allElec-saveM-sellM, cum30:Math.round(buyS), merit30:Math.round(noS-buyS), bep:buyBep},
-    lease: {monthly:lp.monthly, term:lp.term, netM:r.allElec-saveM-sellM+lp.monthly, cum30:Math.round(leaseS), merit30:Math.round(noS-leaseS), bep:leaseBep},
-    ppa:   {name:CFG.ppaName||'建て得', term:ppaTerm, netM:r.allElec, cum30:Math.round(ppaS), merit30:Math.round(noS-ppaS), bep:ppaBep}
+    buy:  {initCost:initCostTax, pricePerKw:buyKwPrice,
+           netM:r.allElec-saveM-sellM,
+           cum30:Math.round(buyS), merit30:Math.round(noS-buyS), bep:buyBep},
+    lease:{monthly:LEASE_M, term:LEASE_T,
+           netM:r.allElec-saveM-sellM+LEASE_M,
+           cum30:Math.round(leaseS), merit30:Math.round(noS-leaseS), bep:leaseBep},
+    ppa:  {name:CFG.ppaName||'建て得', term:PPA_T, initCost:PPA_INIT,
+           netM:r.allElec, cum30:Math.round(ppaS), merit30:Math.round(noS-ppaS), bep:ppaBep}
   };
 
   renderSolar();
+  saveSimulation('solar');
   goScreen('scrSolar');
 }
 
@@ -1807,7 +1908,7 @@ function renderSolar(){
   document.getElementById('leaseHeroNum').textContent   = fman(ls.merit30);
   document.getElementById('leaseHeroBadge').textContent = ls.bep ? 'メリットがリース費用を上回るのは'+ls.bep+'年目から' : '詳細は個別試算で';
   document.getElementById('lsL1').textContent = fy(r.allElec);
-  document.getElementById('lsL2').textContent = '-'+fy(s.saveM)+'（自家消費率'+s.scPct+'%）';
+  document.getElementById('lsL2').textContent = '-'+fy(s.saveM)+'（自家消費率'+Math.round((s.lscR||s.scR)*100)+'%）';
   document.getElementById('lsL3').textContent = '-'+fy(s.sellM);
   document.getElementById('lsL4').textContent = '+'+fy(ls.monthly)+'/月';
   document.getElementById('lsL5').textContent = fy(ls.netM);
@@ -1816,10 +1917,16 @@ function renderSolar(){
   var bu=s.buy;
   document.getElementById('buyHeroNum').textContent   = fman(bu.merit30);
   document.getElementById('buyHeroBadge').textContent = bu.bep ? '初期費用回収は'+bu.bep+'年目' : '詳細は個別試算で';
-  document.getElementById('buyCost').textContent = fy(bu.initCost)+'（'+Math.round(bu.initCost/10000)+'万円）';
-  document.getElementById('buyL2').textContent   = '-'+fy(s.saveM);
-  document.getElementById('buyL3').textContent   = '-'+fy(s.sellM);
-  document.getElementById('buyL5').textContent   = '+'+fy(s.saveM+s.sellM)+'/月';
+  var kwPr = bu.pricePerKw || CFG.buyPricePerKw;
+  /* buyKwInputの表示値を更新 */
+  var bkEl = document.getElementById('buyKwInput');
+  if(bkEl && !bkEl.value) bkEl.value = kwPr;
+  var kwEl = document.getElementById('buyCostKw');
+  if(kwEl) kwEl.textContent = fy(kwPr)+' / kW（税別）';
+  document.getElementById('buyCost').textContent    = fy(bu.initCost)+'（'+Math.round(bu.initCost/10000)+'万円・税込）';
+  document.getElementById('buyL2').textContent      = '-'+fy(s.saveM);
+  document.getElementById('buyL3').textContent      = '-'+fy(s.sellM);
+  document.getElementById('buyL5').textContent      = '+'+fy(s.saveM+s.sellM)+'/月';
 
   /* PPA */
   var pp=s.ppa;
@@ -1954,8 +2061,123 @@ function initRadios(gid){
   }
 }
 
+function openSolarSim(){
+  /* solar-sim.htmlを開く。戻り先としてnavi.htmlのURLを渡す */
+  var base = window.location.href.replace(/\/[^\/]*$/, '/');
+  var returnUrl = encodeURIComponent(window.location.href);
+  var url = base + 'solar-sim?from=navi&return=' + returnUrl;
+  window.open(url, '_blank');
+}
+
+/* ユーザー情報をヘッダーに表示 */
+function showUserInfo(){
+  if(!CURRENT_USER || !CURRENT_COMPANY) return;
+  var info = document.getElementById('userInfo');
+  var comp = document.getElementById('userCompany');
+  var name = document.getElementById('userName');
+  var btn  = document.getElementById('btnLogout');
+  if(info){ info.style.display = ''; }
+  if(comp){ comp.textContent = CURRENT_COMPANY.name; }
+  if(name){ name.textContent = CURRENT_USER.name; }
+  if(btn) { btn.style.display = ''; }
+
+  /* 入力欄に担当者名を自動セット */
+  var staffEl = $id('iStaff');
+  if(staffEl && !staffEl.value) staffEl.value = CURRENT_USER.name;
+  var builderEl = $id('iBuilder');
+  if(builderEl && !builderEl.value) builderEl.value = CURRENT_COMPANY.name;
+}
+
+/* ログアウト */
+async function doLogout(){
+  await sb.auth.signOut();
+  var base = window.location.href.replace(/\/[^\/]*$/, '/');
+  window.location.href = base + 'login';
+}
+
+/* シミュレーション結果をDBに保存（ステップ進行時に随時呼ぶ） */
+async function saveSimulation(stepReached){
+  if(!CURRENT_USER || !R) return;
+
+  var payload = {
+    user_id:      CURRENT_USER.id,
+    company_id:   CURRENT_COMPANY.id,
+    case_name:    ($id('iCase') && $id('iCase').value) || '未記入',
+    family:       R.fam       || null,
+    area:         R.utilName  || null,
+    home:         R.home      || null,
+    el_bill_now:  R.elNow     || null,
+    gas_bill_now: R.gasNow    || null,
+    el_bill_new:  R.elv       || null,
+    gas_bill_new: R.gasv      || null,
+    allElec:      R.allElec   || null,
+    merit_lease:  R.solar ? R.solar.lease.merit30 : null,
+    merit_buy:    R.solar ? R.solar.buy.merit30   : null,
+    merit_ppa:    R.solar ? R.solar.ppa.merit30   : null,
+    step_reached: stepReached || 'input'
+  };
+
+  if(CURRENT_SIM_ID){
+    /* 既存レコードを更新 */
+    await sb.from('simulations')
+      .update(payload)
+      .eq('id', CURRENT_SIM_ID);
+  } else {
+    /* 新規登録 */
+    var { data } = await sb.from('simulations')
+      .insert(payload)
+      .select('id')
+      .single();
+    if(data) CURRENT_SIM_ID = data.id;
+  }
+}
+
+function onBuyKwChange(){
+  var el = document.getElementById('buyKwInput');
+  if(!el) return;
+  var v = parseFloat(el.value);
+  if(!isNaN(v) && v > 0 && R){
+    R.buyPricePerKw = v;
+    if(R.solar) doSolar();
+  }
+}
+
 function initAll(){
-  CFG = getClientConfig();
+  /* 認証チェック：未ログインならlogin.htmlへ */
+  (async function authCheck(){
+    var { data: { session } } = await sb.auth.getSession();
+    if(!session){
+      var base = window.location.href.replace(/\/[^\/]*$/, '/');
+      window.location.href = base + 'login';
+      return;
+    }
+    /* ユーザー情報をDBから取得 */
+    var { data: userData } = await sb.from('users')
+      .select('*, companies(*)')
+      .eq('id', session.user.id)
+      .single();
+
+    if(userData){
+      CURRENT_USER    = userData;
+      CURRENT_COMPANY = userData.companies;
+      /* 工務店設定をCFGに上書き */
+      CFG = {
+        name:               CURRENT_COMPANY.name,
+        leaseMonthlyPerKw:  CURRENT_COMPANY.lease_monthly_per_kw || 2000,
+        buyPricePerKw:      CURRENT_COMPANY.buy_price_per_kw     || 300000,
+        ppaKey:             CURRENT_COMPANY.ppa_plan             || 'smile',
+        ppaCap:             9,
+        ppaName:            '建て得スマイル',
+        ppaTerm:            15,
+        ppaPconCost:        400000,
+        webhookUrl:         CURRENT_COMPANY.chat_webhook_url     || ''
+      };
+      /* ヘッダーにユーザー名を表示 */
+      showUserInfo();
+    }
+  })();
+
+  CFG = getClientConfig(); /* 認証完了前の暫定CFG */
   initRadios('rFamily');
   initRadios('rHome');
   /* 在宅選択変更時にも新築想定値を再計算 */
@@ -1972,6 +2194,10 @@ function initAll(){
   $id('btnTop').addEventListener('click', function(){ goScreen('scrInput'); });
 
   /* エリア変更でも自動入力を更新 */
+  /* 購入kW単価の初期値をCFGから設定 */
+  var buyKwEl = $id('buyKwInput');
+  if(buyKwEl && CFG) buyKwEl.value = CFG.buyPricePerKw;
+
   $id('iUtil').addEventListener('change', function(){
     autoFill();
     var key=$id('iUtil').value;
@@ -2512,6 +2738,9 @@ async function submitInquiry() {
     name, tel,
     addr:       document.getElementById('inqAddr').value.trim(),
     note:       document.getElementById('inqNote').value.trim(),
+    builderName: R ? R.builder : '',
+    staffName:   R ? R.staff   : '',
+    caseName:    R ? R.caseNm  : '',
     leaseKey:   state.leaseKey,
     ppaKey:     state.ppaKey,
     ppaCap:     state.ppaCap,
