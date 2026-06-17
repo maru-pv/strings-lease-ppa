@@ -1675,7 +1675,7 @@ function autoFill(){
   if(!fam) return;
 
   /* エリア補正係数（エリア実効単価 / 全国平均36.73） */
-  var areaRatio = ukey && UTIL[ukey] ? UTIL[ukey].eff / 36.73 : 1.0;
+  var areaRatio = ukey && UTIL && UTIL[ukey] ? UTIL[ukey].eff / 36.73 : 1.0;
 
   /* 賃貸の入力値を取得 */
   var nowEl  = parseFloat($id('iElNow').value) || 0;
@@ -2163,6 +2163,11 @@ function onBuyKwChange(){
 }
 
 function initAll(){
+  /* UI初期化を先に実行（認証完了を待たない） */
+  CFG = getClientConfig();
+  initRadios('rFamily');
+  initRadios('rHome');
+
   /* 認証チェック：未ログインならlogin.htmlへ */
   (async function authCheck(){
     var { data: { session } } = await sb.auth.getSession();
@@ -2194,12 +2199,11 @@ function initAll(){
       };
       /* ヘッダーにユーザー名を表示 */
       showUserInfo();
+      /* buyKwInput初期値を工務店設定で更新 */
+      var bkEl = document.getElementById('buyKwInput');
+      if(bkEl) bkEl.value = CFG.buyPricePerKw;
     }
   })();
-
-  CFG = getClientConfig(); /* 認証完了前の暫定CFG */
-  initRadios('rFamily');
-  initRadios('rHome');
   /* 在宅選択変更時にも新築想定値を再計算 */
   document.querySelectorAll('#rHome .rb').forEach(function(btn){
     btn.addEventListener('click', function(){ setTimeout(autoFill, 0); });
@@ -2315,11 +2319,7 @@ const state = {
 };
 
 /* ===== 初期化 ===== */
-window.addEventListener('DOMContentLoaded', () => {
-  buildUtilSelect();
-  updatePpaCapCard();
-  cUpdateNavButtons();
-});
+/* buildUtilSelect等はgoToCustomer()内で呼び出す */
 
 /* ===== 電力会社セレクト構築 ===== */
 function buildUtilSelect() {
