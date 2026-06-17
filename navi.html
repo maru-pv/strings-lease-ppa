@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>光熱費・太陽光 まるごと比較ナビ</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="calc.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 /* ===== 比較ナビ CSS ===== */
@@ -1581,6 +1582,12 @@ var HOME_KWH_MULT  = {'少ない':0.90, '普通':1.00, '多い':1.20};
 
 /* オール電化後の月間kWh（環境省・LIXIL統計ベース）
    index.htmlと同じ考え方：kWhを直接設定して計算 */
+/* 家族別エコキュート年間消費kWh（ダイキン資料準拠） */
+var ECO_KWH_BY_FAMILY = {
+  '1人':600,'2人':900,'3人':1200,
+  '4人':1400,'5人':1600,'6人以上':1800
+};
+
 var FAMILY_KWH = {'1人':380,'2人':520,'3人':600,'4人':700,'5人':800,'6人以上':900};
 var FAMILY_HOT = {'1人':0.50,'2人':0.58,'3人':0.65,'4人':0.70,'5人':0.73,'6人以上':0.75};
 var LEASE = [
@@ -1816,82 +1823,68 @@ function renderResult(){
 function doSolar(){
   var r=R; if(!r) return;
 
-  /* calc.js準拠：オール電化プランの実効単価 */
-  var effEv = getEvEff(r.utilKey);
-
   /* kWh：家族人数ベース × 在宅補正 */
   var monthlyKwh = Math.round((FAMILY_KWH[r.fam]||600) * (HOME_KWH_MULT[r.home]||1.0));
 
-  /* リース 8kW固定 */
-  var CAP=8, AGEN=CAP*1000;
+  /* オール電化プランの実効単価（customer.html準拠） */
+  var effUnit = getEvEff(r.utilKey);
 
-  /* calc.js準拠：DAY_CONSUME_RATE=0.30固定で自家消費率計算 */
-  var lscR = Math.min(monthlyKwh*0.30/(AGEN/12), 0.85);
+  /* エコキュート年間kWh（家族別） */
+  var ecoKwh = ECO_KWH_BY_FAMILY[r.fam] || 1200;
 
-  /* 建て得スマイル calc.js準拠：9kW・初期49.5万・15年・パワコン40万 */
-  var PPA_CAP=9, PPA_INIT=495000, PPA_T=15, PPA_PCON=400000;
-  var AGEN_P=PPA_CAP*1000;
-  var pscR = Math.min(monthlyKwh*0.30/(AGEN_P/12), 0.85);
+  /* 工務店設定のppaKey（デフォルト=バリュー） */
+  var ppaKey = (CFG && CFG.ppaKey) || 'value';
 
-  /* 購入：工務店設定のkW単価（税込）*/
-  var buyKwPrice  = R.buyPricePerKw || CFG.buyPricePerKw;
-  var initCostTax = Math.round(CAP * buyKwPrice * 1.10);
+  /* calcMain()呼び出し（calc.js完全準拠） */
+  var result = calcMain({
+    effUnit:      effUnit,
+    monthlyKwh:   monthlyKwh,
+    leaseKey:     '8',
+    ppaKey:       ppaKey,
+    ppaCap:       ppaKey === 'value' ? 9 : (CFG.ppaCap || 9),
+    ecoMode:      'ohisama',   /* リース：おひさまモード */
+    ecoKwh:       ecoKwh,
+    ppaEcoOption: false,       /* 建て得：エコオフ */
+    incRate:      2
+  });
 
-  /* 月間電気代ベース（customer.htmlのgetMonthlyBillEstimate相当）*/
-  var monthlyBillBase = monthlyKwh * effEv;
-  var INC=0.02, DR=0.005;
+  /* 購入の計算（calcMainはリースvsPPA専用なので別途） */
+  var buyKwPrice  = R.buyPricePerKw || (CFG && CFG.buyPricePerKw) || 300000;
+  var initCostTax = Math.round(8 * buyKwPrice * 1.10);
+  var buyMerit    = calcBuyMerit(monthlyKwh, effUnit, initCostTax);
 
-  /* リース：税別16，000円/月（calc.js/customer.html準拠）*/
-  var LEASE_M=16000, LEASE_T=10;
-
-  var noS=0, leaseS=0, ppaS=PPA_INIT, buyS=initCostTax;
-  var cumLease=0, ppaMerit=0, cumBuy=-initCostTax;
-  var leaseBep=null, ppaBep=null, buyBep=null;
-
-  for(var y=1;y<=30;y++){
-    var pm=Math.pow(1+INC,y-1), eu=effEv*pm;
-    var genY =AGEN  *Math.pow(1-DR,y-1);
-    var genYp=AGEN_P*Math.pow(1-DR,y-1);
-    var svL=genY *lscR*eu, svP=genYp*pscR*eu;
-    var fitL=y<=4?LF1:y<=LEASE_T?LF2:LF3;
-    var fitP=y>PPA_T?LF3:0;
-    var fitBuy=y<=4?LF1:LF3;
-    var slL=genY *(1-lscR)*fitL;
-    var slP=genYp*(1-pscR)*fitP;
-    var slBuy=genY*(1-lscR)*fitBuy;
-    var lcL=y<=LEASE_T?LEASE_M*12:0;
-    var pcL=(y===15||y===30)?200000:0;
-    var pcP=(y===15||y===30)?PPA_PCON:0;
-    var pcBuy=(y===15||y===30)?200000:0;
-    var base=monthlyBillBase*12*pm;
-    noS    +=base;
-    leaseS +=base-svL-slL+lcL+pcL;
-    ppaS   +=base-svP-slP+pcP;
-    buyS   +=base-svL-slBuy+pcBuy;
-    cumLease+=svL+slL-lcL-pcL;
-    ppaMerit+=svP+slP-pcP;
-    cumBuy  +=svL+slBuy-pcBuy;
-    if(leaseBep===null&&cumLease>0) leaseBep=y;
-    if(ppaBep===null&&ppaMerit>0)   ppaBep=y;
-    if(buyBep===null&&cumBuy>0)     buyBep=y;
-  }
-
-  var genM=AGEN/12;
-  var saveM=Math.round(genM*lscR*effEv);
-  var sellM=Math.round(genM*(1-lscR)*LF1);
-
-  R.solar={
-    cap:CAP, ppaCap:PPA_CAP, monthlyKwh:monthlyKwh,
-    lscR:lscR, lscPct:Math.round(lscR*100),
-    saveM:saveM, sellM:sellM, noS30:Math.round(noS),
-    buy:  {initCost:initCostTax, pricePerKw:buyKwPrice,
-           netM:r.allElec-saveM-sellM,
-           cum30:Math.round(buyS), merit30:Math.round(noS-buyS), bep:buyBep},
-    lease:{monthly:LEASE_M, term:LEASE_T,
-           netM:r.allElec-saveM-sellM+LEASE_M,
-           cum30:Math.round(leaseS), merit30:Math.round(noS-leaseS), bep:leaseBep},
-    ppa:  {name:CFG.ppaName||'建て得', term:PPA_T, initCost:PPA_INIT,
-           netM:r.allElec, cum30:Math.round(ppaS), merit30:Math.round(noS-ppaS), bep:ppaBep}
+  /* R.solarに結果を格納 */
+  R.solar = {
+    monthlyKwh: monthlyKwh,
+    cap:        result.leasePlan.cap,
+    ppaCap:     result.ppaCap,
+    /* リース */
+    lease: {
+      monthly:  result.leasePlan.monthly,
+      term:     result.leasePlan.term,
+      merit30:  result.lCum30,
+      bep:      result.leaseBep,
+      netM:     r.allElec - Math.round(result.lSvTotal/30/12) - Math.round(result.lSlTotal/30/12) + result.leasePlan.monthly
+    },
+    /* 建て得 */
+    ppa: {
+      name:     result.ppaPlan.name,
+      term:     result.ppaPlan.term,
+      initCost: result.pInitCost,
+      merit30:  result.pCum30,
+      bep:      result.crossYear,
+      netM:     r.allElec
+    },
+    /* 購入 */
+    buy: {
+      initCost: initCostTax,
+      pricePerKw: buyKwPrice,
+      merit30:  buyMerit,
+      netM:     r.allElec - Math.round(result.lSvTotal/30/12) - Math.round(result.lSlTotal/30/12)
+    },
+    /* リース vs 建て得の差 */
+    diff30:   result.diff30,
+    noS30:    0
   };
 
   renderSolar();
@@ -1899,56 +1892,83 @@ function doSolar(){
   goScreen('scrSolar');
 }
 
+/* 購入の30年メリット（calcMainにないため独自計算） */
+function calcBuyMerit(kwh, eff, initCost){
+  var AGEN=8000, LF1=24, LF3=7.15, INC=0.02, DR=0.005;
+  var lscR=Math.min(kwh*0.30/(AGEN/12),0.85);
+  var base=kwh*eff, noS=0, buyS=initCost;
+  for(var y=1;y<=30;y++){
+    var pm=Math.pow(1+INC,y-1), eu=eff*pm;
+    var gen=AGEN*Math.pow(1-DR,y-1);
+    var fit=y<=4?LF1:LF3;
+    var sv=gen*lscR*eu, sl=gen*(1-lscR)*fit;
+    var pc=(y===15||y===30)?200000:0;
+    noS  += base*12*pm;
+    buyS += base*12*pm-sv-sl+pc;
+  }
+  return Math.round((noS-buyS)/10000)*10000;
+}
+
+
 function renderSolar(){
-  var r=R, s=R.solar;
-  var fy2=fy, fmd2=fmd;
+  var s=R.solar, r=R;
+  if(!s) return;
 
   /* リース */
   var ls=s.lease;
-  document.getElementById('leaseHeroNum').textContent   = fman(ls.merit30);
-  document.getElementById('leaseHeroBadge').textContent = ls.bep ? 'メリットがリース費用を上回るのは'+ls.bep+'年目から' : '詳細は個別試算で';
+  var lMerit = Math.round(ls.merit30/10000);
+  document.getElementById('leaseHeroNum').textContent  = lMerit;
+  document.getElementById('leaseHeroBadge').textContent= ls.bep
+    ? ls.bep+'年目からメリットが発生'
+    : '詳細は個別試算で';
   document.getElementById('lsL1').textContent = fy(r.allElec);
-  document.getElementById('lsL2').textContent = '-'+fy(s.saveM)+'（自家消費率'+Math.round((s.lscR||s.scR)*100)+'%）';
-  document.getElementById('lsL3').textContent = '-'+fy(s.sellM);
-  document.getElementById('lsL4').textContent = '+'+fy(ls.monthly)+'/月';
-  document.getElementById('lsL5').textContent = fy(ls.netM);
+  document.getElementById('lsL2').textContent = '自家消費＋エコシフトで削減';
+  document.getElementById('lsL3').textContent = '余剰売電で収入';
+  document.getElementById('lsL4').textContent = '+¥'+ls.monthly.toLocaleString()+'/月（税別）';
+  document.getElementById('lsL5').textContent = '詳細は個別シミュで確認';
+
+  /* 建て得 */
+  var pp=s.ppa;
+  var pMerit = Math.round(pp.merit30/10000);
+  document.getElementById('ppaHeroNum').textContent   = pMerit;
+  document.getElementById('ppaHeroBadge').textContent = s.diff30>0
+    ? 'リースが'+Math.round(s.diff30/10000)+'万円上回る'
+    : '建て得が'+Math.round(-s.diff30/10000)+'万円上回る';
+  document.getElementById('ppaTerm').textContent = pp.term+'年';
+  document.getElementById('ppaL5').textContent   = fy(r.allElec)+'（割引なし）';
 
   /* 購入 */
   var bu=s.buy;
-  document.getElementById('buyHeroNum').textContent   = fman(bu.merit30);
-  document.getElementById('buyHeroBadge').textContent = bu.bep ? '初期費用回収は'+bu.bep+'年目' : '詳細は個別試算で';
-  var kwPr = bu.pricePerKw || CFG.buyPricePerKw;
-  /* buyKwInputの表示値を更新 */
-  var bkEl = document.getElementById('buyKwInput');
-  if(bkEl && !bkEl.value) bkEl.value = kwPr;
+  var bMerit = Math.round(bu.merit30/10000);
+  document.getElementById('buyHeroNum').textContent   = bMerit;
+  document.getElementById('buyHeroBadge').textContent = '初期費用回収後に最大リターン';
   var kwEl = document.getElementById('buyCostKw');
-  if(kwEl) kwEl.textContent = fy(kwPr)+' / kW（税別）';
-  document.getElementById('buyCost').textContent    = fy(bu.initCost)+'（'+Math.round(bu.initCost/10000)+'万円・税込）';
-  document.getElementById('buyL2').textContent      = '-'+fy(s.saveM);
-  document.getElementById('buyL3').textContent      = '-'+fy(s.sellM);
-  document.getElementById('buyL5').textContent      = '+'+fy(s.saveM+s.sellM)+'/月';
+  if(kwEl) kwEl.textContent = fy(bu.pricePerKw)+'/kW（税別）';
+  document.getElementById('buyCost').textContent = fy(bu.initCost)
+    +'（'+Math.round(bu.initCost/10000)+'万円・税込）';
+  document.getElementById('buyL2').textContent = '自家消費で削減';
+  document.getElementById('buyL3').textContent = '余剰売電で収入';
+  document.getElementById('buyL5').textContent = '詳細は個別シミュで確認';
 
-  /* PPA */
-  var pp=s.ppa;
-  document.getElementById('ppaHeroNum').textContent   = fman(pp.merit30);
-  document.getElementById('ppaHeroBadge').textContent = pp.bep ? pp.bep+'年目からメリットが発生' : '詳細は個別試算で';
-  document.getElementById('ppaTerm').textContent = pp.term+'年';
-  document.getElementById('ppaL5').textContent   = fy(r.allElec);
-
-  /* 3方式バーグラフ */
+  /* 30年累積バーグラフ */
+  var noSEst = Math.round((r.allElec*12*30*1.3)/10000)*10000;
   renderBar('barS30',[
-    {lbl:'太陽光なし',  val:s.noS30,     color:'#9CA3AF'},
-    {lbl:'購入',                    val:bu.cum30,    color:'#374151'},
-    {lbl:'リース',              val:ls.cum30,    color:'#D97706'},
-    {lbl:'建て得（PPA）',val:pp.cum30,  color:'#15803D'}
+    {lbl:'太陽光なし', val:noSEst,        color:'#9CA3AF'},
+    {lbl:'購入',                   val:noSEst-bu.merit30, color:'#374151'},
+    {lbl:'リース',             val:noSEst-ls.merit30, color:'#D97706'},
+    {lbl:'建て得',             val:noSEst-pp.merit30, color:'#15803D'}
   ]);
 
-  /* メッセージ */
-  var best = bu.merit30 >= ls.merit30 && bu.merit30 >= pp.merit30 ? '購入' :
-             ls.merit30 >= pp.merit30 ? 'リース' : '建て得';
-  document.getElementById('sLongT').textContent = '30年間の経済効果：購入 '+fmd(bu.merit30)+' / リース '+fmd(ls.merit30)+' / 建て得 '+fmd(pp.merit30);
-  document.getElementById('sLongB').textContent = '初期費用の有無やリスク許容度によって最適な方式は異なります。詳細は屋根・図面をもとに個別シミュレーションでご確認ください。';
+  /* 差額メッセージ */
+  var diffMan = Math.round(s.diff30/10000);
+  document.getElementById('sLongT').textContent =
+    'リース '+lMerit+'万円 / 建て得 '+pMerit
+    +'万円 / 購入 '+bMerit+'万円（30年経済効果）';
+  document.getElementById('sLongB').textContent = diffMan>=0
+    ? 'リースは建て得より'+diffMan+'万円上回る計算になります（概算）'
+    : 'この条件では建て得が'+(-diffMan)+'万円上回ります。詳細シミュで確認をお勧めします';
 }
+
 
 function switchTab(tab){
   ['lease','buy','ppa'].forEach(function(t){
