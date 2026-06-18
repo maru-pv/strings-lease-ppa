@@ -25,11 +25,11 @@ body{font-family:'Hiragino Kaku Gothic ProN','Hiragino Sans',sans-serif;backgrou
 .sbadge{position:absolute;top:12px;left:50%;transform:translateX(-50%);border-radius:20px;padding:5px 16px;font-size:12px;font-weight:700;white-space:nowrap;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 .app-dot{position:absolute;transform:translate(-50%,-50%);cursor:pointer;transition:transform .15s}
 .app-dot:hover{transform:translate(-50%,-50%) scale(1.12)}
-.dot-circle{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 10px rgba(0,0,0,.25);border:2px solid rgba(255,255,255,.8);transition:all .2s;position:relative}
+.dot-circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 2px 10px rgba(0,0,0,.25);border:2px solid rgba(255,255,255,.8);transition:all .2s;position:relative}
 .dot-circle.on{background:rgba(255,255,255,.95);box-shadow:0 0 0 4px rgba(59,130,246,.4),0 2px 10px rgba(0,0,0,.2)}
 .dot-circle.off{background:rgba(30,41,59,.75);filter:grayscale(0.6)}
 .dot-circle.off::after{content:"";position:absolute;width:24px;height:2px;background:#ef4444;transform:rotate(45deg);border-radius:2px}
-.dot-kw{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;white-space:nowrap;color:#fff;background:rgba(0,0,0,.55);border-radius:8px;padding:1px 5px}
+.dot-kw{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;white-space:nowrap;color:#fff;background:rgba(0,0,0,.55);border-radius:8px;padding:1px 5px}
 .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
 .sc{background:#fff;border-radius:10px;padding:12px 8px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.06);border-top:3px solid}
 .sc-lbl{font-size:11px;color:#6B7280;margin-bottom:4px}
@@ -79,6 +79,34 @@ body{font-family:'Hiragino Kaku Gothic ProN','Hiragino Sans',sans-serif;backgrou
   <span class="tbadge" id="tb">13:00</span>
   <span id="dayLabel" style="font-size:11px;font-weight:700;color:#d97706;background:#FEF3C7;border-radius:10px;padding:2px 8px;white-space:nowrap">☀️ 昼間</span>
   <button class="pbtn" id="pb">▶ 1日再生</button>
+</div>
+
+<!-- パネル・パワコン情報 -->
+<div style="display:flex;gap:8px;margin-bottom:10px">
+  <div style="flex:1;background:#EBF2FB;border:1px solid #BFDBFE;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px">
+    <span style="font-size:20px">☀️</span>
+    <div>
+      <div style="font-size:10px;color:#6B7280;font-weight:600">太陽光パネル</div>
+      <div style="font-size:15px;font-weight:800;color:#1A5EA8">8 kW</div>
+      <div style="font-size:9px;color:#9CA3AF">年間発電量 約8,000kWh</div>
+    </div>
+  </div>
+  <div style="flex:1;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px">
+    <span style="font-size:20px">⚡</span>
+    <div>
+      <div style="font-size:10px;color:#6B7280;font-weight:600">パワコン（Q.READY）</div>
+      <div style="font-size:15px;font-weight:800;color:#15803D">5.9 kW</div>
+      <div style="font-size:9px;color:#9CA3AF">定格出力 ハンファ製</div>
+    </div>
+  </div>
+  <div style="flex:1;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px">
+    <span style="font-size:20px">📊</span>
+    <div>
+      <div style="font-size:10px;color:#6B7280;font-weight:600">最大発電量</div>
+      <div style="font-size:15px;font-weight:800;color:#D97706" id="maxGenDisp">5.9 kW</div>
+      <div style="font-size:9px;color:#9CA3AF">パワコン定格が上限</div>
+    </div>
+  </div>
 </div>
 
 <div class="scene" id="scene">
@@ -179,14 +207,19 @@ var NODES = {
   battery:{px:95.7, py:46.8}
 };
 
-var SOLAR_MAX=4.0, ELEC=35, SELL=24;
+var SOLAR_MAX=5.9, ELEC=35, SELL=24; /* Q.READY定格出力5.9kW */
 var on={ac:true,eco:true,ih:false,light:true,tv:true,ev:false};
 var time=13, playing=false, timer=null;
 var particles=[], raf=null;
 var spawnTs={};
 
 function isDay(t){return t>=6&&t<=18;}
-function solar(t){return isDay(t)?+(SOLAR_MAX*Math.sin(((t-6)/12)*Math.PI)).toFixed(2):0;}
+function solar(t){
+  if(!isDay(t)) return 0;
+  /* パワコン定格5.9kWが上限（パネル8kWでも出力は5.9kW止まり） */
+  var raw = SOLAR_MAX * Math.sin(((t-6)/12)*Math.PI);
+  return +Math.min(raw, 5.9).toFixed(2);
+}
 function consume(t){
   var d=isDay(t);
   return +APPS.reduce(function(s,a){return s+(on[a.id]&&(d||a.night)?a.kw:0);},0).toFixed(1);
@@ -359,7 +392,7 @@ function update(){
   document.getElementById('saveSub').textContent=buyC>0?'買電コスト 約¥'+buyC.toLocaleString()+'/月':'自家消費 + 売電収入で節約';
 
   var sb=document.getElementById('sbadge');
-  if(day&&gen>0.1){sb.style.background='rgba(16,185,129,0.92)';sb.textContent='☀️ 発電中 '+gen.toFixed(1)+' kW';}
+  if(day&&gen>0.1){sb.style.background='rgba(16,185,129,0.92)';sb.textContent='☀️ 発電中 '+gen.toFixed(1)+' kW（パネル8kW・パワコン5.9kW）';}
   else{sb.style.background='rgba(99,102,241,0.92)';sb.textContent='🌙 夜間モード（買電）';}
 
   document.getElementById('tb').textContent=String(time).padStart(2,'0')+':00';
