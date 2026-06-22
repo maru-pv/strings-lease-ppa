@@ -482,7 +482,7 @@ optgroup { font-weight: 700; }
 <header class="hdr">
   <div>
     <div class="hdr-t">光熱費まるごと比較ナビ</div>
-    <div style="font-size:10px;color:rgba(255,255,255,.55);margin-top:2px;font-family:monospace">v2026.06.19-2</div>
+    <div style="font-size:10px;color:rgba(255,255,255,.55);margin-top:2px;font-family:monospace">v2026.06.19-4</div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
     <div class="hdr-s" id="userInfo" style="display:none">
@@ -733,6 +733,10 @@ optgroup { font-weight: 700; }
       <div class="sim-line"><span>余剰電力の売電収入</span><span id="lsL3" style="font-weight:700;color:#15803D">—</span></div>
       <div class="sim-line"><span>リース料（月額・税込）</span><span id="lsL4" style="font-weight:700;color:#B91C1C">—</span></div>
       <div class="sim-total"><span style="font-size:14px;font-weight:800">実質の月額負担</span><span id="lsL5" style="font-size:18px;font-weight:900;color:#D97706">—</span></div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #D1D5DB;display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:#6B7280">参考：30年メリットを月割りすると</span>
+        <span id="leaseMonthlyMerit" style="font-size:14px;font-weight:800;color:#D97706">—</span>
+      </div>
     </div>
     <div class="story">ポイントは<strong>リース終了後（11年目以降）</strong>。リース料がなくなり、削減効果と売電収入がまるごと家計のプラスになります。設備は無償譲渡されます。</div>
   </div>
@@ -763,6 +767,10 @@ optgroup { font-weight: 700; }
       <div class="sim-line"><span>余剰電力の売電収入</span><span id="buyL3" style="font-weight:700;color:#15803D">—</span></div>
       <div class="sim-line"><span>リース料</span><span style="color:#9CA3AF">なし</span></div>
       <div class="sim-total"><span style="font-size:14px;font-weight:800">月額削減効果</span><span id="buyL5" style="font-size:18px;font-weight:900;color:#374151">—</span></div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #D1D5DB;display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:#6B7280">参考：30年メリットを月割りすると</span>
+        <span id="buyMonthlyMerit" style="font-size:14px;font-weight:800;color:#374151">—</span>
+      </div>
     </div>
     <div class="story">初期費用の回収後は<strong>光熱費削減がまるごと収益</strong>になります。初期費用・kW単価は工務店側で設定できます。</div>
   </div>
@@ -778,10 +786,14 @@ optgroup { font-weight: 700; }
     <div class="card">
       <div class="card-ttl">☀️ 建て得 月々のイメージ（初年度・概算）</div>
       <div class="sim-line"><span>初期費用</span><span style="color:#15803D;font-weight:700">0円</span></div>
-      <div class="sim-line"><span>自家消費した電気代</span><span style="color:#9CA3AF">0円（無償利用）</span></div>
+      <div class="sim-line"><span>自家消費した電気代</span><span id="ppaL2" style="color:#15803D;font-weight:700">—</span></div>
       <div class="sim-line"><span>余剰売電（期間中）</span><span style="color:#9CA3AF" id="ppaL3">事業者側</span></div>
       <div class="sim-line"><span>月額費用</span><span style="color:#15803D;font-weight:700">0円</span></div>
       <div class="sim-total"><span style="font-size:14px;font-weight:800">実質の月額負担</span><span id="ppaL5" style="font-size:18px;font-weight:900;color:#15803D">—</span></div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #D1D5DB;display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:11px;color:#6B7280">参考：30年メリットを月割りすると</span>
+        <span id="ppaMonthlyMerit" style="font-size:14px;font-weight:800;color:#15803D">—</span>
+      </div>
     </div>
     <div class="story">初期費用・月額ゼロで太陽光を設置できます。<strong id="ppaTerm">15年</strong>後に設備が無償譲渡され、以降の売電収入もすべて手元に残ります。</div>
   </div>
@@ -794,6 +806,23 @@ optgroup { font-weight: 700; }
       <div class="t" id="sLongT">—</div>
       <div class="b" id="sLongB">—</div>
     </div>
+  </div>
+
+  <!-- 内訳サマリー（customer.html準拠） -->
+  <div class="card" style="margin-top:14px">
+    <div class="card-ttl">内訳サマリー（リース vs 建て得）</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="border-bottom:2px solid #E5E7EB">
+          <th style="text-align:left;padding:8px 4px;color:#6B7280;font-weight:700">項目</th>
+          <th style="text-align:right;padding:8px 4px;color:#1A5EA8;font-weight:700">リース</th>
+          <th style="text-align:right;padding:8px 4px;color:#D97706;font-weight:700" id="brkPpaHeader">建て得</th>
+        </tr>
+      </thead>
+      <tbody id="breakdownBody">
+        <!-- JSで生成 -->
+      </tbody>
+    </table>
   </div>
 
   <div class="notice">本試算は標準的な屋根条件（1kWあたり年間発電量1,000kWh・劣化率0.5%/年・パワコン交換15/30年目）での概算です。実際は屋根の向き・面積・地域・設置容量によって大きく変わります。</div>
@@ -1546,14 +1575,15 @@ function doSolar(){
       bep:      result.leaseBep,
       netM:     r.allElec - Math.round(result.lSvTotal/30/12) - Math.round(result.lSlTotal/30/12) + result.leasePlan.monthly
     },
-    /* 建て得 */
+    /* 建て得：自家消費分が無償になるため、その削減額を月額に反映 */
     ppa: {
       name:     result.ppaPlan.name,
       term:     result.ppaPlan.term,
       initCost: result.pInitCost,
       merit30:  result.pCum30,
       bep:      result.crossYear,
-      netM:     r.allElec
+      saveM:    Math.round(result.pSvTotal / 30 / 12), /* 自家消費削減の月平均 */
+      netM:     r.allElec - Math.round(result.pSvTotal / 30 / 12)
     },
     /* 購入 */
     buy: {
@@ -1564,7 +1594,23 @@ function doSolar(){
     },
     /* リース vs 建て得の差 */
     diff30:   result.diff30,
-    noS30:    0
+    noS30:    0,
+    /* 内訳サマリー用（customer.html準拠） */
+    breakdown: {
+      lSvTotal:   result.lSvTotal,
+      lSlTotal:   result.lSlTotal,
+      lCostTotal: result.lCostTotal,
+      lPconTotal: result.lPconTotal,
+      pSvTotal:   result.pSvTotal,
+      pSlTotal:   result.pSlTotal,
+      pLossTotal: result.pLossTotal,
+      pPconTotal: result.pPconTotal,
+      pInitCost:  result.pInitCost,
+      ppaProvider: result.ppaPlan ? result.ppaPlan.provider : 'lixil',
+      ppaTerm:    result.ppaPlan ? result.ppaPlan.term : 15,
+      lCum30:     result.lCum30,
+      pCum30:     result.pCum30
+    }
   };
 
   renderSolar();
@@ -1606,6 +1652,12 @@ function renderSolar(){
   document.getElementById('lsL3').textContent = '余剰売電で収入';
   document.getElementById('lsL4').textContent = '+¥'+ls.monthly.toLocaleString()+'/月（税別）';
   document.getElementById('lsL5').textContent = '詳細は個別シミュで確認';
+  /* 参考：30年メリットを月割り（テスラ方式） */
+  var lsMonthlyMeritEl = document.getElementById('leaseMonthlyMerit');
+  if(lsMonthlyMeritEl){
+    var lsMonthly = Math.round(ls.merit30/30/12);
+    lsMonthlyMeritEl.textContent = '¥'+lsMonthly.toLocaleString()+'/月の得';
+  }
 
   /* 建て得 */
   var pp=s.ppa;
@@ -1615,7 +1667,18 @@ function renderSolar(){
     ? 'リースが'+Math.round(s.diff30/10000)+'万円上回る'
     : '建て得が'+Math.round(-s.diff30/10000)+'万円上回る';
   document.getElementById('ppaTerm').textContent = pp.term+'年';
-  document.getElementById('ppaL5').textContent   = fy(r.allElec)+'（割引なし）';
+  /* 建て得：自家消費分は無償利用で電気代が減る */
+  var ppaL3El = document.getElementById('ppaL3');
+  if(ppaL3El) ppaL3El.textContent = '事業者側（'+pp.term+'年間）';
+  document.getElementById('ppaL2').textContent = '0円（自家消費 −'+fy(pp.saveM)+'分・無償利用）';
+  document.getElementById('ppaL5').textContent = fy(pp.netM)
+    +'（自家消費削減 −'+fy(pp.saveM)+'）';
+  /* 参考：30年メリットを月割り */
+  var ppaMonthlyMeritEl = document.getElementById('ppaMonthlyMerit');
+  if(ppaMonthlyMeritEl){
+    var ppaMonthly = Math.round(pp.merit30/30/12);
+    ppaMonthlyMeritEl.textContent = '¥'+ppaMonthly.toLocaleString()+'/月の得';
+  }
 
   /* 購入 */
   var bu=s.buy;
@@ -1629,6 +1692,12 @@ function renderSolar(){
   document.getElementById('buyL2').textContent = '自家消費で削減';
   document.getElementById('buyL3').textContent = '余剰売電で収入';
   document.getElementById('buyL5').textContent = '詳細は個別シミュで確認';
+  /* 参考：30年メリットを月割り */
+  var buyMonthlyMeritEl = document.getElementById('buyMonthlyMerit');
+  if(buyMonthlyMeritEl){
+    var buyMonthly = Math.round(bu.merit30/30/12);
+    buyMonthlyMeritEl.textContent = '¥'+buyMonthly.toLocaleString()+'/月の得';
+  }
 
   /* 30年累積バーグラフ */
   var noSEst = Math.round((r.allElec*12*30*1.3)/10000)*10000;
@@ -1647,6 +1716,46 @@ function renderSolar(){
   document.getElementById('sLongB').textContent = diffMan>=0
     ? 'リースは建て得より'+diffMan+'万円上回る計算になります（概算）'
     : 'この条件では建て得が'+(-diffMan)+'万円上回ります。詳細シミュで確認をお勧めします';
+
+  /* 内訳サマリーテーブル（customer.html準拠） */
+  renderBreakdown(s, pp);
+}
+
+/* 内訳サマリーテーブル描画 */
+function renderBreakdown(s, pp){
+  var bd = s.breakdown;
+  if(!bd) return;
+
+  var fmt    = function(n){ return (n>=0?'+':'')+(n/10000).toFixed(1)+'万円'; };
+  var fmtAbs = function(n){ return Math.abs(n/10000).toFixed(1)+'万円'; };
+
+  document.getElementById('brkPpaHeader').textContent = pp.name;
+
+  var providerName = bd.ppaProvider === 'lixil' ? 'LIXIL' : 'PPA事業者';
+  var ppaTermYear = bd.ppaTerm || 15;
+
+  var rows = [
+    ['電気代節約（30年）', fmt(bd.lSvTotal), fmt(bd.pSvTotal)],
+    ['売電収入（30年）',
+      '<span style="font-size:10px;color:#B91C1C;display:block;margin-bottom:2px">1年目〜30年目</span>'+fmt(bd.lSlTotal),
+      '<span style="font-size:10px;color:#B91C1C;display:block;margin-bottom:2px">'+(ppaTermYear+1)+'年目〜30年目</span>'+fmt(bd.pSlTotal)
+        +(bd.pLossTotal ? '<br><span style="font-size:10px;color:#9CA3AF">※1〜'+ppaTermYear+'年目の'+fmtAbs(bd.pLossTotal)+'は'+providerName+'側へ</span>' : '')
+    ],
+    ['リース料（30年） / 契約期間中の売電損失', fmt(-bd.lCostTotal), bd.pLossTotal ? fmt(-bd.pLossTotal) : '—'],
+    ['パワコン交換費用', fmt(-bd.lPconTotal), fmt(-bd.pPconTotal)],
+    ['初期費用', '0円', bd.pInitCost ? fmt(-bd.pInitCost) : '0円'],
+    ['<strong>30年累積合計</strong>',
+      '<strong style="color:#1A5EA8">'+fmt(bd.lCum30)+'</strong>',
+      '<strong style="color:#D97706">'+fmt(bd.pCum30)+'</strong>']
+  ];
+
+  document.getElementById('breakdownBody').innerHTML = rows.map(function(row){
+    return '<tr style="border-bottom:1px solid #F3F4F6">'
+      + '<td style="padding:10px 4px;color:#374151">'+row[0]+'</td>'
+      + '<td style="padding:10px 4px;text-align:right">'+row[1]+'</td>'
+      + '<td style="padding:10px 4px;text-align:right">'+row[2]+'</td>'
+      + '</tr>';
+  }).join('');
 }
 
 
