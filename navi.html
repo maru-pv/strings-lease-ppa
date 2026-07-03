@@ -355,6 +355,7 @@ optgroup { font-weight: 700; }
 .result-hero .rh-sub     { font-size: 13px; opacity: 0.9; margin-top: 4px; font-weight: 700; }
 
 .compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.compare-row.single { grid-template-columns: 1fr; }
 .compare-card {
   background: var(--white); border-radius: var(--radius-sm);
   padding: 14px; box-shadow: var(--shadow); text-align: center;
@@ -904,7 +905,7 @@ optgroup { font-weight: 700; }
       <h2>設置プランを<br>選んでください</h2>
     </div>
 
-    <div class="card">
+    <div class="card" id="step2LeaseCard">
       <div class="card-title">SBIリース 搭載容量</div>
       <div class="sel-group col3">
         <button class="sel-btn" onclick="selectLease('6',this)">
@@ -920,7 +921,7 @@ optgroup { font-weight: 700; }
       <div class="info-box" style="margin-top:12px">リース料は月額一定・10年間。10年後は無償で設備が手に入ります。</div>
     </div>
 
-    <div class="card">
+    <div class="card" id="step2PpaCard">
       <div class="card-title">比較するPPAサービス</div>
       <div class="ppa-tabs">
         <button class="ppa-tab active" data-tab-key="tatekoku" onclick="switchPpaTab('tatekoku',this)">建て得（LIXIL）</button>
@@ -1074,8 +1075,8 @@ optgroup { font-weight: 700; }
         <thead>
           <tr>
             <th>項目</th>
-            <th style="text-align:right">SBIリース</th>
-            <th style="text-align:right" id="brkPpaHeader">PPA</th>
+            <th style="text-align:right" class="brk-lease-col">SBIリース</th>
+            <th style="text-align:right" class="brk-ppa-col" id="brkPpaHeader">PPA</th>
           </tr>
         </thead>
         <tbody id="breakdownBody"></tbody>
@@ -1963,6 +1964,8 @@ function initAll(){
       }
       /* STEP2のカード・タブ表示を工務店の対応サービスに合わせて絞り込む */
       applyCompanyPpaFilter();
+      /* 画面3の3タブ・STEP2のカード自体を工務店の対応契約方式に合わせて絞り込む */
+      applyCompanyFinancingFilter();
       /* ヘッダーにユーザー名を表示 */
       showUserInfo();
       /* buyKwInput初期値を工務店設定で更新 */
@@ -2274,6 +2277,59 @@ function applyCompanyPpaFilter() {
   }
 }
 
+/* ================================================================
+   工務店ごとの「対応契約方式（リース／購入／PPA）」絞り込み
+   companies.enabled_financing_methods が null/未設定なら「全部表示」（従来通り）
+================================================================ */
+const ALL_FINANCING_METHODS = ['lease', 'buy', 'ppa'];
+
+function getFinancingMethods() {
+  return (CURRENT_COMPANY && Array.isArray(CURRENT_COMPANY.enabled_financing_methods))
+    ? CURRENT_COMPANY.enabled_financing_methods
+    : ALL_FINANCING_METHODS;
+}
+
+/* STEP4/5(詳細シミュレーション)は「リースvsPPA」専用の作りなので、
+   その2つだけを見て表示モードを決める。'buy'（購入）はこの詳細シミュレーションには
+   そもそも登場しないため、ここでは無視してよい。 */
+function getStep4Mode() {
+  const fm = getFinancingMethods();
+  const hasLease = fm.includes('lease');
+  const hasPpa   = fm.includes('ppa');
+  if (hasLease && hasPpa) return 'both';
+  if (hasLease) return 'lease_only';
+  if (hasPpa)   return 'ppa_only';
+  return 'none';
+}
+
+function applyCompanyFinancingFilter() {
+  const fm = getFinancingMethods();
+
+  // ---- 画面3：3タブ（リース／購入／建て得）の表示/非表示 ----
+  const tabMap = { lease: 'tab-lease', buy: 'tab-buy', ppa: 'tab-ppa' };
+  let firstVisibleTab = null;
+  Object.keys(tabMap).forEach(key => {
+    const btn = document.getElementById(tabMap[key]);
+    if (!btn) return;
+    const visible = fm.includes(key);
+    btn.style.display = visible ? '' : 'none';
+    if (visible && !firstVisibleTab) firstVisibleTab = key;
+  });
+  // 今アクティブなタブが非表示になっていたら、最初に見えるタブに切替
+  const activeTabBtn = document.querySelector('.tab-btn.active');
+  if (activeTabBtn && activeTabBtn.style.display === 'none' && firstVisibleTab) {
+    switchTab(firstVisibleTab);
+  }
+
+  // ---- STEP2：「SBIリース搭載容量」カードの表示/非表示 ----
+  const leaseCard = document.getElementById('step2LeaseCard');
+  if (leaseCard) leaseCard.style.display = fm.includes('lease') ? '' : 'none';
+
+  // ---- STEP2：「比較するPPAサービス」カード自体の表示/非表示 ----
+  const ppaCard = document.getElementById('step2PpaCard');
+  if (ppaCard) ppaCard.style.display = fm.includes('ppa') ? '' : 'none';
+}
+
 /* ===== STEP3 ===== */
 function onHasEcoChange() {
   state.hasEco = document.getElementById('hasEco').checked;
@@ -2433,7 +2489,7 @@ function cRenderResult(r, effUnit) {
       `<strong class="val-orange">${fmt(r.pCum30)}<\/strong>`],
   ];
   document.getElementById('breakdownBody').innerHTML = rows.map(([l,a,b]) =>
-    `<tr><td>${l}<\/td><td style="text-align:right">${a}<\/td><td style="text-align:right">${b}<\/td><\/tr>`
+    `<tr><td>${l}<\/td><td class="brk-lease-col" style="text-align:right">${a}<\/td><td class="brk-ppa-col" style="text-align:right">${b}<\/td><\/tr>`
   ).join('');
 
   // 試算条件
@@ -2445,6 +2501,46 @@ function cRenderResult(r, effUnit) {
     `エコキュート：${state.hasEco
       ? (state.ecoMode === 'ohisama' ? 'おひさまECO' : 'ソーラーモード') + `（年${state.ecoKwh}kWh）`
       : 'なし'}　電気代上昇率：年2%（固定）`;
+
+  applyStep4Mode(r, lSavMan, pSavMan);
+}
+
+/* 工務店の対応契約方式（リース／PPA）に応じて、STEP4の表示を単独モードに調整する */
+function applyStep4Mode(r, lSavMan, pSavMan) {
+  const mode = getStep4Mode();
+  const compareRow  = document.querySelector('.compare-row');
+  const leaseCard   = document.getElementById('resLeaseCard');
+  const ppaCard     = document.getElementById('resPpaCard');
+  const heroLabel   = document.querySelector('.rh-label');
+  const heroSub     = document.getElementById('resHeroSub');
+  const brkTable    = document.querySelector('.breakdown-table');
+
+  // 一旦すべて表示状態に戻す（STEPを行き来しても崩れないように）
+  if (leaseCard) leaseCard.style.display = '';
+  if (ppaCard)   ppaCard.style.display   = '';
+  if (compareRow) compareRow.classList.remove('single');
+  if (brkTable) brkTable.querySelectorAll('.brk-lease-col, .brk-ppa-col').forEach(el => el.style.display = '');
+
+  if (mode === 'lease_only') {
+    if (ppaCard) ppaCard.style.display = 'none';
+    if (compareRow) compareRow.classList.add('single');
+    if (heroLabel) heroLabel.textContent = 'SBIリースを導入すると、30年間で';
+    document.getElementById('resLeaseCum').textContent = lSavMan;
+    if (heroSub) heroSub.textContent = '（太陽光なしと比較した節約額です）';
+    if (brkTable) {
+      brkTable.querySelectorAll('.brk-ppa-col').forEach(el => el.style.display = 'none');
+    }
+  } else if (mode === 'ppa_only') {
+    if (leaseCard) leaseCard.style.display = 'none';
+    if (compareRow) compareRow.classList.add('single');
+    if (heroLabel) heroLabel.textContent = `${r.ppaPlan.name}を導入すると、30年間で`;
+    document.getElementById('resLeaseCum').textContent = pSavMan;
+    if (heroSub) heroSub.textContent = '（太陽光なしと比較した節約額です）';
+    if (brkTable) {
+      brkTable.querySelectorAll('.brk-lease-col').forEach(el => el.style.display = 'none');
+    }
+  }
+  // mode === 'both'（または'none'）の場合は従来通りの表示のまま
 }
 
 let chartInst = null;
@@ -2611,7 +2707,17 @@ async function submitInquiry() {
 /* ===== ナビゲーション ===== */
 function cGoStep(dir) {
   if (state.cstep === 6 && dir === 1) { submitInquiry(); return; }
-  const next = state.cstep + dir;
+
+  let next = state.cstep + dir;
+
+  // STEP5は「リースvsPPA」比較専用の内容のため、
+  // 工務店がリース・PPAのどちらか一方しか扱わない場合はスキップする
+  const step4Mode = getStep4Mode();
+  if (step4Mode !== 'both') {
+    if (next === 5 && dir === 1) next = 6; // STEP4 → STEP6
+    if (next === 5 && dir === -1) next = 4; // STEP6 → STEP4
+  }
+
   if (next < 1 || next > 6) return;
   if (!cValidateStep(state.cstep, dir)) return;
 
@@ -2649,7 +2755,10 @@ function cUpdateNavButtons() {
   const btnBack = document.getElementById('btnBack');
   const btnNext = document.getElementById('btnNext');
   btnBack.style.display = state.cstep > 1 ? '' : 'none';
-  const labels = { 4:'まとめへ →', 5:'お問い合わせへ →', 6:'送信する ✉️' };
+  const step4Mode = getStep4Mode();
+  const labels = (step4Mode !== 'both')
+    ? { 4:'お問い合わせへ →', 6:'送信する ✉️' }
+    : { 4:'まとめへ →', 5:'お問い合わせへ →', 6:'送信する ✉️' };
   btnNext.textContent = labels[state.cstep] || '次へ →';
 }
 

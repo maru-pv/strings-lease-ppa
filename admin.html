@@ -131,6 +131,11 @@ td{padding:10px 6px;border-bottom:1px solid #F3F4F6;vertical-align:top}
         </div>
       </div>
       <div class="fld" style="margin-bottom:14px">
+        <label>対応している契約方式</label>
+        <div class="chk-group" id="newFinancingChecks"></div>
+        <div class="hint">チェックを外した方式は、画面3のタブごと非表示になります（詳細シミュレーションも自動で調整されます）</div>
+      </div>
+      <div class="fld" style="margin-bottom:14px">
         <label>対応しているPPAサービス</label>
         <div class="chk-group" id="newPpaChecks"></div>
         <div class="hint">チェックを外したサービスは、この工務店の画面には表示されません。すべてチェックすれば従来通り全部表示されます。</div>
@@ -143,7 +148,7 @@ td{padding:10px 6px;border-bottom:1px solid #F3F4F6;vertical-align:top}
       <div class="card-ttl">登録済みの取引先一覧</div>
       <table>
         <thead>
-          <tr><th>工務店名</th><th>対応PPAサービス</th><th>リース料/kW</th><th>購入単価/kW</th><th></th></tr>
+          <tr><th>工務店名</th><th>対応契約方式</th><th>対応PPAサービス</th><th>リース料/kW</th><th>購入単価/kW</th><th></th></tr>
         </thead>
         <tbody id="companyTable"></tbody>
       </table>
@@ -164,6 +169,13 @@ var PPA_SERVICES = [
   { key:'sharedenki', label:'シェアでんき' }
 ];
 var ALL_PPA_KEYS = PPA_SERVICES.map(function(s){ return s.key; });
+
+var FINANCING_METHODS = [
+  { key:'lease', label:'リース' },
+  { key:'buy',   label:'購入' },
+  { key:'ppa',   label:'PPA' }
+];
+var ALL_FINANCING_KEYS = FINANCING_METHODS.map(function(s){ return s.key; });
 
 var companies = [];
 
@@ -191,6 +203,7 @@ var companies = [];
   document.getElementById('mainContent').style.display = 'block';
 
   renderNewPpaChecks();
+  renderNewFinancingChecks();
   await loadCompanies();
 })();
 
@@ -198,6 +211,13 @@ function renderNewPpaChecks(){
   var wrap = document.getElementById('newPpaChecks');
   wrap.innerHTML = PPA_SERVICES.map(function(s){
     return '<label class="chk-item"><input type="checkbox" checked value="'+s.key+'" class="newPpaChk">'+s.label+'</label>';
+  }).join('');
+}
+
+function renderNewFinancingChecks(){
+  var wrap = document.getElementById('newFinancingChecks');
+  wrap.innerHTML = FINANCING_METHODS.map(function(s){
+    return '<label class="chk-item"><input type="checkbox" checked value="'+s.key+'" class="newFinancingChk">'+s.label+'</label>';
   }).join('');
 }
 
@@ -225,18 +245,29 @@ function ppaBadges(enabledList){
   }).join('');
 }
 
+function financingBadges(enabledList){
+  if(!Array.isArray(enabledList)){
+    return '<span class="badge all">全方式対応</span>';
+  }
+  return FINANCING_METHODS.map(function(s){
+    var on = enabledList.includes(s.key);
+    return '<span class="badge '+(on?'on':'off')+'">'+s.label+'</span>';
+  }).join('');
+}
+
 function renderTable(){
   var tbody = document.getElementById('companyTable');
   tbody.innerHTML = companies.map(function(c, idx){
     return ''
       + '<tr>'
       + '  <td><div class="co-name">'+escapeHtml(c.name)+'</div><div class="co-key">'+escapeHtml(c.client_key||'—')+'</div></td>'
+      + '  <td>'+financingBadges(c.enabled_financing_methods)+'</td>'
       + '  <td>'+ppaBadges(c.enabled_ppa_plans)+'</td>'
       + '  <td>¥'+Number(c.lease_monthly_per_kw||0).toLocaleString()+'</td>'
       + '  <td>¥'+Number(c.buy_price_per_kw||0).toLocaleString()+'</td>'
       + '  <td><button class="row-edit-btn" onclick="toggleEdit('+idx+')">編集</button></td>'
       + '</tr>'
-      + '<tr id="editRow'+idx+'" style="display:none"><td colspan="5">'+editPanelHtml(c, idx)+'</td></tr>';
+      + '<tr id="editRow'+idx+'" style="display:none"><td colspan="6">'+editPanelHtml(c, idx)+'</td></tr>';
   }).join('');
 }
 
@@ -246,8 +277,16 @@ function editPanelHtml(c, idx){
     var checked = enabledList.includes(s.key) ? 'checked' : '';
     return '<label class="chk-item"><input type="checkbox" '+checked+' value="'+s.key+'" class="editPpaChk-'+idx+'">'+s.label+'</label>';
   }).join('');
+
+  var enabledFinancing = Array.isArray(c.enabled_financing_methods) ? c.enabled_financing_methods : ALL_FINANCING_KEYS;
+  var financingChecks = FINANCING_METHODS.map(function(s){
+    var checked = enabledFinancing.includes(s.key) ? 'checked' : '';
+    return '<label class="chk-item"><input type="checkbox" '+checked+' value="'+s.key+'" class="editFinancingChk-'+idx+'">'+s.label+'</label>';
+  }).join('');
+
   return ''
     + '<div class="edit-panel">'
+    + '  <div class="fld" style="margin-bottom:12px"><label>対応している契約方式</label><div class="chk-group">'+financingChecks+'</div></div>'
     + '  <div class="fld" style="margin-bottom:12px"><label>対応PPAサービス</label><div class="chk-group">'+checks+'</div></div>'
     + '  <div class="frow">'
     + '    <div class="fld"><label>リース料（円/kW・月額）</label><input type="number" id="editLease'+idx+'" value="'+(c.lease_monthly_per_kw||2000)+'"></div>'
@@ -268,8 +307,12 @@ async function saveCompany(idx){
   var checked = Array.from(document.querySelectorAll('.editPpaChk-'+idx+':checked')).map(function(el){ return el.value; });
   var allChecked = checked.length === PPA_SERVICES.length;
 
+  var checkedFinancing = Array.from(document.querySelectorAll('.editFinancingChk-'+idx+':checked')).map(function(el){ return el.value; });
+  var allFinancingChecked = checkedFinancing.length === FINANCING_METHODS.length;
+
   var payload = {
     enabled_ppa_plans: allChecked ? null : checked,
+    enabled_financing_methods: allFinancingChecked ? null : checkedFinancing,
     lease_monthly_per_kw: parseInt(document.getElementById('editLease'+idx).value) || 2000,
     buy_price_per_kw: parseInt(document.getElementById('editBuy'+idx).value) || 300000
   };
@@ -305,13 +348,17 @@ async function addCompany(){
   var checked = Array.from(document.querySelectorAll('.newPpaChk:checked')).map(function(el){ return el.value; });
   var allChecked = checked.length === PPA_SERVICES.length;
 
+  var checkedFinancing = Array.from(document.querySelectorAll('.newFinancingChk:checked')).map(function(el){ return el.value; });
+  var allFinancingChecked = checkedFinancing.length === FINANCING_METHODS.length;
+
   var payload = {
     name: name,
     client_key: key || null,
     lease_monthly_per_kw: parseInt(document.getElementById('newLease').value) || 2000,
     buy_price_per_kw: parseInt(document.getElementById('newBuy').value) || 300000,
     ppa_plan: 'smile',
-    enabled_ppa_plans: allChecked ? null : checked
+    enabled_ppa_plans: allChecked ? null : checked,
+    enabled_financing_methods: allFinancingChecked ? null : checkedFinancing
   };
 
   btnEl.disabled = true;
@@ -334,6 +381,7 @@ async function addCompany(){
   document.getElementById('newLease').value = 2000;
   document.getElementById('newBuy').value = 300000;
   renderNewPpaChecks();
+  renderNewFinancingChecks();
 
   await loadCompanies();
 }
