@@ -923,23 +923,23 @@ optgroup { font-weight: 700; }
     <div class="card">
       <div class="card-title">比較するPPAサービス</div>
       <div class="ppa-tabs">
-        <button class="ppa-tab active" onclick="switchPpaTab('tatekoku',this)">建て得（LIXIL）</button>
-        <button class="ppa-tab" onclick="switchPpaTab('other',this)">その他のPPA</button>
+        <button class="ppa-tab active" data-tab-key="tatekoku" onclick="switchPpaTab('tatekoku',this)">建て得（LIXIL）</button>
+        <button class="ppa-tab" data-tab-key="other" onclick="switchPpaTab('other',this)">その他のPPA</button>
       </div>
 
       <!-- 建て得パネル -->
       <div class="ppa-panel active" id="panel-tatekoku">
-        <div class="ppa-card selected" onclick="selectPpa('smile',this)">
+        <div class="ppa-card selected" data-ppa-key="smile" onclick="selectPpa('smile',this)">
           <div class="pc-name">建て得スマイル</div>
           <div class="pc-tags"><span class="pc-tag">初期費用49.5万</span><span class="pc-tag">自家消費0円</span><span class="pc-tag">15年</span><span class="pc-tag">4.5kW〜</span></div>
           <div class="pc-note">初期費用あり・自家消費は無料。15年後に設備譲渡。</div>
         </div>
-        <div class="ppa-card" onclick="selectPpa('life',this)">
+        <div class="ppa-card" data-ppa-key="life" onclick="selectPpa('life',this)">
           <div class="pc-name">建て得ライフ</div>
           <div class="pc-tags"><span class="pc-tag">初期費用33万</span><span class="pc-tag">自家消費0円</span><span class="pc-tag">15年</span><span class="pc-tag">4.5kW〜</span></div>
           <div class="pc-note">スマイルより初期費用を抑えたプラン。</div>
         </div>
-        <div class="ppa-card" onclick="selectPpa('value',this)">
+        <div class="ppa-card" data-ppa-key="value" onclick="selectPpa('value',this)">
           <div class="pc-name">建て得バリュー</div>
           <div class="pc-tags"><span class="pc-tag">初期費用0円</span><span class="pc-tag">自家消費0円</span><span class="pc-tag">15年</span><span class="pc-tag">9kW〜</span></div>
           <div class="pc-note">初期費用ゼロ。9kW以上の搭載が必要です。</div>
@@ -948,12 +948,12 @@ optgroup { font-weight: 700; }
 
       <!-- その他PPAパネル -->
       <div class="ppa-panel" id="panel-other">
-        <div class="ppa-card" onclick="selectPpa('osakagas',this)">
+        <div class="ppa-card" data-ppa-key="osakagas" onclick="selectPpa('osakagas',this)">
           <div class="pc-name">大阪ガス スマイルーフ</div>
           <div class="pc-tags"><span class="pc-tag">初期費用0円</span><span class="pc-tag">自家消費24円/kWh</span><span class="pc-tag">15年</span><span class="pc-tag">関西エリア限定</span></div>
           <div class="pc-note">自家消費は有料（24円/kWh）。関西エリアのみ。</div>
         </div>
-        <div class="ppa-card" onclick="selectPpa('sharedenki',this)">
+        <div class="ppa-card" data-ppa-key="sharedenki" onclick="selectPpa('sharedenki',this)">
           <div class="pc-name">シェアでんき</div>
           <div class="pc-tags"><span class="pc-tag">初期費用0円</span><span class="pc-tag">自家消費25円/kWh</span><span class="pc-tag">15年</span><span class="pc-tag">全国対応</span></div>
           <div class="pc-note">パワコン交換も事業者負担。全国（一部除く）。</div>
@@ -1954,6 +1954,15 @@ function initAll(){
         ppaPconCost:        400000,
         webhookUrl:         CURRENT_COMPANY.chat_webhook_url     || ''
       };
+      /* 対応PPAサービスのリストと矛盾していないかチェック（画面3用の安全策） */
+      var enabledPpaList = Array.isArray(CURRENT_COMPANY.enabled_ppa_plans)
+        ? CURRENT_COMPANY.enabled_ppa_plans
+        : ALL_PPA_KEYS;
+      if (enabledPpaList.length > 0 && !enabledPpaList.includes(CFG.ppaKey)) {
+        CFG.ppaKey = enabledPpaList[0]; // 設定ミス防止：先頭の対応プランに自動で寄せる
+      }
+      /* STEP2のカード・タブ表示を工務店の対応サービスに合わせて絞り込む */
+      applyCompanyPpaFilter();
       /* ヘッダーにユーザー名を表示 */
       showUserInfo();
       /* buyKwInput初期値を工務店設定で更新 */
@@ -2204,6 +2213,65 @@ function updatePpaCapCard() {
 function onPpaCapChange() {
   state.ppaCap = parseFloat(document.getElementById('ppaCap').value) || 9;
   updatePpaCapCard();
+}
+
+/* ================================================================
+   工務店ごとの「対応PPAサービス」絞り込み
+   companies.enabled_ppa_plans が null/未設定なら「全サービス表示」（従来通り）
+================================================================ */
+const ALL_PPA_KEYS = ['smile', 'life', 'value', 'osakagas', 'sharedenki'];
+
+function applyCompanyPpaFilter() {
+  const enabled = (CURRENT_COMPANY && Array.isArray(CURRENT_COMPANY.enabled_ppa_plans))
+    ? CURRENT_COMPANY.enabled_ppa_plans
+    : ALL_PPA_KEYS; // 未設定なら全部表示（既存挙動を維持）
+
+  // ---- STEP2: カードの表示/非表示 ----
+  document.querySelectorAll('.ppa-card[data-ppa-key]').forEach(card => {
+    const key = card.getAttribute('data-ppa-key');
+    card.style.display = enabled.includes(key) ? '' : 'none';
+  });
+
+  // ---- STEP2: タブ内が全滅していたらタブごと非表示 ----
+  const tatekokuKeys = ['smile', 'life', 'value'];
+  const otherKeys    = ['osakagas', 'sharedenki'];
+  const tatekokuVisible = tatekokuKeys.some(k => enabled.includes(k));
+  const otherVisible    = otherKeys.some(k => enabled.includes(k));
+
+  const tatekokuTab = document.querySelector('.ppa-tab[data-tab-key="tatekoku"]');
+  const otherTab    = document.querySelector('.ppa-tab[data-tab-key="other"]');
+  if (tatekokuTab) tatekokuTab.style.display = tatekokuVisible ? '' : 'none';
+  if (otherTab)    otherTab.style.display    = otherVisible    ? '' : 'none';
+
+  // ---- 選択中のプランが非表示になっていたら、表示可能な最初のプランに切替 ----
+  if (!enabled.includes(state.ppaKey)) {
+    const fallbackKey = enabled[0];
+    if (fallbackKey) {
+      const fallbackCard = document.querySelector(`.ppa-card[data-ppa-key="${fallbackKey}"]`);
+      if (fallbackCard) {
+        selectPpa(fallbackKey, fallbackCard);
+        // カードが属するタブも開いておく
+        const tabKey = tatekokuKeys.includes(fallbackKey) ? 'tatekoku' : 'other';
+        const tabBtn = document.querySelector(`.ppa-tab[data-tab-key="${tabKey}"]`);
+        if (tabBtn) switchPpaTab(tabKey, tabBtn);
+      }
+    }
+  }
+
+  // ---- 画面3：この工務店がPPAを1つも扱っていない場合は「建て得」タブごと非表示 ----
+  const ppaTabBtn3   = document.getElementById('tab-ppa');
+  const ppaPanel3    = document.getElementById('panel-ppa');
+  if (ppaTabBtn3 && ppaPanel3) {
+    if (enabled.length === 0) {
+      ppaTabBtn3.style.display = 'none';
+      ppaPanel3.style.display  = 'none';
+      // 建て得タブが選択されたままにならないよう、リースタブに戻す
+      const leaseTabBtn = document.getElementById('tab-lease');
+      if (leaseTabBtn) switchTab('lease');
+    } else {
+      ppaTabBtn3.style.display = '';
+    }
+  }
 }
 
 /* ===== STEP3 ===== */
