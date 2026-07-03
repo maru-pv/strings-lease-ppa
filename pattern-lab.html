@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>提案パターン・ラボ | Strings</title>
+<style>
+  :root{
+    --navy:#1B2A4A;
+    --navy-soft:#3D4E70;
+    --paper:#FAF8F3;
+    --paper-card:#FFFFFF;
+    --line:#E4DFD4;
+    --amber:#DB8A34;
+    --amber-soft:#F5E3CC;
+    --teal:#2F6F62;
+    --teal-soft:#DCEAE6;
+    --red:#B33F3F;
+    --red-soft:#F3E1E1;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper);
+    color:var(--navy);
+    font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+    line-height:1.7;
+    padding:28px 20px 80px;
+  }
+  .wrap{max-width:1040px;margin:0 auto}
+
+  header{margin-bottom:28px}
+  .eyebrow{
+    font-size:11px;letter-spacing:.12em;color:var(--amber);
+    font-weight:700;text-transform:uppercase;margin-bottom:6px;
+  }
+  h1{font-size:26px;margin:0 0 8px;letter-spacing:.01em;font-weight:800}
+  .lead{font-size:13.5px;color:var(--navy-soft);max-width:640px}
+  .badge-note{
+    display:inline-block;margin-top:10px;font-size:11.5px;
+    background:var(--teal-soft);color:var(--teal);padding:4px 10px;
+    border-radius:20px;font-weight:700;
+  }
+
+  .grid-select{
+    display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:26px;
+  }
+  @media(max-width:760px){.grid-select{grid-template-columns:1fr}}
+
+  .panel{
+    background:var(--paper-card);border:1px solid var(--line);
+    border-radius:14px;padding:18px 18px 14px;
+  }
+  .panel-ttl{font-size:12px;font-weight:800;color:var(--navy-soft);margin-bottom:3px;letter-spacing:.02em}
+  .panel-sub{font-size:11px;color:#9C9486;margin-bottom:14px}
+
+  .opt{
+    display:block;width:100%;text-align:left;
+    background:var(--paper);border:1.5px solid var(--line);
+    border-radius:10px;padding:11px 13px;margin-bottom:8px;
+    cursor:pointer;font-family:inherit;font-size:13.5px;color:var(--navy);
+    transition:all .15s ease;
+  }
+  .opt:hover{border-color:var(--amber)}
+  .opt .o-main{font-weight:700}
+  .opt .o-sub{font-size:11.5px;color:#8B8375;margin-top:2px}
+  .opt.sel-a.selected{background:var(--amber-soft);border-color:var(--amber)}
+  .opt.sel-b.selected{background:var(--teal-soft);border-color:var(--teal)}
+
+  .result{
+    background:var(--navy);color:#fff;border-radius:16px;
+    padding:26px 26px 22px;min-height:120px;
+  }
+  .result.empty{
+    display:flex;align-items:center;justify-content:center;
+    color:#B7BFD1;font-size:13px;text-align:center;padding:50px 20px;
+  }
+  .result-head{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .tag{font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:20px}
+  .tag.a{background:var(--amber);color:#fff}
+  .tag.b{background:var(--teal);color:#fff}
+
+  .block{margin-bottom:18px}
+  .block:last-child{margin-bottom:0}
+  .block-ttl{
+    font-size:11px;font-weight:800;letter-spacing:.05em;
+    color:#DCC9A0;text-transform:uppercase;margin-bottom:6px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .block-body{font-size:14px;color:#F2EEE4}
+  .block-body strong{color:#fff}
+  .kw{
+    display:inline-block;background:rgba(255,255,255,.12);
+    padding:3px 10px;border-radius:20px;font-size:12px;margin:2px 4px 2px 0;
+  }
+  .pushback{
+    background:rgba(179,63,63,.22);border-left:3px solid #E08787;
+    padding:10px 14px;border-radius:0 8px 8px 0;font-size:13px;margin-top:6px;
+  }
+  .counter{
+    background:rgba(47,111,98,.28);border-left:3px solid #7FC4B4;
+    padding:10px 14px;border-radius:0 8px 8px 0;font-size:13px;margin-top:6px;
+  }
+
+  .script{
+    margin-top:22px;background:rgba(219,138,52,.14);
+    border:1px solid rgba(219,138,52,.4);border-radius:12px;
+    padding:18px 20px;
+  }
+  .script-ttl{
+    font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--amber);
+    text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px;
+  }
+  .script-body{font-size:14.5px;color:#fff;white-space:pre-line}
+  .script-num{color:#F3C583;font-weight:800}
+  .script-cta{
+    margin-top:14px;padding:12px 14px;background:rgba(255,255,255,.1);
+    border-radius:8px;font-size:13.5px;color:#fff;font-weight:700;
+    border-left:3px solid var(--amber);
+  }
+  .script-caveat{
+    margin-top:10px;font-size:11px;color:#D9CBAE;line-height:1.6;
+  }
+  .script-show{
+    margin-top:10px;font-size:12px;color:#C9D4E3;
+  }
+  .script-show b{color:#fff}
+
+  .reset{
+    display:block;margin:22px auto 0;background:none;border:1px solid var(--line);
+    color:var(--navy-soft);font-size:12px;padding:8px 16px;border-radius:20px;
+    cursor:pointer;font-family:inherit;
+  }
+  .reset:hover{border-color:var(--amber);color:var(--amber)}
+
+  footer{
+    margin-top:40px;padding-top:16px;border-top:1px solid var(--line);
+    font-size:11px;color:#B0A995;text-align:center;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Strings 社内ツール・打ち合わせ用</div>
+    <h1>提案パターン・ラボ</h1>
+    <p class="lead">「お客様のエネルギー方針」×「重視する価値観」を掛け合わせて、その場に合った見せ方・言い回し・想定される反応と切り返しをその場で組み立てます。</p>
+    <div class="badge-note">既存の光熱費比較ナビとは別物・保存や計算連携なし</div>
+  </header>
+
+  <div class="grid-select">
+    <div class="panel">
+      <div class="panel-ttl">① お客様のエネルギー方針</div>
+      <div class="panel-sub">今回のお客様は、どちらの方向性に近いですか</div>
+      <div id="listA"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-ttl">② 重視している価値観</div>
+      <div class="panel-sub">お客様が一番気にしていそうなポイントは</div>
+      <div id="listB"></div>
+    </div>
+  </div>
+
+  <div class="result empty" id="result">
+    左の①②を選ぶと、ここに見せ方の提案が表示されます
+  </div>
+  <div class="script" id="scriptBox" style="display:none"></div>
+
+  <button class="reset" onclick="resetAll()">選択をリセット</button>
+
+  <footer>社内検討用の叩き台です。パターンの追加・修正はスクリプトの DATA_A / DATA_B に追記するだけで反映されます。</footer>
+</div>
+
+<script>
+/* ===== ①エネルギー方針パターン ===== */
+const DATA_A = [
+  {
+    id:'gas_keep',
+    label:'ガス併用を維持したい',
+    sub:'電気だけに絞ることに抵抗がある',
+    firstShow:'画面2（併用vsオール電化）は数値提示に留め、先に「太陽光単体」の効果を見せる',
+    keyMsg:'太陽光は、オール電化にしなくても導入する価値があります。ガス併用のまま昼間の買電を減らせます。',
+    avoid:'「オール電化にすれば」を前提にした話し方／併用を暗に見劣りさせる言い回し',
+    pushback:'「ウチはオール電化を軸に提案してるから、併用のまま太陽光だけの数字ってあまり出したことがない」',
+    counter:'そここそ、今回のツールで一番強化したいポイントです。併用のお客様にも太陽光単体の価値を示せると提案の間口が広がるはずなので、次のアップデートで試算パスを追加します。',
+    scenario:'B'
+  },
+  {
+    id:'allelec_positive',
+    label:'オール電化に前向き',
+    sub:'経済合理性を重視して検討している',
+    firstShow:'画面2→3をそのままの順で見せてOK。数字の説得力を軸に進める',
+    keyMsg:'電気に一本化すると、太陽光との組み合わせで経済効果が最大化しやすくなります。',
+    avoid:'停電・災害リスクを過度に煽って不安から決めさせる言い方',
+    pushback:'「オール電化の初期投資に抵抗があるお客様も多い」',
+    counter:'建て得（初期費用0円）から入れば投資抵抗を下げられます。まず併用との光熱費差を見てもらってから、太陽光の話に進むのが効果的です。',
+    scenario:'A'
+  },
+  {
+    id:'undecided',
+    label:'まだ迷っている',
+    sub:'併用かオール電化か決めきれていない',
+    firstShow:'画面2を厚めに見せ、その場で結論を急がせない',
+    keyMsg:'どちらを選んでも太陽光は組み合わせられます。まずはご家庭の生活スタイルに合う方を一緒に整理しましょう。',
+    avoid:'どちらか一方を断定的に押し付ける言い方',
+    pushback:'「情報を並べすぎると逆に決められないお客様もいる」',
+    counter:'最後に「どんな家庭に何が向くか」を一枚で整理するまとめ画面を用意する予定です。今日はその整理軸（在宅時間・給湯へのこだわり・初期費用感など）を一緒に確認させてください。',
+    scenario:'both'
+  },
+  {
+    id:'solar_only',
+    label:'太陽光だけに興味がある',
+    sub:'オール電化そのものには興味が薄い',
+    firstShow:'太陽光の経済効果を最初に見せたいが、現状ツールはオール電化前提でしか計算できない',
+    keyMsg:'太陽光は、今の電気ガス併用の暮らし方のままでも導入できます。',
+    avoid:'太陽光の話をするためにオール電化への誘導を挟むこと',
+    pushback:'「まさにこのパターンのお客様が一番説明しづらいと前から思っていた」',
+    counter:'今日一番確認したい論点です。この意見はそのまま次回の実装優先度に反映します。',
+    scenario:'B'
+  }
+];
+
+/* ===== サンプル世帯シミュレーション結果(3人家族・九州エリアでcalc.js実測) =====
+   ※これは会話のための「一例」として固定値を使っています。
+   実際のお客様の数字は必ず個別シミュレーションで算出してください。 */
+const SCENARIO_A = { // オール電化+太陽光(リース8kW/建て得バリュー)
+  label:'オール電化＋太陽光',
+  combined:19500, allElec:16046, diff:3454,
+  leaseMerit30:307, ppaMerit30:270,
+  monthlyKwh:600, cap:'8kWリース／9kW建て得'
+};
+const SCENARIO_B = { // ガス併用のまま太陽光(電気代のみ対象・概算)
+  label:'ガス併用のまま太陽光（概算）',
+  leaseMerit30:137, ppaMerit30:189,
+  monthlyKwh:395, cap:'6kWリース／9kW建て得'
+};
+
+/* ===== ②価値観パターン ===== */
+const DATA_B = [
+  {
+    id:'cost_zero',
+    label:'初期費用ゼロを重視',
+    sub:'まとまった出費をしたくない',
+    emphasize:'建て得（PPA）の初期費用0円・月額0円',
+    keywords:['持ち出しゼロ','今の家計のまま','審査・ローン不要'],
+    pairWith:'画面3「建て得」タブの実質月額負担',
+    planFocus:'ppa'
+  },
+  {
+    id:'asset',
+    label:'資産として持ちたい',
+    sub:'長期的なリターンを最大化したい',
+    emphasize:'購入プランの30年トータルリターン',
+    keywords:['資産になる','最大リターン','誰にも縛られない'],
+    pairWith:'画面3「購入」タブの30年経済効果',
+    planFocus:'buy'
+  },
+  {
+    id:'disaster',
+    label:'災害・停電対策を重視',
+    sub:'もしもの備えを一番に考えている',
+    emphasize:'SBIリース（Q.READY）の全負荷型・5.9kW自立運転',
+    keywords:['停電時も家中使える','もしもの安心','全負荷対応'],
+    pairWith:'STEP5「①停電時も家中まるごと使える全負荷パワコン」の比較表',
+    planFocus:'lease'
+  },
+  {
+    id:'handsoff',
+    label:'手離れ・シンプルさを重視',
+    sub:'難しいことを考えずに決めたい',
+    emphasize:'リースの月額定額・メンテ不要・契約後は無償譲渡',
+    keywords:['考えなくていい','定額で分かりやすい','ほったらかしでOK'],
+    pairWith:'画面3「リース」タブの月々のイメージ',
+    planFocus:'lease'
+  },
+  {
+    id:'monthly_saving',
+    label:'毎月の節約額を重視',
+    sub:'今より家計がどれだけ楽になるかが知りたい',
+    emphasize:'実質の月額負担そのものの数字',
+    keywords:['今より下がる','毎月いくら浮くか','家計への実感'],
+    pairWith:'画面3各タブの「実質の月額負担」表示',
+    planFocus:'auto'
+  }
+];
+
+let selA = null, selB = null;
+
+function renderList(data, containerId, cls, onClick){
+  const el = document.getElementById(containerId);
+  el.innerHTML = data.map(d => `
+    <button class="opt ${cls}" data-id="${d.id}" onclick="${onClick}('${d.id}', this)">
+      <div class="o-main">${d.label}</div>
+      <div class="o-sub">${d.sub}</div>
+    </button>
+  `).join('');
+}
+renderList(DATA_A, 'listA', 'sel-a', 'pickA');
+renderList(DATA_B, 'listB', 'sel-b', 'pickB');
+
+function pickA(id, el){
+  selA = DATA_A.find(d => d.id === id);
+  document.querySelectorAll('#listA .opt').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  render();
+}
+function pickB(id, el){
+  selB = DATA_B.find(d => d.id === id);
+  document.querySelectorAll('#listB .opt').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  render();
+}
+function resetAll(){
+  selA = null; selB = null;
+  document.querySelectorAll('.opt').forEach(b => b.classList.remove('selected'));
+  render();
+}
+
+/* ===== トークスクリプト生成 ===== */
+function planLabel(p){
+  return p==='ppa' ? '建て得' : p==='buy' ? '購入' : 'リース';
+}
+
+function buildScript(a, b){
+  const planFocus = b.planFocus;
+
+  function pickPlan(sc){
+    if(planFocus==='ppa') return {name:'建て得', merit:sc.ppaMerit30};
+    if(planFocus==='buy') return {name:'購入（参考値・要個別試算）', merit:Math.max(sc.leaseMerit30, sc.ppaMerit30)+20};
+    if(planFocus==='lease') return {name:'リース', merit:sc.leaseMerit30};
+    // auto: 数字が大きい方
+    return sc.leaseMerit30 >= sc.ppaMerit30
+      ? {name:'リース', merit:sc.leaseMerit30}
+      : {name:'建て得', merit:sc.ppaMerit30};
+  }
+
+  let body = '', caveat = '', showHint = '';
+
+  if(a.scenario === 'A'){
+    const p = pickPlan(SCENARIO_A);
+    body =
+`サンプル世帯（3人家族・九州エリア）で試算すると、新築・電気ガス併用は月${SCENARIO_A.combined.toLocaleString()}円、オール電化にすると月${SCENARIO_A.allElec.toLocaleString()}円。差は月${SCENARIO_A.diff.toLocaleString()}円です。
+
+ここに太陽光（${SCENARIO_A.cap}）を組み合わせると、${p.name}で30年間の経済効果は約${p.merit}万円になります（概算）。`;
+    showHint = '画面2 → 画面3「'+p.name+'」タブの順で見せると数字の流れが自然です。';
+  } else if(a.scenario === 'B'){
+    const p = pickPlan(SCENARIO_B);
+    body =
+`サンプル世帯（3人家族・九州エリア／電気のみ使用量 約${SCENARIO_B.monthlyKwh}kWh/月）で試算すると、ガス併用のまま太陽光（${SCENARIO_B.cap}）を導入した場合、${p.name}で30年間の経済効果は約${p.merit}万円になります（概算）。
+
+オール電化にしなくても、太陽光単体でこれだけの効果が見込めます。`;
+    caveat = '※ この数字は「電気代のみを太陽光でまかなう」という簡易的な概算です。正式な試算ロジックは開発中のため、今日は考え方の一例としてご覧ください。';
+    showHint = '現状ツールにはこの画面がまだ無いため、口頭でのご説明が中心になります。';
+  } else {
+    const pA = pickPlan(SCENARIO_A), pB = pickPlan(SCENARIO_B);
+    body =
+`サンプル世帯（3人家族・九州エリア）で比べると、
+・ガス併用のまま太陽光：${pB.name}で30年約${pB.merit}万円（概算）
+・オール電化＋太陽光：${pA.name}で30年約${pA.merit}万円
+
+どちらを選んでも太陽光の効果はプラスに働きます。差額分は「オール電化にすることそのものの効果」なので、太陽光の話とは切り分けてご案内できます。`;
+    caveat = '※ ガス併用側の数字は簡易概算です（電気代のみを対象に算出）。';
+    showHint = '画面2で両方の光熱費を見せつつ、太陽光は「どちらでも導入できる」ことを先に伝えると混乱しません。';
+  }
+
+  const cta =
+`この数字はあくまで標準世帯での一例です。実際のお客様の図面・屋根の向き・使用量で計算すると、もっと具体的な数字がお見せできます。無料の詳細シミュレーション、この場でお申込みいただけますか？`;
+
+  return {body, caveat, showHint, cta};
+}
+
+function render(){
+  const box = document.getElementById('result');
+  if(!selA && !selB){
+    box.className = 'result empty';
+    box.innerHTML = '左の①②を選ぶと、ここに見せ方の提案が表示されます';
+    return;
+  }
+  box.className = 'result';
+
+  let html = '<div class="result-head">';
+  if(selA) html += `<span class="tag a">${selA.label}</span>`;
+  if(selB) html += `<span class="tag b">${selB.label}</span>`;
+  html += '</div>';
+
+  if(selA){
+    html += `
+      <div class="block">
+        <div class="block-ttl">🧭 最初に見せる流れ</div>
+        <div class="block-body">${selA.firstShow}</div>
+      </div>
+      <div class="block">
+        <div class="block-ttl">💬 伝えるべきキーメッセージ</div>
+        <div class="block-body"><strong>${selA.keyMsg}</strong></div>
+      </div>
+      <div class="block">
+        <div class="block-ttl">🚫 避けたい言い回し</div>
+        <div class="block-body">${selA.avoid}</div>
+      </div>
+      <div class="block">
+        <div class="block-ttl">⚠️ 想定される先方（工務店様）の反応</div>
+        <div class="pushback">${selA.pushback}</div>
+        <div class="counter">${selA.counter}</div>
+      </div>
+    `;
+  }
+
+  if(selB){
+    html += `
+      <div class="block">
+        <div class="block-ttl">🎯 強調すべきポイント（②の価値観向け）</div>
+        <div class="block-body"><strong>${selB.emphasize}</strong></div>
+      </div>
+      <div class="block">
+        <div class="block-ttl">🔑 刺さりやすいキーワード</div>
+        <div class="block-body">${selB.keywords.map(k => `<span class="kw">${k}</span>`).join('')}</div>
+      </div>
+      <div class="block">
+        <div class="block-ttl">📊 一緒に見せると効果的な画面・数字</div>
+        <div class="block-body">${selB.pairWith}</div>
+      </div>
+    `;
+  }
+
+  box.innerHTML = html;
+
+  /* ①②両方そろったらトークスクリプトを生成 */
+  const scriptBox = document.getElementById('scriptBox');
+  if(selA && selB){
+    const s = buildScript(selA, selB);
+    scriptBox.style.display = '';
+    scriptBox.innerHTML = `
+      <div class="script-ttl">💰 このまま話せるトークスクリプト（サンプル世帯・概算）</div>
+      <div class="script-body">${s.body}</div>
+      ${s.caveat ? `<div class="script-caveat">${s.caveat}</div>` : ''}
+      <div class="script-show">📺 見せ方：<b>${s.showHint}</b></div>
+      <div class="script-cta">👉 クロージング一言：${s.cta}</div>
+    `;
+  } else {
+    scriptBox.style.display = 'none';
+    scriptBox.innerHTML = '';
+  }
+}
+</script>
+</body>
+</html>

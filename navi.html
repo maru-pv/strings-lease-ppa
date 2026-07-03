@@ -675,9 +675,9 @@ optgroup { font-weight: 700; }
   <div class="note-sm">本シミュレーションは概算です。実際の光熱費は電力プラン・ガス種別・使用量・設備仕様により異なります。</div>
 
   <div class="story">
-    ここまでで、光熱費を<strong>電気に一本化するメリット</strong>を見てきました。<br>
-    ところで——オール電化にすると、家庭のエネルギーの中心は「電気」になります。<br>
-    その電気、<strong>全部買い続けますか？ それとも一部を自宅で作りますか？</strong>
+    ここまでで、電気ガス併用とオール電化、それぞれの光熱費の違いを見てきました。<br>
+    どちらを選ぶ場合でも、電気は<strong>「全部買う」か「一部を自宅で作る」か</strong>を選べます。<br>
+    次は、太陽光を組み合わせるとどう変わるかを見ていきましょう。
   </div>
   <!-- 断面図への誘導 -->
   <div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:12px;padding:16px;margin:12px 0">
@@ -1495,7 +1495,7 @@ function renderResult(){
     $id('heroSub').textContent  = '\u65B0\u7BC9\u30FB\u96FB\u6C17\u30AC\u30B9\u4F75\u7528 '+fy(r.combined)+'/\u6708 \u2192 \u65B0\u7BC9\u30FB\u30AA\u30FC\u30EB\u96FB\u5316 '+fy(r.allElec)+'/\u6708';
     $id('heroBadge').textContent = '\u5E74\u9593 '+fmd(d*12)+' \u306E\u7BC0\u7D04\u304C\u898B\u8FBC\u3081\u307E\u3059';
   } else {
-    $id('heroSub').textContent  = '\u4ECA\u306E\u5165\u529B\u5024\u3067\u306F\u5DEE\u306F\u5C0F\u3055\u3081\u3067\u3059\u3002\u5BB6\u8A08\u7BA1\u7406\u306E\u4E00\u672C\u5316\u30FB\u592A\u967D\u5149\u3068\u306E\u76F8\u6027\u306F\u5909\u308F\u3089\u305A\u25CE';
+    $id('heroSub').textContent  = '\u4ECA\u306E\u5165\u529B\u5024\u3067\u306F\u3001\u96FB\u6C17\u30AC\u30B9\u4F75\u7528\u3068\u30AA\u30FC\u30EB\u96FB\u5316\u306E\u5149\u71B1\u8CBB\u5DEE\u306F\u5C0F\u3055\u3081\u3067\u3059\u3002\u592A\u967D\u5149\u306E\u5C0E\u5165\u52B9\u679C\u306F\u3053\u306E\u5F8C\u3067\u5225\u9014\u3054\u78BA\u8A8D\u3044\u305F\u3060\u3051\u307E\u3059';
     $id('heroBadge').textContent = '\u8A73\u7D30\u306F\u500B\u5225\u30B7\u30DF\u30E5\u30EC\u30FC\u30B7\u30E7\u30F3\u3067';
   }
   $id('tcG').textContent = Math.round(r.combined).toLocaleString('ja-JP');
