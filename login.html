@@ -131,14 +131,14 @@ var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 })();
 
 function redirectToNavi(){
-  /* returnUrlパラメータがあればそこへ、なければnaviへ */
+  /* returnUrlパラメータがあればそこへ、なければホーム画面へ */
   var params = new URLSearchParams(window.location.search);
   var returnUrl = params.get('return');
   if(returnUrl){
     window.location.href = decodeURIComponent(returnUrl);
   } else {
     var base = window.location.href.replace(/\/[^\/]*$/, '/');
-    window.location.href = base + 'navi';
+    window.location.href = base;
   }
 }
 
