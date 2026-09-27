@@ -46,6 +46,64 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radiu
 button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #FFB547;outline-offset:2px}
 </style>
 <style>html,body{height:100%;overflow:hidden} sc-if,sc-for{display:contents}</style>
+<style>
+/* ===== クリーン表示（html[data-look="clean"]）：画面の枠・パネルだけ明るくする。空と家の情景はそのまま ===== */
+#lookSwitch{position:fixed;right:12px;top:12px;z-index:9999;display:flex;gap:2px;padding:3px;border-radius:999px;background:#11161c;border:1px solid #1d242c;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+#lookSwitch button{height:26px;padding:0 12px;border:0;border-radius:999px;background:transparent;color:#8a949f;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+#lookSwitch button[aria-pressed="true"]{background:#eef0f2;color:#0b0d10}
+html[data-look="clean"] #lookSwitch{background:#fff;border-color:#e5e5ea;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+html[data-look="clean"] #lookSwitch button[aria-pressed="true"]{background:#1d1d1f;color:#fff}
+
+html[data-look="clean"], html[data-look="clean"] body{background:#f5f5f7}
+html[data-look="clean"] #stage{background:#f5f5f7 !important;color:#1d1d1f !important}
+html[data-look="clean"] #stage > header{background:rgba(255,255,255,.88) !important;border-bottom-color:#e5e5ea !important;backdrop-filter:blur(16px)}
+html[data-look="clean"] #stage > header a:first-child{color:#1d1d1f}
+html[data-look="clean"] #stage > header span{color:#6e6e73 !important}
+html[data-look="clean"] #stage > header a[href="navi"]{background:#1d1d1f !important;color:#fff !important}
+
+/* 下部の再生バー */
+html[data-look="clean"] #stage > div[style*="top: 800px"]{background:#ffffff !important;border-top-color:#e5e5ea !important}
+html[data-look="clean"] #stage > div[style*="top: 800px"] label{color:#6e6e73 !important}
+html[data-look="clean"] #stage > div[style*="top: 800px"] button{background:#1d1d1f !important;color:#fff !important;box-shadow:0 4px 16px rgba(0,0,0,.12) !important}
+html[data-look="clean"] input[type=range]::-webkit-slider-runnable-track{background:#d2d2d7}
+html[data-look="clean"] input[type=range]::-webkit-slider-thumb{background:#1d1d1f;box-shadow:0 0 0 6px rgba(217,122,0,.18)}
+
+/* 右パネル */
+html[data-look="clean"] aside{background:#ffffff !important;border-left-color:#e5e5ea !important;color:#1d1d1f}
+html[data-look="clean"] aside [style*="background: #11161c"]{background:#f5f5f7 !important;border-color:#ececf0 !important}
+html[data-look="clean"] aside [style*="color: #aab2bb"]{color:#6e6e73 !important}
+html[data-look="clean"] aside [style*="color: #7d8792"]{color:#86868b !important}
+html[data-look="clean"] aside [style*="color: #FFB547"]{color:#C26A00 !important}
+html[data-look="clean"] aside [style*="color: #5BC0F8"]{color:#0071E3 !important}
+html[data-look="clean"] aside [style*="color: #FF7A66"]{color:#D63B2A !important}
+html[data-look="clean"] aside [style*="background: #1c232b"]{background:#e5e5ea !important}
+html[data-look="clean"] aside [style*="background: #E9EDF1"]{background:#1d1d1f !important;box-shadow:none !important}
+html[data-look="clean"] aside [style*="background: #f1f3f5"]{background:#fff8ee !important;border:1px solid #f5ddb8}
+html[data-look="clean"] aside svg line[stroke="#2b333c"], html[data-look="clean"] aside svg line[stroke="#1c232b"]{stroke:#e5e5ea}
+html[data-look="clean"] aside svg path[stroke="#E9EDF1"]{stroke:#1d1d1f}
+html[data-look="clean"] aside svg circle[fill="#E9EDF1"], html[data-look="clean"] aside svg text[fill="#E9EDF1"]{fill:#1d1d1f}
+html[data-look="clean"] aside svg line[stroke="#ffffff"]{stroke:#1d1d1f}
+html[data-look="clean"] aside svg text[fill="#5BC0F8"]{fill:#0071E3}
+
+/* 情景の上に乗るパネル（すりガラスを白に） */
+html[data-look="clean"] section > div[style*="rgba(10,13,17,0.72)"]{background:rgba(255,255,255,.82) !important;border-color:rgba(0,0,0,.06) !important;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+html[data-look="clean"] section > div[style*="rgba(10,13,17,0.72)"] span{color:#6e6e73 !important}
+html[data-look="clean"] section [role="group"]{background:#ececf0 !important}
+html[data-look="clean"] section [role="group"] button[aria-pressed="false"]{color:#424245 !important}
+html[data-look="clean"] section [role="group"] button[aria-pressed="true"]{background:#1d1d1f !important;color:#fff !important}
+html[data-look="clean"] section > div[style*="rgba(10,13,17,0.82)"]{background:rgba(255,255,255,.88) !important;box-shadow:0 12px 32px rgba(0,0,0,.10) !important}
+html[data-look="clean"] section > div[style*="rgba(10,13,17,0.82)"] [style*="color: #aab2bb"], html[data-look="clean"] section > div[style*="rgba(10,13,17,0.82)"] [style*="color: #c3c9d0"]{color:#6e6e73 !important}
+html[data-look="clean"] section > div[style*="rgba(10,13,17,0.82)"] [style*="background: #151b22"]{background:#e5e5ea !important}
+html[data-look="clean"] section > div[style*="rgba(10,13,17,0.82)"] [style*="background: #E9EDF1"]{background:#1d1d1f !important}
+html[data-look="clean"] .appl[aria-pressed="false"]{background:rgba(255,255,255,.85) !important;border-color:rgba(0,0,0,.08) !important;color:#424245 !important}
+html[data-look="clean"] .appl[aria-pressed="false"] > span:first-child{background:#ececf0 !important}
+html[data-look="clean"] .appl[aria-pressed="true"]{background:#fff6e8 !important;color:#8a4b00 !important}
+html[data-look="clean"] section > div[style*="rgba(10,13,17,0.82)"] [style*="color: #5BC0F8"]{color:#0071E3 !important}
+html[data-look="clean"] section > div[style*="rgba(10,13,17,0.82)"] [style*="color: #FFB547"]{color:#C26A00 !important}
+html[data-look="clean"] section > div[style*="rgba(10,13,17,0.82)"] [style*="color: #FF7A66"]{color:#D63B2A !important}
+
+</style>
+<script src="theme-switch.js"></script>
 </head>
 <body>
 <template id="tpl">
