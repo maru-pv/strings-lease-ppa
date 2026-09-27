@@ -919,6 +919,15 @@ this.setState({ playing: true });
     st.style.top = Math.max(0, (window.innerHeight - 900 * sc) / 2) + 'px';
   }
   window.addEventListener('resize', fit); fit();
+  /* 比較ナビから開いたときは、ボタンを「比較ナビに戻る」にしてこのタブを閉じる */
+  var q = new URLSearchParams(location.search);
+  if (q.get('from') === 'navi') {
+    var back = document.querySelector('#stage a[href="navi"]');
+    if (back) {
+      back.firstChild.nodeValue = '比較ナビに戻る ';
+      back.addEventListener('click', function (e) { e.preventDefault(); window.close(); setTimeout(function () { location.href = 'navi'; }, 300); });
+    }
+  }
 })();
 </script>
 </body>

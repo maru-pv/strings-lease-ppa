@@ -1854,10 +1854,10 @@ function initRadios(gid){
 }
 
 function openSolarSim(){
-  /* solar-sim.htmlを開く。戻り先としてnavi.htmlのURLを渡す */
+  /* 体験ページ（flow.html）を開く。戻り先としてnavi.htmlのURLを渡す */
   var base = window.location.href.replace(/\/[^\/]*$/, '/');
   var returnUrl = encodeURIComponent(window.location.href);
-  var url = base + 'solar-sim?from=navi&return=' + returnUrl;
+  var url = base + 'flow?from=navi&return=' + returnUrl;
   window.open(url, '_blank');
 }
 
