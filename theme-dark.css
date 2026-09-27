@@ -1,0 +1,260 @@
+/* =========================================================
+   STRINGS ダークテーマ（見た目だけの上書き）
+   - 各ページの既存CSSの「後」に読み込む。計算・id・JSには一切触れない
+   - 配色：背景 #07090c／パネル #0b0e12・#11161c／発電 #FFB547／売電 #5BC0F8／買電 #FF7A66／白 #E9EDF1
+   - フォント：Zen Kaku Gothic New（日本語）＋ Manrope（数字・英字）
+   ========================================================= */
+
+/* customer 系ページの色変数を丸ごと差し替え
+   （背景に使う --white を暗色に、主色 --blue を明色に反転 → 「明るいボタン＋暗い文字」のテスラ風になる） */
+:root {
+  --blue: #E9EDF1;
+  --blue-light: #151b22;
+  --blue-mid: #ffffff;
+  --orange: #FFB547;
+  --orange-light: #1f1809;
+  --green: #6FD3A0;
+  --green-light: #0f1d17;
+  --red: #FF7A66;
+  --gray-900: #E9EDF1;
+  --gray-700: #c3c9d0;
+  --gray-500: #8a949f;
+  --gray-300: #2b333c;
+  --gray-100: #151b22;
+  --white: #0b0e12;
+  --shadow: 0 1px 0 rgba(255,255,255,0.03);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+  --radius: 14px;
+  --radius-sm: 10px;
+}
+
+html { background: #07090c; }
+body {
+  background: #07090c !important;
+  color: #E9EDF1 !important;
+  font-family: 'Zen Kaku Gothic New', 'Hiragino Sans', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+}
+input, select, textarea, button { font-family: inherit; }
+::selection { background: rgba(255,181,71,0.35); }
+
+/* 数字は Manrope */
+.hero-num, .tnum, .bar-val, .td-r, .ps-circle, [class*="num"], [class*="Num"], [class*="yen"], [class*="Yen"] {
+  font-family: 'Manrope', 'Zen Kaku Gothic New', sans-serif !important;
+  font-feature-settings: "tnum";
+}
+
+/* ---------- ヘッダー ---------- */
+.hdr, .site-header {
+  background: rgba(7,9,12,0.92) !important;
+  color: #E9EDF1 !important;
+  border-bottom: 1px solid #161b21;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.hdr-t, .site-header .title { letter-spacing: 0.04em; }
+.hdr-s, .site-header .logo, .site-header .ver { color: #aab2bb; opacity: 1 !important; }
+
+/* ---------- カード・面 ---------- */
+.card, .progress-wrap, .compare-now, .sim-total, .eco-nudge, .eco-side, .kwh-guide {
+  background: #0b0e12 !important;
+  border: 1px solid #1a2129 !important;
+  box-shadow: none !important;
+  color: #E9EDF1;
+}
+.card { border-radius: 16px !important; }
+.card-ttl, .divider-label { color: #8a949f !important; letter-spacing: 0.12em; }
+.divider-label::before, .divider-label::after { background: #1d242c !important; }
+.sec { border-left-color: #FFB547 !important; color: #E9EDF1; letter-spacing: 0.02em; }
+
+/* ---------- 入力 ---------- */
+.fld label, label { color: #c3c9d0 !important; }
+.fld input, .fld select, .fld textarea, input[type=text], input[type=number], input[type=email], input[type=tel], input[type=password], select, textarea {
+  background: #11161c !important;
+  color: #E9EDF1 !important;
+  border: 1px solid #2b333c !important;
+  border-radius: 10px !important;
+}
+.fld input:focus, .fld select:focus, input:focus, select:focus, textarea:focus {
+  border-color: #FFB547 !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255,181,71,0.18);
+}
+.fld input.auto-set { background: #1a1f16 !important; color: #FFB547 !important; border-color: #FFB547 !important; }
+input::placeholder, textarea::placeholder { color: #5d6670; }
+select option { background: #11161c; color: #E9EDF1; }
+.fsub, .urow span { color: #8a949f !important; }
+.fsub-blue, .util-opt-ev { color: #5BC0F8 !important; }
+.req, .ferr { color: #FF7A66 !important; }
+
+/* ラジオ風ボタン */
+.rb { background: #11161c !important; color: #c3c9d0 !important; border: 1px solid #2b333c !important; border-radius: 10px !important; }
+.rb.on { background: #eef0f2 !important; color: #0b0d10 !important; border-color: #eef0f2 !important; }
+
+/* ---------- ボタン（角丸10px） ---------- */
+.btn-main, .btn-primary {
+  background: #eef0f2 !important;
+  color: #0b0d10 !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  letter-spacing: 0.04em;
+}
+.btn-main:hover, .btn-primary:hover { background: #ffffff !important; }
+.btn-orange {
+  background: #FFB547 !important;
+  color: #0b0d10 !important;
+  border-radius: 10px !important;
+}
+.btn-orange:hover { background: #ffc46b !important; }
+.btn-back { color: #8a949f !important; }
+.btn-back:hover { color: #E9EDF1 !important; }
+button { border-radius: 10px; }
+
+/* ---------- 進行ステップ ---------- */
+.progress-wrap { border-radius: 0 !important; border-left: 0 !important; border-right: 0 !important; background: rgba(7,9,12,0.92) !important; backdrop-filter: blur(12px); }
+.step-badge { background: #eef0f2 !important; color: #0b0d10 !important; }
+.tab-btn { color: #8a949f !important; }
+.tab-btn.active, .tab-btn:hover { color: #E9EDF1 !important; border-bottom-color: #FFB547 !important; }
+
+/* ---------- 結果のヒーロー数字 ---------- */
+.hero {
+  background: radial-gradient(120% 140% at 0% 0%, #1a2330 0%, #0b0e12 60%) !important;
+  border: 1px solid #1d242c;
+  border-radius: 16px !important;
+  color: #E9EDF1 !important;
+}
+.hero-s {
+  background: radial-gradient(120% 140% at 0% 0%, #2a2010 0%, #0b0e12 60%) !important;
+  border-color: rgba(255,181,71,0.35);
+}
+.hero-s .hero-num { color: #FFB547; }
+.hero-lbl, .hero-sub { color: #aab2bb; opacity: 1 !important; }
+.hero-badge { background: rgba(255,255,255,0.08) !important; color: #E9EDF1; }
+
+/* 比較カード */
+.tc { background: #0b0e12 !important; border: 1px solid #1d242c !important; border-radius: 12px !important; }
+.tc .tunit, .tc .tsub { color: #8a949f !important; }
+.tc-g .tlbl, .tc-g .tnum { color: #aab2bb !important; }
+.tc-e { border-color: rgba(233,237,241,0.45) !important; }
+.tc-e .tlbl, .tc-e .tnum { color: #E9EDF1 !important; }
+.tc-s { border-color: rgba(255,181,71,0.5) !important; }
+.tc-s .tlbl, .tc-s .tnum { color: #FFB547 !important; }
+.tc-now { border: 1px dashed #2b333c !important; }
+.tc-now .tlbl, .tc-now .tnum { color: #7d8792 !important; }
+
+/* 棒グラフ・表 */
+.bar-lbl { color: #aab2bb !important; }
+.bar-track { background: #151b22 !important; }
+.bd th { background: #11161c !important; color: #8a949f !important; }
+.bd td { border-bottom-color: #161b21 !important; }
+.sim-line { border-bottom-color: #161b21 !important; }
+.kwh-guide th { background: #11161c !important; color: #aab2bb !important; }
+.kwh-guide td { border-top-color: #161b21 !important; }
+
+/* 注意・お知らせ系 */
+.notice, .story {
+  background: #16120a !important;
+  border: 1px solid rgba(255,181,71,0.35) !important;
+  color: #f1d9ad !important;
+}
+.warn-box { background: #16120a !important; border-left-color: #FFB547 !important; color: #f1d9ad !important; }
+.info-box { background: #0e1720 !important; border-left-color: #5BC0F8 !important; color: #b9e3fb !important; }
+.note-sm { background: #11161c !important; color: #8a949f !important; }
+.msg-pos, .handoff-banner { background: #0f1d17 !important; border: 1px solid rgba(111,211,160,0.35) !important; color: #b8ecd1 !important; }
+.msg-pos .t, .ico-ok { color: #6FD3A0 !important; }
+.msg-pos .b { color: #c3c9d0 !important; }
+.ico-tri { color: #FFB547 !important; }
+.eco-nudge h4 { color: #5BC0F8 !important; }
+.eco-side.lease { border-color: rgba(233,237,241,0.25) !important; }
+.eco-side.ppa { border-color: rgba(255,181,71,0.35) !important; }
+.ec { background: #11161c !important; border-left-color: #FFB547 !important; }
+.ec .t { color: #E9EDF1 !important; }
+.ec .x { color: #aab2bb !important; }
+.flow3 .f { background: #11161c !important; border-color: #2b333c !important; color: #c3c9d0 !important; }
+.flow3 .f.now { background: #eef0f2 !important; color: #0b0d10 !important; }
+.flow3 .f.solar { border-color: rgba(255,181,71,0.5) !important; color: #FFB547 !important; }
+.flow3 .f.solar.now { background: #FFB547 !important; color: #0b0d10 !important; }
+.done .t { color: #E9EDF1 !important; }
+.done .x { color: #aab2bb !important; }
+
+/* ---------- index / login / admin の共通部品 ---------- */
+.wrap, .container { color: #E9EDF1; }
+.menu-card {
+  background: #0b0e12 !important;
+  border: 1px solid #1a2129 !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+  color: #E9EDF1 !important;
+  transition: border-color .2s, transform .2s;
+}
+.menu-card:hover { border-color: #FFB547 !important; transform: translateY(-2px); }
+table { border-color: #1d242c; }
+th { background: #11161c; color: #aab2bb; }
+td { border-color: #161b21 !important; }
+a { color: #E9EDF1; }
+hr { border-color: #1d242c; }
+
+/* ---------- JS やHTMLに直接書かれた明るい色を暗色に置き換える ---------- */
+[style*="background:#fff"], [style*="background: #fff"], [style*="background:#FFF"], [style*="background:white"],
+[style*="background:#ffffff"], [style*="background:#FFFFFF"], [style*="background: #ffffff"], [style*="background: white"] {
+  background: #0b0e12 !important;
+}
+[style*="background:#F3F4F6"], [style*="background:#f3f4f6"], [style*="background:#F9FAFB"], [style*="background:#f9fafb"],
+[style*="background:#F0F5FB"], [style*="background:#E5E7EB"], [style*="background: #F3F4F6"], [style*="background: #F9FAFB"] {
+  background: #11161c !important;
+}
+[style*="background:#EBF2FB"], [style*="background:#ebf2fb"], [style*="background: #EBF2FB"], [style*="background:#EFF6FF"], [style*="background:#F0F9FF"] {
+  background: #0e1720 !important;
+}
+[style*="background:#FFFBEB"], [style*="background:#FFF7ED"], [style*="background:#FEF3C7"], [style*="background:#FEF3E8"], [style*="background: #FFFBEB"] {
+  background: #16120a !important;
+}
+[style*="background:#F0FDF4"], [style*="background:#ECFDF5"], [style*="background: #F0FDF4"] {
+  background: #0f1d17 !important;
+}
+[style*="background:#FEF2F2"], [style*="background:#FEE2E2"] { background: #1c0f0d !important; }
+[style*="background:#1A5EA8"], [style*="background: #1A5EA8"], [style*="background:#2E72BF"] { background: #eef0f2 !important; color: #0b0d10 !important; }
+
+[style*="color:#111827"], [style*="color:#1F2937"], [style*="color:#374151"], [style*="color: #111827"], [style*="color: #374151"] { color: #E9EDF1 !important; }
+[style*="color:#6B7280"], [style*="color:#9CA3AF"], [style*="color: #6B7280"], [style*="color: #9CA3AF"] { color: #8a949f !important; }
+[style*="color:#1A5EA8"], [style*="color: #1A5EA8"], [style*="color:#1e40af"], [style*="color:#0369A1"] { color: #5BC0F8 !important; }
+[style*="color:#D97706"], [style*="color:#B45309"], [style*="color:#92400E"], [style*="color:#C85A00"] { color: #FFB547 !important; }
+[style*="color:#15803D"], [style*="color:#16A34A"] { color: #6FD3A0 !important; }
+[style*="color:#B91C1C"], [style*="color:#DC2626"] { color: #FF7A66 !important; }
+[style*="border:1px solid #E5E7EB"], [style*="border:1.5px solid #D1D5DB"], [style*="border:1px solid #D1D5DB"], [style*="border-bottom:1px solid #F3F4F6"] { border-color: #1d242c !important; }
+.toggle-slider::before { background: #E9EDF1 !important; }
+
+/* ---------- 試算結果のメイン数字（STEP4） ---------- */
+.result-hero {
+  background: radial-gradient(120% 160% at 50% 0%, #2a2010 0%, #0b0e12 62%) !important;
+  border: 1px solid rgba(255,181,71,0.35) !important;
+  border-radius: 16px !important;
+  color: #E9EDF1 !important;
+  box-shadow: 0 0 60px rgba(255,181,71,0.08) !important;
+}
+.result-hero .rh-value { color: #FFB547 !important; font-family: 'Manrope', sans-serif !important; letter-spacing: -0.03em; }
+.result-hero .rh-label, .result-hero .rh-compare, .result-hero .rh-unit { color: #aab2bb !important; opacity: 1 !important; }
+.nudge-header { background: #11161c !important; color: #E9EDF1 !important; border-bottom: 1px solid #1d242c; }
+.winner-badge { background: #FFB547 !important; color: #0b0d10 !important; }
+
+/* ---------- ログイン画面 ---------- */
+body:has(.logo-title) { background: radial-gradient(90% 70% at 50% 0%, #121a24 0%, #07090c 70%) !important; }
+.logo-title { color: #E9EDF1 !important; letter-spacing: 0.04em; }
+.logo-sub, .note, .divider span, .loading { color: #8a949f !important; }
+.form-group label { color: #c3c9d0 !important; }
+.note a, .btn-reset { color: #5BC0F8 !important; }
+.divider::before, .divider::after { background: #1d242c !important; }
+.err { background: #1c0f0d !important; border-color: rgba(255,122,102,0.4) !important; color: #FF7A66 !important; }
+.success-box { background: #0f1d17 !important; border-color: rgba(111,211,160,0.35) !important; color: #6FD3A0 !important; }
+button[type=submit], .btn-login, form button:not(.btn-reset) { background: #eef0f2 !important; color: #0b0d10 !important; border-radius: 10px !important; box-shadow: none !important; }
+
+/* ---------- ホーム（index） ---------- */
+h1 { color: #E9EDF1 !important; letter-spacing: 0.02em; }
+.sub, #loadingBox, .section-label, .logout-link { color: #8a949f !important; }
+.userTag { background: #11161c !important; color: #E9EDF1 !important; border: 1px solid #1d242c; }
+.menu-card .ttl { color: #E9EDF1 !important; }
+.menu-card .desc { color: #8a949f !important; }
+.menu-card.admin { background: #16120a !important; border-color: rgba(255,181,71,0.35) !important; }
+.menu-card.admin .ttl { color: #FFB547 !important; }
+[style*="--blue-l,#EBF2FB"] { background: #0e1720 !important; color: #b9e3fb !important; }
+[style*="--orange-l,"], [style*="--amber-l,"] { background: #16120a !important; }

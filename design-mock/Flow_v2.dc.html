@@ -2,13 +2,12 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>エネルギーフロー体験 | STRINGS</title>
-<script>
-/* ===== 設定値（体験用の概算。calc.js の30年試算とは別物） =====
-   sellPrice : 売電単価（円/kWh）※仮の値。変更はここだけ */
-window.FLOW_CONFIG = { sellPrice: 15 };
-</script>
+<title>エネルギーフロー体験</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
@@ -45,18 +44,15 @@ input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:#2b3
 input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radius:50%;background:#f4f5f6}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #FFB547;outline-offset:2px}
 </style>
-<style>html,body{height:100%;overflow:hidden} sc-if,sc-for{display:contents}</style>
-</head>
-<body>
-<template id="tpl">
-<div id="stage" style="width: 1440px; height: 900px; position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; background: #07090c; color: #f4f5f6; font-family: 'Zen Kaku Gothic New', 'Manrope', sans-serif">
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #07090c; color: #f4f5f6; font-family: 'Zen Kaku Gothic New', 'Manrope', sans-serif">
 
 <header style="position: absolute; left: 0; top: 0; width: 1440px; height: 64px; box-sizing: border-box; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #161b21; background: #07090c; z-index: 2">
 <div style="display: flex; align-items: center; gap: 28px">
-<a href="./" style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 16px; letter-spacing: 0.32em">STRINGS</a>
+<a href="#" style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 16px; letter-spacing: 0.32em">STRINGS</a>
 <span style="font-size: 14px; color: #aab2bb">エネルギーフロー体験</span>
 </div>
-<a href="navi" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: 10px; background: #eef0f2; color: #0b0d10; font-size: 14px; font-weight: 700">30年の試算を見る
+<a href="#" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: 10px; background: #eef0f2; color: #0b0d10; font-size: 14px; font-weight: 700">30年の試算を見る
 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"></path></svg>
 </a>
 </header>
@@ -526,17 +522,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #FFB5
 
 </aside>
 </div>
-</template>
-<script>
-/* デザイン案（design-mock/Flow）の画面をそのまま動かすための小さな描画エンジン */
-class DCLogic {
-  constructor(props) { this.props = props; this.state = {}; }
-  setState(u) {
-    Object.assign(this.state, typeof u === 'function' ? u(this.state) : u);
-    scheduleUpdate();
-  }
-}
-
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"sellPrice":{"editor":"float","default":15,"min":0,"max":40,"step":0.1,"unit":"円/kWh","section":"試算条件"},"$preview":{"width":1440,"height":900}}'>
 class Component extends DCLogic {
 constructor(props) {
 super(props);
@@ -791,77 +778,6 @@ this.setState({ playing: true });
 };
 }
 }
-
-(function () {
-  var comp = new Component({ sellPrice: window.FLOW_CONFIG.sellPrice });
-  var vals = comp.renderVals();
-  var binds = [];
-  var HOLE = /\{\{\s*([\w.$]+)\s*\}\}/g;
-  function get(path, scope) {
-    var parts = path.split('.');
-    if (scope[parts[0]] !== undefined) parts = scope[parts[0]].split('.').concat(parts.slice(1));
-    var v = vals;
-    for (var i = 0; i < parts.length; i++) { if (v == null) return undefined; v = v[parts[i]]; }
-    if (parts.length === 1 && (path === 'true' || path === 'false')) return path === 'true';
-    return v;
-  }
-  function interp(str, scope) { return str.replace(HOLE, function (_, p) { var v = get(p, scope); return v == null ? '' : String(v); }); }
-  function compile(node, scope) {
-    if (node.nodeType === 3) {
-      if (HOLE.test(node.nodeValue)) { HOLE.lastIndex = 0; var raw = node.nodeValue; binds.push({ f: function () { var v = interp(raw, scope); if (node.nodeValue !== v) node.nodeValue = v; } }); }
-      HOLE.lastIndex = 0; return;
-    }
-    if (node.nodeType !== 1) return;
-    var tag = node.localName;
-    if (tag === 'sc-for') {
-      var lp = node.getAttribute('list').replace(/[{}\s]/g, ''), as = node.getAttribute('as');
-      var list = get(lp, scope) || [];
-      var frag = document.createDocumentFragment();
-      var kids = Array.prototype.slice.call(node.childNodes);
-      list.forEach(function (_, i) {
-        var sc = Object.assign({}, scope); sc[as] = (scope[lp.split('.')[0]] ? scope[lp.split('.')[0]] + lp.slice(lp.indexOf('.')) : lp) + '.' + i;
-        if (lp.indexOf('.') < 0) sc[as] = lp + '.' + i;
-        kids.forEach(function (k) { var c = k.cloneNode(true); frag.appendChild(c); compile(c, sc); });
-      });
-      node.parentNode.replaceChild(frag, node); return;
-    }
-    if (tag === 'sc-if') {
-      var cp = node.getAttribute('value').replace(/[{}\s]/g, '');
-      node.removeAttribute('hint-placeholder-val');
-      binds.push({ f: function () { node.style.display = get(cp, scope) ? 'contents' : 'none'; } });
-    }
-    Array.prototype.slice.call(node.attributes).forEach(function (at) {
-      var name = at.name, v = at.value;
-      if (name.indexOf('hint-') === 0) { node.removeAttribute(name); return; }
-      if (name === 'onclick' || name === 'onchange') {
-        var p = v.replace(/[{}\s]/g, ''); node.removeAttribute(name);
-        node.addEventListener(name === 'onclick' ? 'click' : 'input', function (e) { var fn = get(p, scope); if (fn) fn(e); });
-        return;
-      }
-      if (!HOLE.test(v)) { HOLE.lastIndex = 0; return; }
-      HOLE.lastIndex = 0;
-      if (name === 'value') { node.removeAttribute('value'); binds.push({ f: function () { var x = interp(v, scope); if (document.activeElement !== node && node.value !== x) node.value = x; } }); return; }
-      var last = null;
-      binds.push({ f: function () { var x = interp(v, scope); if (x !== last) { node.setAttribute(name, x); last = x; } } });
-    });
-    Array.prototype.slice.call(node.childNodes).forEach(function (c) { compile(c, scope); });
-  }
-  var root = document.getElementById('tpl').content.cloneNode(true);
-  Array.prototype.slice.call(root.childNodes).forEach(function (c) { compile(c, {}); });
-  document.body.appendChild(root);
-  function update() { vals = comp.renderVals(); binds.forEach(function (b) { b.f(); }); }
-  var pending = false;
-  window.scheduleUpdate = function () { if (pending) return; pending = true; requestAnimationFrame(function () { pending = false; update(); }); };
-  update();
-  function fit() {
-    var st = document.getElementById('stage');
-    var sc = Math.min(window.innerWidth / 1440, window.innerHeight / 900);
-    st.style.transform = 'scale(' + sc + ')';
-    st.style.left = Math.max(0, (window.innerWidth - 1440 * sc) / 2) + 'px';
-    st.style.top = Math.max(0, (window.innerHeight - 900 * sc) / 2) + 'px';
-  }
-  window.addEventListener('resize', fit); fit();
-})();
 </script>
 </body>
 </html>
