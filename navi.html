@@ -513,113 +513,119 @@ optgroup { font-weight: 700; }
     <span class="f solar">③ さらに太陽光なら？</span>
   </div>
 
-  <!-- 工務店・担当者・案件情報 -->
-  <div class="card" style="border:1.5px solid #1A5EA8">
-    <div class="card-ttl" style="color:#1A5EA8">🏢 工務店・担当者情報</div>
-    <div class="frow">
-      <div class="fld">
-        <label>工務店名<span class="req">*</span></label>
-        <input type="text" id="iBuilder" placeholder="例：アーキテックス" style="width:100%;padding:10px 12px;border:1.5px solid #D1D5DB;border-radius:8px;font-size:15px;font-family:inherit">
-        <div class="ferr" id="eBuilder" style="color:#B91C1C;font-size:12px;margin-top:3px;display:none">工務店名を入力してください</div>
-      </div>
-      <div class="fld">
-        <label>担当者名<span class="req">*</span></label>
-        <input type="text" id="iStaff" placeholder="例：田中 一郎" style="width:100%;padding:10px 12px;border:1.5px solid #D1D5DB;border-radius:8px;font-size:15px;font-family:inherit">
-        <div class="ferr" id="eStaff" style="color:#B91C1C;font-size:12px;margin-top:3px;display:none">担当者名を入力してください</div>
-      </div>
-    </div>
-    <div class="fld" style="margin-bottom:0">
-      <label>案件名 / お客様名<span class="req">*</span></label>
-      <input type="text" id="iCase" placeholder="例：山田様邸・久留米市の件" style="width:100%;padding:10px 12px;border:1.5px solid #D1D5DB;border-radius:8px;font-size:15px;font-family:inherit">
-      <div style="font-size:11px;color:#6B7280;margin-top:3px">どの案件のシミュレーションか記録されます</div>
-      <div class="ferr" id="eCase" style="color:#B91C1C;font-size:12px;margin-top:3px;display:none">案件名を入力してください</div>
-    </div>
+  <div class="nv-head">
+    <h2 class="nv-ttl">お客様の条件</h2>
+    <p class="nv-lead">暮らしと光熱費を入れるだけで、新築後の家計を試算します。</p>
   </div>
 
-  <div class="card">
-    <div class="card-ttl">基本情報</div>
-    <div class="frow">
-      <div class="fld">
-        <label>家族人数<span class="req">*</span></label>
-        <div class="rg" id="rFamily">
-          <button type="button" class="rb" data-v="1人">1人</button>
-          <button type="button" class="rb" data-v="2人">2人</button>
-          <button type="button" class="rb" data-v="3人">3人</button>
-          <button type="button" class="rb" data-v="4人">4人</button>
-          <button type="button" class="rb" data-v="5人">5人</button>
-          <button type="button" class="rb" data-v="6人以上">6人以上</button>
+  <div class="nv-grid">
+    <div class="nv-main">
+      <!-- 工務店・担当者・案件情報 ＋ 基本情報 -->
+      <div class="card nv-card">
+        <div class="nv-sub">工務店・担当者</div>
+        <div class="frow">
+          <div class="fld">
+            <label>工務店名<span class="req">*</span></label>
+            <input type="text" id="iBuilder" placeholder="例：アーキテックス">
+            <div class="ferr" id="eBuilder">工務店名を入力してください</div>
+          </div>
+          <div class="fld">
+            <label>担当者名<span class="req">*</span></label>
+            <input type="text" id="iStaff" placeholder="例：田中 一郎">
+            <div class="ferr" id="eStaff">担当者名を入力してください</div>
+          </div>
         </div>
-        <div class="ferr" id="eFamily">家族人数を選択してください</div>
-      </div>
-      <div class="fld">
-        <label>居住エリア<span class="req">*</span></label>
-        <select id="iUtil">
-          <option value="">-- 選択 --</option>
-          <option value="kyushu">九州（九州電力）</option>
-          <option value="chugoku">中国（中国電力）</option>
-          <option value="kansai">関西（関西電力）</option>
-          <option value="shikoku">四国（四国電力）</option>
-          <option value="chubu">中部（中部電力）</option>
-          <option value="tepco">東京（東京電力EP）</option>
-          <option value="tohoku">東北（東北電力）</option>
-          <option value="hokuriku">北陸（北陸電力）</option>
-          <option value="hokkaido">北海道（北海道電力）</option>
-        </select>
-        <div class="ferr" id="eUtil">エリアを選択してください</div>
+        <div class="fld">
+          <label>案件名 / お客様名<span class="req">*</span></label>
+          <input type="text" id="iCase" placeholder="例：山田様邸・久留米市の件">
+          <div class="fsub">どの案件のシミュレーションか記録されます</div>
+          <div class="ferr" id="eCase">案件名を入力してください</div>
+        </div>
+
+        <div class="nv-sub nv-sep">暮らし</div>
+        <div class="frow">
+          <div class="fld">
+            <label>家族人数<span class="req">*</span></label>
+            <div class="rg" id="rFamily">
+              <button type="button" class="rb" data-v="1人">1人</button>
+              <button type="button" class="rb" data-v="2人">2人</button>
+              <button type="button" class="rb" data-v="3人">3人</button>
+              <button type="button" class="rb" data-v="4人">4人</button>
+              <button type="button" class="rb" data-v="5人">5人</button>
+              <button type="button" class="rb" data-v="6人以上">6人以上</button>
+            </div>
+            <div class="ferr" id="eFamily">家族人数を選択してください</div>
+          </div>
+          <div class="fld">
+            <label>居住エリア<span class="req">*</span></label>
+            <select id="iUtil">
+              <option value="">-- 選択 --</option>
+              <option value="kyushu">九州（九州電力）</option>
+              <option value="chugoku">中国（中国電力）</option>
+              <option value="kansai">関西（関西電力）</option>
+              <option value="shikoku">四国（四国電力）</option>
+              <option value="chubu">中部（中部電力）</option>
+              <option value="tepco">東京（東京電力EP）</option>
+              <option value="tohoku">東北（東北電力）</option>
+              <option value="hokuriku">北陸（北陸電力）</option>
+              <option value="hokkaido">北海道（北海道電力）</option>
+            </select>
+            <div class="ferr" id="eUtil">エリアを選択してください</div>
+          </div>
+        </div>
+        <div class="fld">
+          <label>日中の在宅時間<span class="req">*</span></label>
+          <div class="rg" id="rHome">
+            <button type="button" class="rb" data-v="少ない">少ない（共働き等）</button>
+            <button type="button" class="rb" data-v="普通">普通（1〜2人在宅）</button>
+            <button type="button" class="rb" data-v="多い">多い（ほぼ終日）</button>
+          </div>
+          <div class="ferr" id="eHome">日中在宅を選択してください</div>
+        </div>
       </div>
     </div>
-    <div class="fld" style="margin-bottom:0">
-      <label>日中の在宅時間<span class="req">*</span></label>
-      <div class="rg" id="rHome">
-        <button type="button" class="rb" data-v="少ない">少ない（共働き等）</button>
-        <button type="button" class="rb" data-v="普通">普通（1〜2人在宅）</button>
-        <button type="button" class="rb" data-v="多い">多い（ほぼ終日）</button>
+
+    <div class="nv-side">
+      <!-- 光熱費（現在 ＋ 新築後） -->
+      <div class="card nv-card">
+        <div class="nv-sub">現在の賃貸・光熱費</div>
+        <p class="nv-note">今お住まいのアパート・マンションの光熱費です。新築後との比較に使います。</p>
+        <div class="frow">
+          <div class="fld">
+            <label>現在の月間電気代</label>
+            <div class="urow"><input type="number" id="iElNow" placeholder="8000" min="0"><span>円</span></div>
+          </div>
+          <div class="fld">
+            <label>現在の月間ガス代</label>
+            <div class="urow"><input type="number" id="iGasNow" placeholder="3000" min="0"><span>円</span></div>
+          </div>
+        </div>
+
+        <div class="nv-sub nv-sep">新築戸建ての想定光熱費</div>
+        <p class="nv-note">家族人数・エリアを選ぶと統計データから自動で入ります。実態に近ければそのままでOKです。</p>
+        <div class="frow">
+          <div class="fld">
+            <label>新築後の月間電気代<span class="req">*</span></label>
+            <div class="urow"><input type="number" id="iEl" placeholder="家族人数を選択" min="0"><span>円</span></div>
+            <div class="fsub-blue" id="elStat">家族人数・エリアを選ぶと自動入力されます</div>
+            <div class="ferr" id="eEl">正しい金額を入力してください</div>
+          </div>
+          <div class="fld">
+            <label>新築後の月間ガス代<span class="req">*</span></label>
+            <div class="urow"><input type="number" id="iGas" placeholder="家族人数を選択" min="0"><span>円</span></div>
+            <div class="fsub-blue" id="gasStat">家族人数・エリアを選ぶと自動入力されます</div>
+            <div class="ferr" id="eGas">正しい金額を入力してください</div>
+          </div>
+        </div>
+        <div class="warn-box">
+          <strong>なぜ今より高い？</strong><br>
+          戸建ては集合住宅より床面積・部屋数が多く、冷暖房・照明の使用量が増えます。統計では戸建ては集合住宅より電気代が平均2,000円以上高い傾向があります（日本生協連調査）。
+        </div>
       </div>
-      <div class="ferr" id="eHome">日中在宅を選択してください</div>
+
+      <button class="btn-main" id="btnCalc">オール電化にしたらいくら？を見る<svg class="nv-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </div>
   </div>
-
-  <!-- 現在の光熱費 -->
-  <div class="card">
-    <div class="step-badge">現在の賃貸・光熱費</div>
-    <p style="font-size:13px;color:#6B7280;margin-bottom:12px;line-height:1.6">今お住まいのアパート・マンションの光熱費を入力してください。新築後との比較に使います。</p>
-    <div class="frow">
-      <div class="fld">
-        <label>現在の月間電気代</label>
-        <div class="urow"><input type="number" id="iElNow" placeholder="8000" min="0"><span>円</span></div>
-      </div>
-      <div class="fld">
-        <label>現在の月間ガス代</label>
-        <div class="urow"><input type="number" id="iGasNow" placeholder="3000" min="0"><span>円</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 新築後の想定 -->
-  <div class="card">
-    <div class="step-badge" style="background:#D97706">新築戸建ての想定光熱費</div>
-    <p style="font-size:13px;color:#6B7280;margin-bottom:12px;line-height:1.6">家族人数・エリアを選ぶと統計データから自動で入ります。実態に近ければそのままでOKです。</p>
-    <div class="frow">
-      <div class="fld">
-        <label>新築後の月間電気代<span class="req">*</span></label>
-        <div class="urow"><input type="number" id="iEl" placeholder="家族人数を選択" min="0"><span>円</span></div>
-        <div class="fsub-blue" id="elStat">家族人数・エリアを選ぶと自動入力されます</div>
-        <div class="ferr" id="eEl">正しい金額を入力してください</div>
-      </div>
-      <div class="fld">
-        <label>新築後の月間ガス代<span class="req">*</span></label>
-        <div class="urow"><input type="number" id="iGas" placeholder="家族人数を選択" min="0"><span>円</span></div>
-        <div class="fsub-blue" id="gasStat">家族人数・エリアを選ぶと自動入力されます</div>
-        <div class="ferr" id="eGas">正しい金額を入力してください</div>
-      </div>
-    </div>
-    <div class="warn-box">
-      <strong>なぜ今より高い？</strong><br>
-      戸建ては集合住宅より床面積・部屋数が多く、冷暖房・照明の使用量が増えます。統計では戸建ては集合住宅より電気代が平均2,000円以上高い傾向があります（日本生協連調査）。
-    </div>
-  </div>
-
-  <button class="btn-main" id="btnCalc">⚡ オール電化にしたらいくら？を見る</button>
 </div>
 
 <!-- 画面2：ガス併用 vs オール電化 -->
@@ -631,76 +637,67 @@ optgroup { font-weight: 700; }
     <span class="f solar">③ さらに太陽光なら？</span>
   </div>
 
-  <!-- 現在の賃貸との比較（任意表示） -->
-  <div id="nowCompare" style="display:none">
-    <div class="compare-now">
-      <div style="flex:1">
-        <div style="font-size:11px;color:#9CA3AF;font-weight:700;margin-bottom:2px">現在の賃貸（参考）</div>
-        <div style="font-size:18px;font-weight:800;color:#9CA3AF" id="nowTotal">—</div>
-        <div style="font-size:11px;color:#9CA3AF">/月</div>
+  <div class="nv-grid">
+    <div class="nv-main">
+      <div class="hero nv-hero">
+        <div class="hero-lbl">新築でオール電化にすると、電気ガス併用より</div>
+        <div class="nv-hero-line"><span class="hero-num" id="heroNum">—</span><span class="hero-unit">円/月</span></div>
+        <div class="hero-sub" id="heroSub">—</div>
+        <div class="hero-badge" id="heroBadge">—</div>
       </div>
-      <div style="font-size:20px;color:#D1D5DB">→</div>
-      <div style="flex:2;font-size:12px;color:#6B7280;line-height:1.6" id="nowComment">—</div>
+
+      <div class="nv-rows">
+        <div class="nv-row"><span class="nv-k">新築・電気ガス併用<small>電気代＋ガス代</small></span><span class="nv-v"><b id="tcG">—</b>円/月</span></div>
+        <div class="nv-row nv-row-em"><span class="nv-k">新築・オール電化<small>電気代に一本化</small></span><span class="nv-v"><b id="tcE">—</b>円/月</span></div>
+      </div>
+
+      <!-- 現在の賃貸との比較（任意表示） -->
+      <div id="nowCompare" style="display:none">
+        <div class="nv-now">
+          <div class="nv-now-k">現在の賃貸（参考）<b id="nowTotal">—</b><span>/月</span></div>
+          <div class="nv-now-x" id="nowComment">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nv-side">
+      <div class="card nv-card">
+        <div class="nv-sub">月額光熱費 比較</div>
+        <div id="barM"></div>
+        <div class="nv-sub nv-sep">試算の内訳</div>
+        <table class="bd">
+          <thead><tr><th>項目</th><th class="td-r">電気ガス併用</th><th class="td-r">オール電化</th></tr></thead>
+          <tbody id="bdBody"></tbody>
+        </table>
+      </div>
+
+      <div class="nv-why">
+        <h3 class="nv-h3">なぜオール電化は安くなるの？</h3>
+        <div class="eg">
+          <div class="ec"><svg class="nv-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c3 4 5 6.5 5 10a5 5 0 0 1-10 0c0-3.5 2-6 5-10z"/></svg><div><div class="t">エコキュートの省エネ性</div><div class="x">エコキュートはCOP3〜4。ガス給湯器（効率78%）と比べ、同じお湯を沸かすコストが約1/3になります。</div></div></div>
+          <div class="ec"><svg class="nv-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 9h6M9 13h6M9 17h3"/></svg><div><div class="t">基本料金の一本化</div><div class="x">電気ガス併用ではそれぞれに基本料金が発生。オール電化ではガス契約が不要になり固定費が減ります。</div></div></div>
+          <div class="ec"><svg class="nv-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg><div><div class="t">夜間電力の活用</div><div class="x">オール電化専用プランでは深夜電力が割安。エコキュートを夜間稼働させるとさらにコスト削減できます。</div></div></div>
+          <div class="ec"><svg class="nv-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg><div><div class="t">暮らしの安心</div><div class="x">IHは火を使わず掃除もラク。エコキュートのタンクは災害時の生活用水としても役立ちます。</div></div></div>
+        </div>
+        <div class="note-sm">本シミュレーションは概算です。実際の光熱費は電力プラン・ガス種別・使用量・設備仕様により異なります。</div>
+      </div>
+
+      <div class="nv-next">
+        <div class="story">
+          ここまでで、電気ガス併用とオール電化、それぞれの光熱費の違いを見てきました。<br>
+          どちらを選ぶ場合でも、電気は<strong>「全部買う」か「一部を自宅で作る」か</strong>を選べます。<br>
+          次は、太陽光を組み合わせるとどう変わるかを見ていきましょう。
+        </div>
+        <!-- 断面図への誘導 -->
+        <div class="nv-sim">
+          <div class="nv-sim-t">そもそも太陽光って、どうやって電気代が安くなるの？</div>
+          <div class="nv-sim-x">仕組みを直感的に理解してから比較すると、どのプランが自分に合うか判断しやすくなります。※ 仕組みは後でも確認できます</div>
+          <button class="btn-main nv-btn-ghost" onclick="openSolarSim()">太陽光の仕組みをインタラクティブに体感する</button>
+        </div>
+        <button class="btn-orange" id="btnSolar">仕組みはわかった！導入方法を比較する<svg class="nv-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </div>
     </div>
   </div>
-
-  <div class="hero">
-    <div class="hero-lbl">新築でオール電化にすると、電気ガス併用より</div>
-    <div><span class="hero-num" id="heroNum">—</span><span class="hero-unit">円/月</span></div>
-    <div class="hero-sub" id="heroSub">—</div>
-    <div class="hero-badge" id="heroBadge">—</div>
-  </div>
-
-  <div class="duo">
-    <div class="tc tc-g"><div class="tlbl">新築・電気ガス併用</div><div class="tnum" id="tcG">—</div><div class="tunit">円/月</div><div class="tsub">電気代＋ガス代</div></div>
-    <div class="tc tc-e"><div class="tlbl">⚡ 新築・オール電化</div><div class="tnum" id="tcE">—</div><div class="tunit">円/月</div><div class="tsub">電気代に一本化</div></div>
-  </div>
-
-  <div class="card">
-    <div class="card-ttl">月額光熱費 比較</div>
-    <div id="barM"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-ttl">試算の内訳</div>
-    <table class="bd">
-      <thead><tr><th>項目</th><th class="td-r">電気ガス併用</th><th class="td-r">オール電化</th></tr></thead>
-      <tbody id="bdBody"></tbody>
-    </table>
-  </div>
-
-  <div class="sec">なぜオール電化は安くなるの？</div>
-  <div class="eg">
-    <div class="ec"><div class="i">🔥→⚡</div><div class="t">エコキュートの省エネ性</div><div class="x">エコキュートはCOP3〜4。ガス給湯器（効率78%）と比べ、同じお湯を沸かすコストが約1/3になります。</div></div>
-    <div class="ec"><div class="i">📋</div><div class="t">基本料金の一本化</div><div class="x">電気ガス併用ではそれぞれに基本料金が発生。オール電化ではガス契約が不要になり固定費が減ります。</div></div>
-    <div class="ec"><div class="i">🕐</div><div class="t">夜間電力の活用</div><div class="x">オール電化専用プランでは深夜電力が割安。エコキュートを夜間稼働させるとさらにコスト削減できます。</div></div>
-    <div class="ec"><div class="i">🛡️</div><div class="t">暮らしの安心</div><div class="x">IHは火を使わず掃除もラク。エコキュートのタンクは災害時の生活用水としても役立ちます。</div></div>
-  </div>
-
-  <div class="note-sm">本シミュレーションは概算です。実際の光熱費は電力プラン・ガス種別・使用量・設備仕様により異なります。</div>
-
-  <div class="story">
-    ここまでで、電気ガス併用とオール電化、それぞれの光熱費の違いを見てきました。<br>
-    どちらを選ぶ場合でも、電気は<strong>「全部買う」か「一部を自宅で作る」か</strong>を選べます。<br>
-    次は、太陽光を組み合わせるとどう変わるかを見ていきましょう。
-  </div>
-  <!-- 断面図への誘導 -->
-  <div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:12px;padding:16px;margin:12px 0">
-    <div style="font-size:13px;font-weight:700;color:#15803D;margin-bottom:6px">
-      💡 そもそも太陽光って、どうやって電気代が安くなるの？
-    </div>
-    <div style="font-size:12px;color:#374151;line-height:1.7;margin-bottom:12px">
-      仕組みを直感的に理解してから比較すると、どのプランが自分に合うか判断しやすくなります。
-    </div>
-    <button class="btn-main" onclick="openSolarSim()" style="background:#15803D;margin-bottom:8px">
-      🏠 太陽光の仕組みをインタラクティブに体感する
-    </button>
-    <div style="text-align:center;font-size:11px;color:#6B7280">
-      ※ 仕組みは後でも確認できます
-    </div>
-  </div>
-
-  <button class="btn-orange" id="btnSolar">☀️ 仕組みはわかった！導入方法を比較する</button>
 </div>
 
 <!-- 画面3：太陽光 -->
@@ -712,127 +709,119 @@ optgroup { font-weight: 700; }
     <span class="f solar now">③ さらに太陽光なら？</span>
   </div>
 
-  <div style="background:var(--blue-l,#EBF2FB);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:14px;color:#1A5EA8;line-height:1.7">
-    オール電化にすると家庭のエネルギーが電気に集約されます。その電気を<strong>どう調達するか</strong>で、30年間の家計負担が大きく変わります。
-  </div>
+  <div class="nv-grid">
+    <div class="nv-main">
+      <p class="nv-lead nv-intro">オール電化にすると家庭のエネルギーが電気に集約されます。その電気を<strong>どう調達するか</strong>で、30年間の家計負担が大きく変わります。</p>
 
-  <!-- 3方式タブ -->
-  <div style="display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid #E5E7EB;padding-bottom:0">
-    <button class="tab-btn active" id="tab-lease" onclick="switchTab('lease')">💳 リース</button>
-    <button class="tab-btn" id="tab-buy"   onclick="switchTab('buy')">🏠 購入</button>
-    <button class="tab-btn" id="tab-ppa"   onclick="switchTab('ppa')">☀️ 建て得</button>
-  </div>
+      <!-- 3方式タブ -->
+      <div class="nv-tabs">
+        <button class="tab-btn active" id="tab-lease" onclick="switchTab('lease')">リース</button>
+        <button class="tab-btn" id="tab-buy"   onclick="switchTab('buy')">購入</button>
+        <button class="tab-btn" id="tab-ppa"   onclick="switchTab('ppa')">建て得</button>
+      </div>
 
-  <!-- リースパネル -->
-  <div id="panel-lease">
-    <div class="hero hero-s">
-      <div class="hero-lbl">リースなら、30年間で</div>
-      <div><span class="hero-num" id="leaseHeroNum">—</span><span class="hero-unit">万円の経済効果</span></div>
-      <div class="hero-sub">太陽光なし（オール電化）と比べた30年間の差額（概算）</div>
-      <div class="hero-badge" id="leaseHeroBadge">—</div>
-    </div>
-    <div class="card">
-      <div class="card-ttl">💳 リース 月々のイメージ（初年度・概算）</div>
-      <div class="sim-line"><span>オール電化の電気代</span><span id="lsL1" style="font-weight:700">—</span></div>
-      <div class="sim-line"><span>自家消費による削減</span><span id="lsL2" style="font-weight:700;color:#15803D">—</span></div>
-      <div class="sim-line"><span>余剰電力の売電収入</span><span id="lsL3" style="font-weight:700;color:#15803D">—</span></div>
-      <div class="sim-line"><span>リース料（月額・税込）</span><span id="lsL4" style="font-weight:700;color:#B91C1C">—</span></div>
-      <div class="sim-total"><span style="font-size:14px;font-weight:800">実質の月額負担</span><span id="lsL5" style="font-size:18px;font-weight:900;color:#D97706">—</span></div>
-      <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #D1D5DB;display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:11px;color:#6B7280">参考：30年メリットを月割りすると</span>
-        <span id="leaseMonthlyMerit" style="font-size:14px;font-weight:800;color:#D97706">—</span>
+      <!-- リースパネル -->
+      <div id="panel-lease">
+        <div class="hero hero-s nv-hero">
+          <div class="hero-lbl">リースなら、30年間で</div>
+          <div class="nv-hero-line"><span class="hero-num" id="leaseHeroNum">—</span><span class="hero-unit">万円の経済効果</span></div>
+          <div class="hero-sub">太陽光なし（オール電化）と比べた30年間の差額（概算）</div>
+          <div class="hero-badge" id="leaseHeroBadge">—</div>
+        </div>
+        <div class="nv-list">
+          <div class="nv-sub">リース 月々のイメージ（初年度・概算）</div>
+          <div class="sim-line"><span>オール電化の電気代</span><span id="lsL1" style="font-weight:700">—</span></div>
+          <div class="sim-line"><span>自家消費による削減</span><span id="lsL2" style="font-weight:700;color:#15803D">—</span></div>
+          <div class="sim-line"><span>余剰電力の売電収入</span><span id="lsL3" style="font-weight:700;color:#15803D">—</span></div>
+          <div class="sim-line"><span>リース料（月額・税込）</span><span id="lsL4" style="font-weight:700;color:#B91C1C">—</span></div>
+          <div class="nv-total"><span>実質の月額負担</span><span id="lsL5" class="nv-total-v nv-acc">—</span></div>
+          <div class="nv-ref"><span>参考：30年メリットを月割りすると</span><span id="leaseMonthlyMerit" class="nv-acc">—</span></div>
+        </div>
+        <div class="story">ポイントは<strong>リース終了後（11年目以降）</strong>。リース料がなくなり、削減効果と売電収入がまるごと家計のプラスになります。設備は無償譲渡されます。</div>
+      </div>
+
+      <!-- 購入パネル -->
+      <div id="panel-buy" style="display:none">
+        <div class="hero nv-hero nv-hero-n">
+          <div class="hero-lbl">購入なら、30年間で</div>
+          <div class="nv-hero-line"><span class="hero-num" id="buyHeroNum">—</span><span class="hero-unit">万円の経済効果</span></div>
+          <div class="hero-sub">初期費用がかかりますが、長期では最大のリターンが期待できます</div>
+          <div class="hero-badge" id="buyHeroBadge">—</div>
+        </div>
+        <div class="nv-set">
+          <div class="nv-sub">購入価格の設定（工務店専用）</div>
+          <div class="nv-set-row">
+            <input type="number" id="buyKwInput" placeholder="300000" min="100000" max="600000" step="10000" oninput="onBuyKwChange()">
+            <span>円 / kW（税別）</span>
+          </div>
+          <div class="nv-note">工務店側で設定。8kWの場合の総額（税込）が自動計算されます。</div>
+        </div>
+        <div class="nv-list">
+          <div class="nv-sub">購入 月々のイメージ（初年度・概算）</div>
+          <div class="sim-line"><span>kW単価（税別）</span><span id="buyCostKw" style="font-weight:700">—</span></div>
+          <div class="sim-line"><span>初期費用（8kW・税込）</span><span id="buyCost" style="font-weight:700;color:#B91C1C">—</span></div>
+          <div class="sim-line"><span>自家消費による削減</span><span id="buyL2" style="font-weight:700;color:#15803D">—</span></div>
+          <div class="sim-line"><span>余剰電力の売電収入</span><span id="buyL3" style="font-weight:700;color:#15803D">—</span></div>
+          <div class="sim-line"><span>リース料</span><span class="nv-muted">なし</span></div>
+          <div class="nv-total"><span>月額削減効果</span><span id="buyL5" class="nv-total-v">—</span></div>
+          <div class="nv-ref"><span>参考：30年メリットを月割りすると</span><span id="buyMonthlyMerit">—</span></div>
+        </div>
+        <div class="story">初期費用の回収後は<strong>光熱費削減がまるごと収益</strong>になります。初期費用・kW単価は工務店側で設定できます。</div>
+      </div>
+
+      <!-- PPAパネル -->
+      <div id="panel-ppa" style="display:none">
+        <div class="hero nv-hero nv-hero-n">
+          <div class="hero-lbl">建て得（PPA）なら、30年間で</div>
+          <div class="nv-hero-line"><span class="hero-num" id="ppaHeroNum">—</span><span class="hero-unit">万円の経済効果</span></div>
+          <div class="hero-sub">初期費用ゼロ。自家消費した分だけ電気代を削減できます</div>
+          <div class="hero-badge" id="ppaHeroBadge">—</div>
+        </div>
+        <div class="nv-list">
+          <div class="nv-sub">建て得 月々のイメージ（初年度・概算）</div>
+          <div class="sim-line"><span>初期費用</span><span style="color:#15803D;font-weight:700">0円</span></div>
+          <div class="sim-line"><span>自家消費した電気代</span><span id="ppaL2" style="color:#15803D;font-weight:700">—</span></div>
+          <div class="sim-line"><span>余剰売電（期間中）</span><span class="nv-muted" id="ppaL3">事業者側</span></div>
+          <div class="sim-line"><span>月額費用</span><span style="color:#15803D;font-weight:700">0円</span></div>
+          <div class="nv-total"><span>実質の月額負担</span><span id="ppaL5" class="nv-total-v">—</span></div>
+          <div class="nv-ref"><span>参考：30年メリットを月割りすると</span><span id="ppaMonthlyMerit">—</span></div>
+        </div>
+        <div class="story">初期費用・月額ゼロで太陽光を設置できます。<strong id="ppaTerm">15年</strong>後に設備が無償譲渡され、以降の売電収入もすべて手元に残ります。</div>
       </div>
     </div>
-    <div class="story">ポイントは<strong>リース終了後（11年目以降）</strong>。リース料がなくなり、削減効果と売電収入がまるごと家計のプラスになります。設備は無償譲渡されます。</div>
-  </div>
 
-  <!-- 購入パネル -->
-  <div id="panel-buy" style="display:none">
-    <div class="hero" style="background:linear-gradient(135deg,#374151,#6B7280)">
-      <div class="hero-lbl">購入なら、30年間で</div>
-      <div><span class="hero-num" id="buyHeroNum">—</span><span class="hero-unit">万円の経済効果</span></div>
-      <div class="hero-sub">初期費用がかかりますが、長期では最大のリターンが期待できます</div>
-      <div class="hero-badge" id="buyHeroBadge">—</div>
-    </div>
-    <div class="card" style="background:#F9FAFB;border:1.5px solid #D1D5DB">
-      <div class="card-ttl">⚙️ 購入価格の設定（工務店専用）</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-        <input type="number" id="buyKwInput" placeholder="300000" min="100000" max="600000" step="10000"
-          style="flex:1;padding:10px 12px;border:1.5px solid #D1D5DB;border-radius:8px;font-size:15px;font-family:inherit"
-          oninput="onBuyKwChange()">
-        <span style="font-size:13px;color:#6B7280;white-space:nowrap">円 / kW（税別）</span>
+    <div class="nv-side">
+      <!-- 3方式30年比較 ＋ 内訳サマリー -->
+      <div class="card nv-card">
+        <div class="nv-sub">3方式の30年累積支出 比較</div>
+        <div id="barS30"></div>
+        <div class="msg-pos">
+          <div class="t" id="sLongT">—</div>
+          <div class="b" id="sLongB">—</div>
+        </div>
+
+        <div class="nv-sub nv-sep">内訳サマリー（リース vs 建て得）</div>
+        <div class="nv-tbl">
+          <table class="nv-brk">
+            <thead>
+              <tr>
+                <th>項目</th>
+                <th class="nv-col-lease">リース</th>
+                <th id="brkPpaHeader">建て得</th>
+              </tr>
+            </thead>
+            <tbody id="breakdownBody">
+              <!-- JSで生成 -->
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div style="font-size:11px;color:#6B7280">工務店側で設定。8kWの場合の総額（税込）が自動計算されます。</div>
-    </div>
-    <div class="card">
-      <div class="card-ttl">🏠 購入 月々のイメージ（初年度・概算）</div>
-      <div class="sim-line"><span>kW単価（税別）</span><span id="buyCostKw" style="font-weight:700;color:#374151">—</span></div>
-      <div class="sim-line"><span>初期費用（8kW・税込）</span><span id="buyCost" style="font-weight:700;color:#B91C1C">—</span></div>
-      <div class="sim-line"><span>自家消費による削減</span><span id="buyL2" style="font-weight:700;color:#15803D">—</span></div>
-      <div class="sim-line"><span>余剰電力の売電収入</span><span id="buyL3" style="font-weight:700;color:#15803D">—</span></div>
-      <div class="sim-line"><span>リース料</span><span style="color:#9CA3AF">なし</span></div>
-      <div class="sim-total"><span style="font-size:14px;font-weight:800">月額削減効果</span><span id="buyL5" style="font-size:18px;font-weight:900;color:#374151">—</span></div>
-      <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #D1D5DB;display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:11px;color:#6B7280">参考：30年メリットを月割りすると</span>
-        <span id="buyMonthlyMerit" style="font-size:14px;font-weight:800;color:#374151">—</span>
-      </div>
-    </div>
-    <div class="story">初期費用の回収後は<strong>光熱費削減がまるごと収益</strong>になります。初期費用・kW単価は工務店側で設定できます。</div>
-  </div>
 
-  <!-- PPAパネル -->
-  <div id="panel-ppa" style="display:none">
-    <div class="hero" style="background:linear-gradient(135deg,#15803D,#16A34A)">
-      <div class="hero-lbl">建て得（PPA）なら、30年間で</div>
-      <div><span class="hero-num" id="ppaHeroNum">—</span><span class="hero-unit">万円の経済効果</span></div>
-      <div class="hero-sub">初期費用ゼロ。自家消費した分だけ電気代を削減できます</div>
-      <div class="hero-badge" id="ppaHeroBadge">—</div>
-    </div>
-    <div class="card">
-      <div class="card-ttl">☀️ 建て得 月々のイメージ（初年度・概算）</div>
-      <div class="sim-line"><span>初期費用</span><span style="color:#15803D;font-weight:700">0円</span></div>
-      <div class="sim-line"><span>自家消費した電気代</span><span id="ppaL2" style="color:#15803D;font-weight:700">—</span></div>
-      <div class="sim-line"><span>余剰売電（期間中）</span><span style="color:#9CA3AF" id="ppaL3">事業者側</span></div>
-      <div class="sim-line"><span>月額費用</span><span style="color:#15803D;font-weight:700">0円</span></div>
-      <div class="sim-total"><span style="font-size:14px;font-weight:800">実質の月額負担</span><span id="ppaL5" style="font-size:18px;font-weight:900;color:#15803D">—</span></div>
-      <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #D1D5DB;display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:11px;color:#6B7280">参考：30年メリットを月割りすると</span>
-        <span id="ppaMonthlyMerit" style="font-size:14px;font-weight:800;color:#15803D">—</span>
-      </div>
-    </div>
-    <div class="story">初期費用・月額ゼロで太陽光を設置できます。<strong id="ppaTerm">15年</strong>後に設備が無償譲渡され、以降の売電収入もすべて手元に残ります。</div>
-  </div>
-
-  <!-- 3方式30年比較 -->
-  <div class="card" style="margin-top:14px">
-    <div class="card-ttl">3方式の30年累積支出 比較</div>
-    <div id="barS30"></div>
-    <div class="msg-pos" style="margin-top:10px">
-      <div class="t" id="sLongT">—</div>
-      <div class="b" id="sLongB">—</div>
+      <div class="notice">本試算は標準的な屋根条件（1kWあたり年間発電量1,000kWh・劣化率0.5%/年・パワコン交換15/30年目）での概算です。実際は屋根の向き・面積・地域・設置容量によって大きく変わります。</div>
+      <div class="story">ここまでは<strong>標準条件での概算</strong>です。実際の屋根・図面に合わせた正確な金額は、<strong>無料の詳細シミュレーション</strong>でご確認いただけます。</div>
+      <button class="btn-orange" id="btnReq">具体的なシミュレーション試算はこちら（無料）<svg class="nv-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </div>
   </div>
-
-  <!-- 内訳サマリー（customer.html準拠） -->
-  <div class="card" style="margin-top:14px">
-    <div class="card-ttl">内訳サマリー（リース vs 建て得）</div>
-    <table style="width:100%;border-collapse:collapse;font-size:13px">
-      <thead>
-        <tr style="border-bottom:2px solid #E5E7EB">
-          <th style="text-align:left;padding:8px 4px;color:#6B7280;font-weight:700">項目</th>
-          <th style="text-align:right;padding:8px 4px;color:#1A5EA8;font-weight:700">リース</th>
-          <th style="text-align:right;padding:8px 4px;color:#D97706;font-weight:700" id="brkPpaHeader">建て得</th>
-        </tr>
-      </thead>
-      <tbody id="breakdownBody">
-        <!-- JSで生成 -->
-      </tbody>
-    </table>
-  </div>
-
-  <div class="notice">本試算は標準的な屋根条件（1kWあたり年間発電量1,000kWh・劣化率0.5%/年・パワコン交換15/30年目）での概算です。実際は屋根の向き・面積・地域・設置容量によって大きく変わります。</div>
-  <div class="story">ここまでは<strong>標準条件での概算</strong>です。実際の屋根・図面に合わせた正確な金額は、<strong>無料の詳細シミュレーション</strong>でご確認いただけます。</div>
-  <button class="btn-orange" id="btnReq">📝 具体的なシミュレーション試算はこちら（無料）</button>
 </div>
 
 <!-- ========== 画面4：詳細シミュレーション（customer.html統合） ========== -->
@@ -1528,8 +1517,8 @@ function renderResult(){
   $id('tcE').textContent = Math.round(r.allElec).toLocaleString('ja-JP');
 
   renderBar('barM',[
-    {lbl:'\u96FB\u6C17\u30AC\u30B9\u4F75\u7528', val:r.combined, color:'#9CA3AF'},
-    {lbl:'\u30AA\u30FC\u30EB\u96FB\u5316',       val:r.allElec,  color:'#1A5EA8'}
+    {lbl:'\u96FB\u6C17\u30AC\u30B9\u4F75\u7528', val:r.combined, color:'var(--lk-5d6670)'},
+    {lbl:'\u30AA\u30FC\u30EB\u96FB\u5316',       val:r.allElec,  color:'var(--lk-ffb547)'}
   ]);
 
   var tbody=$id('bdBody'); tbody.innerHTML='';
@@ -1545,7 +1534,7 @@ function renderResult(){
     for(var c=0;c<3;c++){
       var td=document.createElement('td'); td.textContent=rows[i][c];
       if(c>0) td.className='td-r';
-      if(i===rows.length-1){ if(c===1) td.style.color='#6B7280'; if(c===2) td.style.color='#1A5EA8'; }
+      if(i===rows.length-1){ if(c===1) td.style.color='var(--lk-8a949f)'; if(c===2) td.style.color='var(--lk-ffb547)'; }
       tr.appendChild(td);
     }
     tbody.appendChild(tr);
@@ -1754,10 +1743,10 @@ function renderSolar(){
   /* 30年累積バーグラフ */
   var noSEst = Math.round((r.allElec*12*30*1.3)/10000)*10000;
   renderBar('barS30',[
-    {lbl:'太陽光なし', val:noSEst,        color:'#9CA3AF'},
-    {lbl:'購入',                   val:noSEst-bu.merit30, color:'#374151'},
-    {lbl:'リース',             val:noSEst-ls.merit30, color:'#D97706'},
-    {lbl:'建て得',             val:noSEst-pp.merit30, color:'#15803D'}
+    {lbl:'太陽光なし', val:noSEst,        color:'var(--lk-5d6670)'},
+    {lbl:'購入',                   val:noSEst-bu.merit30, color:'var(--lk-7d8792)'},
+    {lbl:'リース',             val:noSEst-ls.merit30, color:'var(--lk-ffb547)'},
+    {lbl:'建て得',             val:noSEst-pp.merit30, color:'var(--lk-aab2bb)'}
   ]);
 
   /* 差額メッセージ */
@@ -1797,8 +1786,8 @@ function renderBreakdown(s, pp){
     ['パワコン交換費用', fmt(-bd.lPconTotal), fmt(-bd.pPconTotal)],
     ['初期費用', '0円', bd.pInitCost ? fmt(-bd.pInitCost) : '0円'],
     ['<strong>30年累積合計</strong>',
-      '<strong style="color:#1A5EA8">'+fmt(bd.lCum30)+'</strong>',
-      '<strong style="color:#D97706">'+fmt(bd.pCum30)+'</strong>']
+      '<strong style="color:var(--lk-ffb547)">'+fmt(bd.lCum30)+'</strong>',
+      '<strong style="color:var(--lk-c3c9d0)">'+fmt(bd.pCum30)+'</strong>']
   ];
 
   document.getElementById('breakdownBody').innerHTML = rows.map(function(row){

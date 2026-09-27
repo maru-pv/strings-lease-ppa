@@ -448,3 +448,152 @@ h1 { color: var(--lk-e9edf1) !important; letter-spacing: 0.02em; }
 #lookSwitch button[aria-pressed="true"] { background: var(--lk-eef0f2); color: var(--lk-0b0d10); }
 html[data-look="clean"] body { -webkit-font-smoothing: antialiased; }
 html[data-look="clean"] .card, html[data-look="clean"] #step4 .r4-reason { box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04) !important; }
+
+/* =========================================================
+   営業用ナビ 3画面（条件入力／オール電化なら？／さらに太陽光なら？）刷新レイアウト
+   ========================================================= */
+:is(#scrInput,#scrResult,#scrSolar) { --nv-gap: 28px; }
+:is(#scrInput,#scrResult,#scrSolar) .nv-grid { display: flex; flex-direction: column; gap: var(--nv-gap); }
+:is(#scrInput,#scrResult,#scrSolar) .nv-main, :is(#scrInput,#scrResult,#scrSolar) .nv-side { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+:is(#scrInput,#scrResult,#scrSolar) .card, :is(#scrInput,#scrResult,#scrSolar) .story, :is(#scrInput,#scrResult,#scrSolar) .notice, :is(#scrInput,#scrResult,#scrSolar) .note-sm { margin: 0 !important; }
+:is(#scrInput,#scrResult,#scrSolar) .btn-main, :is(#scrInput,#scrResult,#scrSolar) .btn-orange { margin: 0 !important; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 54px; }
+:is(#scrInput,#scrResult,#scrSolar) .nv-ico { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+:is(#scrInput,#scrResult,#scrSolar) .flow3 { justify-content: flex-start; margin: 4px 0 24px; }
+:is(#scrInput,#scrResult,#scrSolar) .flow3 .f { font-weight: 600; border-radius: 999px !important; }
+:is(#scrInput,#scrResult,#scrSolar) .btn-back { margin-bottom: 0; }
+
+/* 見出し・補助テキスト */
+#scrInput .nv-head { margin: 0 0 24px; }
+.nv-ttl { margin: 0 0 6px; font-size: clamp(24px, 3.2vw, 34px); font-weight: 700; letter-spacing: .01em; color: var(--lk-e9edf1); }
+:is(#scrInput,#scrResult,#scrSolar) .nv-lead { margin: 0; font-size: 14px; line-height: 1.8; color: var(--lk-aab2bb); }
+:is(#scrInput,#scrResult,#scrSolar) .nv-lead strong { color: var(--lk-e9edf1); }
+:is(#scrInput,#scrResult,#scrSolar) .nv-note { margin: 0 0 14px; font-size: 12px; line-height: 1.7; color: var(--lk-8a949f); }
+:is(#scrInput,#scrResult,#scrSolar) .nv-sub { font-size: 11px; font-weight: 700; letter-spacing: .12em; color: var(--lk-8a949f); margin: 0 0 14px; }
+:is(#scrInput,#scrResult,#scrSolar) .nv-sep { margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--lk-1d242c); }
+:is(#scrInput,#scrResult,#scrSolar) .nv-card { padding: 24px 22px !important; border-radius: 16px !important; }
+:is(#scrInput,#scrResult,#scrSolar) .nv-h3 { margin: 0 0 14px; font-size: 17px; font-weight: 700; color: var(--lk-e9edf1); }
+:is(#scrInput,#scrResult,#scrSolar) .nv-muted { color: var(--lk-7d8792); }
+
+/* 入力 */
+#scrInput .fld { margin-bottom: 18px; }
+#scrInput .card .fld:last-child, #scrInput .frow .fld { margin-bottom: 18px; }
+#scrInput .fld input, #scrInput .fld select { height: 46px; padding: 0 14px; font-size: 15px; }
+#scrInput .fld label { font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+#scrInput .rb { padding: 8px 14px; }
+#scrInput .warn-box { margin-top: 4px; border-radius: 0 10px 10px 0; line-height: 1.7; }
+
+/* ヒーロー数字：枠なし・光のにじみ */
+:is(#scrResult,#scrSolar) .nv-hero {
+  position: relative; margin: 0 !important; padding: 8px 0 4px !important;
+  background: radial-gradient(closest-side at 28% 50%, rgba(255,181,71,0.16), rgba(255,181,71,0) 100%) !important;
+  border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+  display: flex; flex-direction: column; gap: 10px; color: var(--lk-e9edf1) !important;
+}
+:is(#scrResult,#scrSolar) .nv-hero .hero-lbl { margin: 0; font-size: 13px; letter-spacing: .06em; color: var(--lk-aab2bb); }
+:is(#scrResult,#scrSolar) .nv-hero-line { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+:is(#scrResult,#scrSolar) .nv-hero .hero-num { font-size: clamp(60px, 14vw, 104px); font-weight: 800; letter-spacing: -.04em; line-height: 1; color: var(--lk-ffb547) !important; }
+:is(#scrResult,#scrSolar) .nv-hero .hero-unit { margin: 0; font-size: 18px; font-weight: 700; opacity: 1; color: var(--lk-e9edf1); }
+:is(#scrResult,#scrSolar) .nv-hero .hero-sub { margin: 0; font-size: 13px; color: var(--lk-aab2bb); }
+:is(#scrResult,#scrSolar) .nv-hero .hero-badge { align-self: flex-start; margin: 2px 0 0; padding: 5px 12px; font-size: 12px; border-radius: 999px; background: var(--lk-151108) !important; color: var(--lk-ffb547) !important; border: 1px solid var(--lk-2a2212); }
+#scrSolar .nv-hero-n { background: radial-gradient(closest-side at 28% 50%, var(--lk-rgba255255255008), rgba(0,0,0,0) 100%) !important; }
+#scrSolar .nv-hero-n .hero-num { color: var(--lk-e9edf1) !important; }
+#scrSolar .nv-hero-n .hero-badge { background: var(--lk-11161c) !important; color: var(--lk-c3c9d0) !important; border-color: var(--lk-1d242c); }
+
+/* 比較の行（箱なし・細線） */
+#scrResult .nv-rows { border-top: 1px solid var(--lk-1d242c); }
+#scrResult .nv-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--lk-1d242c); }
+#scrResult .nv-k { display: flex; flex-direction: column; gap: 3px; font-size: 14px; font-weight: 700; color: var(--lk-c3c9d0); }
+#scrResult .nv-k small { font-size: 11px; font-weight: 400; color: var(--lk-7d8792); }
+#scrResult .nv-v { font-size: 12px; color: var(--lk-8a949f); white-space: nowrap; }
+#scrResult .nv-v b { font-family: 'Manrope', sans-serif; font-size: 24px; font-weight: 800; margin-right: 3px; color: var(--lk-c3c9d0); }
+#scrResult .nv-row-em .nv-k, #scrResult .nv-row-em .nv-v b { color: var(--lk-e9edf1); }
+#scrResult .nv-now { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border: 1px dashed var(--lk-2b333c); border-radius: 12px; }
+#scrResult .nv-now-k { font-size: 12px; color: var(--lk-8a949f); }
+#scrResult .nv-now-k b { font-family: 'Manrope', sans-serif; font-size: 16px; margin-left: 8px; color: var(--lk-c3c9d0); }
+#scrResult .nv-now-k span { font-size: 11px; margin-left: 2px; }
+#scrResult .nv-now-x { font-size: 12px; line-height: 1.7; color: var(--lk-aab2bb); }
+
+/* 棒グラフ：値はバーの外へ（どちらの見た目でも読める） */
+:is(#scrResult,#scrSolar) .bar-row { margin-bottom: 12px; }
+:is(#scrResult,#scrSolar) .bar-lbl { width: 84px; font-size: 12px; font-weight: 600; }
+:is(#scrResult,#scrSolar) .bar-track { height: 22px; border-radius: 6px !important; overflow: visible; margin-right: 92px; }
+:is(#scrResult,#scrSolar) .bar-fill { position: relative; border-radius: 6px; padding: 0; }
+:is(#scrResult,#scrSolar) .bar-val { position: absolute; left: 100%; margin-left: 10px; color: var(--lk-e9edf1) !important; font-size: 13px; }
+
+/* 内訳表 */
+#scrResult .bd th { background: transparent !important; padding: 8px 6px; border-bottom: 1px solid var(--lk-2b333c); }
+#scrResult .bd td { padding: 12px 6px; border-bottom: 1px solid var(--lk-1d242c) !important; color: var(--lk-c3c9d0); }
+#scrResult .bd td:first-child { color: var(--lk-aab2bb); }
+#scrResult .bd tr:last-child td { border-bottom: 0 !important; font-size: 15px; }
+
+/* なぜ安くなる：アイコン＋文の行 */
+#scrResult .eg { display: flex; flex-direction: column; gap: 0; margin: 0 0 14px; border-top: 1px solid var(--lk-1d242c); }
+#scrResult .ec { display: flex; gap: 14px; align-items: flex-start; padding: 16px 0; background: transparent !important; border: 0 !important; border-bottom: 1px solid var(--lk-1d242c) !important; border-radius: 0; }
+#scrResult .ec .nv-ico { width: 22px; height: 22px; color: var(--lk-ffb547); margin-top: 1px; }
+#scrResult .ec .t { font-size: 14px; margin-bottom: 4px; }
+#scrResult .ec .x { font-size: 12px; line-height: 1.7; }
+#scrResult .nv-next { display: flex; flex-direction: column; gap: 14px; }
+#scrResult .nv-sim { padding: 18px; border-radius: 14px; border: 1px solid var(--lk-1d242c); background: var(--lk-0b0e12); display: flex; flex-direction: column; gap: 8px; }
+#scrResult .nv-sim-t { font-size: 14px; font-weight: 700; color: var(--lk-e9edf1); }
+#scrResult .nv-sim-x { font-size: 12px; line-height: 1.7; color: var(--lk-8a949f); margin-bottom: 4px; }
+:is(#scrResult,#scrSolar) .nv-btn-ghost { background: transparent !important; color: var(--lk-e9edf1) !important; border: 1px solid var(--lk-2b333c) !important; min-height: 46px !important; font-size: 14px !important; font-weight: 700 !important; }
+:is(#scrResult,#scrSolar) .nv-btn-ghost:hover { border-color: var(--lk-e9edf1) !important; }
+
+/* タブ：セグメント切替 */
+#scrSolar .nv-intro { margin-bottom: 4px; }
+#scrSolar .nv-tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--lk-11161c); border: 1px solid var(--lk-1d242c); }
+#scrSolar .nv-tabs .tab-btn { flex: 1; margin: 0; height: 40px; padding: 0 8px; border: 0 !important; border-radius: 9px !important; font-size: 14px; font-weight: 700; background: transparent; }
+#scrSolar .nv-tabs .tab-btn.active { background: var(--lk-eef0f2) !important; color: var(--lk-0b0d10) !important; }
+#scrSolar .nv-tabs .tab-btn#tab-lease.active { background: var(--lk-ffb547) !important; }
+#scrSolar [id^="panel-"] > * + * { margin-top: 22px !important; }
+
+/* 月々のイメージ：細線の行 */
+#scrSolar .nv-list { border-top: 1px solid var(--lk-1d242c); padding-top: 18px; }
+#scrSolar .sim-line { padding: 13px 0; font-size: 14px; color: var(--lk-c3c9d0); }
+#scrSolar .sim-line span:last-child { font-family: 'Manrope', 'Zen Kaku Gothic New', sans-serif; }
+#scrSolar .nv-total { display: flex; justify-content: space-between; align-items: baseline; padding: 18px 0 12px; border-top: 1px solid var(--lk-2b333c); font-size: 15px; font-weight: 700; color: var(--lk-e9edf1); }
+#scrSolar .nv-total-v { font-family: 'Manrope', sans-serif; font-size: 26px; font-weight: 800; color: var(--lk-e9edf1); }
+#scrSolar .nv-ref { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding-top: 10px; border-top: 1px dashed var(--lk-1d242c); font-size: 12px; color: var(--lk-8a949f); }
+#scrSolar .nv-ref span:last-child { font-family: 'Manrope', 'Zen Kaku Gothic New', sans-serif; font-size: 14px; font-weight: 800; color: var(--lk-c3c9d0); }
+#scrSolar .nv-ref span.nv-acc, #scrSolar .nv-total-v.nv-acc { color: var(--lk-ffb547); }
+#scrSolar .nv-set { padding: 16px 18px; border-radius: 12px; background: var(--lk-11161c); border: 1px solid var(--lk-1d242c); }
+#scrSolar .nv-set .nv-sub { margin-bottom: 10px; }
+#scrSolar .nv-set-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+#scrSolar .nv-set-row input { flex: 1; min-width: 0; height: 44px; padding: 0 12px; font-size: 15px; }
+#scrSolar .nv-set-row span { font-size: 13px; color: var(--lk-8a949f); white-space: nowrap; }
+#scrSolar .nv-set .nv-note { margin: 0; }
+#scrSolar .msg-pos { margin-top: 16px; border-radius: 12px; }
+
+/* 内訳サマリー表：リース列を帯で強調 */
+#scrSolar .nv-tbl { overflow-x: auto; }
+#scrSolar .nv-brk { width: 100%; border-collapse: collapse; font-size: 13px; }
+#scrSolar .nv-brk th { background: transparent !important; padding: 10px 8px; font-size: 11px; font-weight: 700; text-align: right; color: var(--lk-7d8792) !important; border-bottom: 1px solid var(--lk-2b333c); }
+#scrSolar .nv-brk th:first-child { text-align: left; }
+#scrSolar .nv-brk th.nv-col-lease { color: var(--lk-ffb547) !important; border-top: 2px solid var(--lk-ffb547); border-radius: 12px 12px 0 0; background: var(--lk-151108) !important; }
+#scrSolar .nv-brk td { padding: 13px 8px !important; line-height: 1.5; vertical-align: top; font-family: 'Manrope', 'Zen Kaku Gothic New', sans-serif; color: var(--lk-c3c9d0); border-bottom: 1px solid var(--lk-1d242c) !important; }
+#scrSolar .nv-brk td:first-child { font-family: 'Zen Kaku Gothic New', sans-serif; color: var(--lk-aab2bb) !important; }
+#scrSolar .nv-brk td:nth-child(2) { background: var(--lk-151108); color: var(--lk-e9edf1); }
+#scrSolar .nv-brk tr:last-child td { border-bottom: 0 !important; font-size: 16px; padding-block: 16px !important; }
+#scrSolar .nv-brk tr:last-child td:nth-child(2) { border-radius: 0 0 12px 0; }
+#scrSolar .nv-brk tbody tr { border-bottom: 0 !important; }
+
+/* PC：左＝結論、右＝根拠 */
+@media (min-width: 960px) {
+  .wrap:has(#scrInput.on), .wrap:has(#scrResult.on), .wrap:has(#scrSolar.on) { max-width: 1200px; padding-inline: clamp(24px, 4vw, 56px); }
+  :is(#scrInput,#scrResult,#scrSolar) .nv-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); column-gap: clamp(36px, 5vw, 80px); align-items: start; }
+  #scrInput .nv-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 24px; }
+  :is(#scrResult,#scrSolar) .nv-main { position: sticky; top: 24px; }
+}
+@media (max-width: 540px) {
+  :is(#scrInput,#scrResult,#scrSolar) .nv-card { padding: 20px 16px !important; }
+  :is(#scrResult,#scrSolar) .bar-lbl { width: 64px; }
+  :is(#scrResult,#scrSolar) .bar-track { margin-right: 84px; }
+  :is(#scrInput,#scrResult,#scrSolar) .flow3 { font-size: 11px; gap: 4px; }
+}
+#scrSolar .nv-brk td:not(:first-child) { white-space: nowrap; }
+#scrSolar .nv-brk td:not(:first-child) span { white-space: normal; }
+@media (max-width: 540px) {
+  :is(#scrInput,#scrResult,#scrSolar) .btn-main, :is(#scrInput,#scrResult,#scrSolar) .btn-orange { font-size: 14px; padding-inline: 12px; }
+  #scrSolar .nv-brk tr:last-child td { font-size: 14px; }
+}
+#scrResult .bd th.td-r { text-align: right; }
