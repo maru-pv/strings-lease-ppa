@@ -362,6 +362,10 @@ optgroup { font-weight: 700; }
 .btn-secondary:hover { background: var(--gray-300); }
 .btn-primary:disabled { background: var(--gray-300); box-shadow: none; cursor: not-allowed; }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme-dark.css">
+<script src="theme-switch.js"></script>
 </head>
 <body>
 
@@ -570,56 +574,77 @@ optgroup { font-weight: 700; }
 
   <!-- STEP4: 試算結果 -->
   <div class="step-screen" id="step4">
-    <div class="step-head">
-      <div class="step-eyebrow">Step 4 / 6</div>
-      <h2>30年間の試算結果</h2>
-    </div>
+    <div class="r4">
+      <div class="r4-main">
+        <div class="step-head">
+          <div class="step-eyebrow">Step 4 / 6</div>
+          <h2>30年間の試算結果</h2>
+        </div>
 
-    <div class="result-hero">
-      <div class="rh-label">SBIリースを導入すると、30年間で</div>
-      <div><span class="rh-value" id="resLeaseCum">—</span><span class="rh-unit">万円</span></div>
-      <div class="rh-compare">電気代を節約できます（太陽光なしと比較）</div>
-      <div class="rh-sub" id="resHeroSub">—</div>
-    </div>
+        <div class="result-hero">
+          <div class="rh-label">SBIリースで太陽光を載せると</div>
+          <div class="rh-line"><span class="rh-pre">30年で</span><span class="rh-value" id="resLeaseCum">—</span><span class="rh-unit">万円</span></div>
+          <div class="rh-compare">電気代が浮きます。<span>太陽光を載せない場合との差額（概算）</span></div>
+          <div class="rh-sub" id="resHeroSub">—</div>
+        </div>
 
-    <div class="compare-row">
-      <div class="compare-card winner" id="resLeaseCard">
-        <div class="winner-badge" id="resLeaseBadge">おすすめ</div>
-        <div class="cc-label">SBIリース</div>
-        <div class="cc-name" id="resLeaseName">—</div>
-        <div class="cc-val"  id="resLeaseVal">—</div>
-        <div class="cc-unit">30年間の節約額（太陽光なし比）</div>
+        <div class="r4-points">
+          <div><span class="r4-k">初期費用</span><span class="r4-v"><b>0</b>円</span></div>
+          <div><span class="r4-k">売電収入</span><span class="r4-v"><b class="sell">1</b>年目から<br>お客様へ</span></div>
+          <div><span class="r4-k">11年目以降</span><span class="r4-v">設備は<br>お客様のもの</span></div>
+        </div>
+
+        <div class="r4-reason">
+          <span class="r4-reason-k">SBIリースを選ぶ理由</span>
+          <p class="r4-reason-t">手元のお金を減らさずに始められて、発電した電気の売上は最初の年から、ずっとご家族のもの。</p>
+          <p class="r4-reason-x">10年でリース料の支払いが終わり、11年目からは設備も売電収入も、まるごと家計のプラスになります。</p>
+        </div>
       </div>
-      <div class="compare-card" id="resPpaCard">
-        <div class="cc-label" id="resPpaLabel">PPA</div>
-        <div class="cc-name" id="resPpaName">—</div>
-        <div class="cc-val"  id="resPpaVal">—</div>
-        <div class="cc-unit">30年間の節約額（太陽光なし比）</div>
-      </div>
-    </div>
 
-    <div class="chart-wrap">
-      <h3>📊 30年間の累積支出比較</h3>
-      <canvas id="resultChart"></canvas>
-    </div>
+      <div class="r4-side">
+        <div class="chart-wrap">
+          <h3>30年間の電気代の累計</h3>
+          <p class="r4-note">線が低いほど、支払いが少ない</p>
+          <canvas id="resultChart"></canvas>
+        </div>
 
-    <div class="card">
-      <div class="card-title">内訳サマリー</div>
-      <table class="breakdown-table">
-        <thead>
-          <tr>
-            <th>項目</th>
+        <div class="r4-compare">
+          <h3>2つの方法を並べると</h3>
+          <p class="r4-note">30年の合計に加えて、「いつ・誰に」お金が入るかも比べてください</p>
+          <div class="compare-row">
+            <div class="compare-card winner" id="resLeaseCard">
+              <div class="winner-badge" id="resLeaseBadge">おすすめ</div>
+              <div class="cc-label">SBIリース</div>
+              <div class="cc-name" id="resLeaseName">—</div>
+              <div class="cc-val"  id="resLeaseVal">—</div>
+              <div class="cc-unit">30年間の節約額（太陽光なし比）</div>
+            </div>
+            <div class="compare-card" id="resPpaCard">
+              <div class="cc-label" id="resPpaLabel">PPA</div>
+              <div class="cc-name" id="resPpaName">—</div>
+              <div class="cc-val"  id="resPpaVal">—</div>
+              <div class="cc-unit">30年間の節約額（太陽光なし比）</div>
+            </div>
+          </div>
+          <div class="r4-table">
+            <table class="breakdown-table">
+              <thead>
+                <tr>
+                  <th>項目</th>
             <th style="text-align:right">SBIリース</th>
             <th style="text-align:right" id="brkPpaHeader">PPA</th>
-          </tr>
-        </thead>
-        <tbody id="breakdownBody"></tbody>
-      </table>
-    </div>
+                </tr>
+              </thead>
+              <tbody id="breakdownBody"></tbody>
+            </table>
+          </div>
+        </div>
 
-    <div class="card">
-      <div class="card-title">試算条件</div>
-      <div style="font-size:12px;color:var(--gray-500);line-height:1.8" id="calcCondition">—</div>
+        <details class="r4-cond">
+          <summary>試算の条件</summary>
+          <div style="font-size:12px;color:var(--gray-500);line-height:1.8" id="calcCondition">—</div>
+        </details>
+      </div>
     </div>
   </div>
 
@@ -1139,14 +1164,14 @@ function renderChart(r) {
           const saving = ((ns30 - ls30) / 10000).toFixed(0);
           const midY  = (yNs + yLs) / 2;
           ctx.save();
-          ctx.strokeStyle = '#15803D';
+          ctx.strokeStyle = '#8a949f';
           ctx.lineWidth = 1.5;
           ctx.setLineDash([]);
           ctx.beginPath(); ctx.moveTo(xPos - 20, yNs); ctx.lineTo(xPos - 20, yLs); ctx.stroke();
           ctx.beginPath(); ctx.moveTo(xPos - 24, yNs + 4); ctx.lineTo(xPos - 20, yNs); ctx.lineTo(xPos - 16, yNs + 4); ctx.stroke();
           ctx.beginPath(); ctx.moveTo(xPos - 24, yLs - 4); ctx.lineTo(xPos - 20, yLs); ctx.lineTo(xPos - 16, yLs - 4); ctx.stroke();
           ctx.font = 'bold 11px sans-serif';
-          ctx.fillStyle = '#15803D';
+          ctx.fillStyle = '#8a949f';
           ctx.textAlign = 'right';
           ctx.fillText('節約 ' + saving + '万円', xPos - 24, midY + 4);
           ctx.restore();
@@ -1163,23 +1188,23 @@ function renderChart(r) {
         {
           label: '太陽光なし',
           data: noSolarSpendArr,
-          borderColor: '#9CA3AF',
-          backgroundColor: 'rgba(156,163,175,0.08)',
+          borderColor: '#7d8792',
+          backgroundColor: 'rgba(125,135,146,0.04)',
           borderWidth: 2, pointRadius: 0, fill: true, tension: 0.3,
           borderDash: [4, 3],
         },
         {
           label: 'SBIリース',
           data: leaseSpendArr,
-          borderColor: '#1A5EA8',
-          backgroundColor: 'rgba(26,94,168,0.10)',
-          borderWidth: 2.5, pointRadius: 0, fill: true, tension: 0.3,
+          borderColor: '#FFB547',
+          backgroundColor: 'rgba(255,181,71,0.12)',
+          borderWidth: 3, pointRadius: 0, fill: true, tension: 0.3,
         },
         {
           label: r.ppaPlan.name,
           data: ppaSpendArr,
-          borderColor: '#C85A00',
-          backgroundColor: 'rgba(200,90,0,0.05)',
+          borderColor: '#8a949f',
+          backgroundColor: 'rgba(195,201,208,0.04)',
           borderWidth: 2, pointRadius: 0, fill: false, tension: 0.3,
           borderDash: [5, 3],
         }
@@ -1189,7 +1214,7 @@ function renderChart(r) {
     options: {
       responsive: true,
       plugins: {
-        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10 } },
+        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 14, color: '#8a949f', boxHeight: 2 } },
         tooltip: {
           callbacks: {
             label: ctx => `${ctx.dataset.label}: 累積支出 ${(ctx.raw / 10000).toFixed(1)}万円`
@@ -1199,6 +1224,7 @@ function renderChart(r) {
       scales: {
         x: {
           ticks: {
+            color: '#7d8792',
             font: { size: 10 },
             maxTicksLimit: 7,
             callback: (val, i) => {
@@ -1210,9 +1236,11 @@ function renderChart(r) {
         },
         y: {
           ticks: {
+            color: '#7d8792',
             font: { size: 10 },
             callback: v => (v / 10000).toFixed(0) + '万'
-          }
+          },
+          grid: { color: 'rgba(128,128,128,0.15)' }, border: { display: false }
         }
       }
     }

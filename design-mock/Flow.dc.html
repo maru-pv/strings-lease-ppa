@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>エネルギーフロー体験</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#07090c}
+a{color:#f4f5f6;text-decoration:none}a:hover{color:#ffffff}
+@keyframes dash{from{stroke-dashoffset:36}to{stroke-dashoffset:0}}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:.6}}
+.p{stroke-dasharray:0 18;stroke-linecap:round;fill:none;animation-name:dash;animation-timing-function:linear;animation-iteration-count:infinite;transition:opacity .4s}
+.slow{animation-duration:1.6s}
+.mid{animation-duration:.9s}
+.fast{animation-duration:.5s}
+.off{opacity:0}
+.chip{transition:opacity .4s}
+.halo{animation:pulse 3s ease-in-out infinite}
+.scene{transition:background-color .6s}
+input[type=range]{-webkit-appearance:none;appearance:none;background:transparent}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:#2b333c}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;margin-top:-8px;border-radius:50%;background:#f4f5f6;box-shadow:0 0 0 6px rgba(255,181,71,.25)}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:#2b333c}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radius:50%;background:#f4f5f6}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #FFB547;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #07090c; color: #f4f5f6; font-family: 'Zen Kaku Gothic New', 'Manrope', sans-serif">
+
+<header style="position: absolute; left: 0; top: 0; width: 1440px; height: 64px; box-sizing: border-box; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #161b21">
+<div style="display: flex; align-items: center; gap: 28px">
+<a href="Main.dc.html" style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 16px; letter-spacing: 0.32em">STRINGS</a>
+<span style="font-size: 14px; color: #aab2bb">エネルギーフロー体験</span>
+</div>
+<a href="Result.dc.html" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: 8px; background: #eef0f2; color: #0b0d10; font-size: 14px; font-weight: 700">30年の試算を見る
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"></path></svg>
+</a>
+</header>
+
+<section class="scene" aria-label="発電と電気の流れ" style="position: absolute; left: 0; top: 64px; width: 920px; height: 736px; background-color: {{skyBg}}; overflow: hidden">
+<svg width="920" height="736" viewBox="0 0 920 736" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+<defs>
+<radialGradient id="sg" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#FFB547" stop-opacity="0.5"></stop>
+<stop offset="1" stop-color="#FFB547" stop-opacity="0"></stop>
+</radialGradient>
+<linearGradient id="pn" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#2d4053"></stop>
+<stop offset="1" stop-color="#0c131b"></stop>
+</linearGradient>
+</defs>
+<g opacity="{{nightOp}}">
+<circle cx="120" cy="90" r="1.4" fill="#cfd6de"></circle>
+<circle cx="260" cy="150" r="1" fill="#cfd6de"></circle>
+<circle cx="540" cy="70" r="1.2" fill="#cfd6de"></circle>
+<circle cx="690" cy="170" r="1" fill="#cfd6de"></circle>
+<circle cx="860" cy="60" r="1.4" fill="#cfd6de"></circle>
+<circle cx="380" cy="210" r="0.9" fill="#cfd6de"></circle>
+<circle cx="760" cy="110" r="16" fill="#d9dee4"></circle>
+<circle cx="768" cy="104" r="14" fill="{{skyBg}}"></circle>
+</g>
+<g opacity="{{sunOp}}">
+<circle cx="{{sunX}}" cy="{{sunY}}" r="150" fill="url(#sg)"></circle>
+<circle cx="{{sunX}}" cy="{{sunY}}" r="30" fill="#FFB547"></circle>
+</g>
+<path d="M 60 600 A 400 460 0 0 1 860 600" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-dasharray="2 8"></path>
+<rect x="0" y="600" width="920" height="136" fill="#090c10"></rect>
+<line x1="0" y1="600" x2="920" y2="600" stroke="#232a32"></line>
+
+<g>
+<line x1="800" y1="320" x2="800" y2="600" stroke="#4d5864" stroke-width="5"></line>
+<line x1="766" y1="344" x2="834" y2="344" stroke="#4d5864" stroke-width="4"></line>
+<line x1="776" y1="372" x2="824" y2="372" stroke="#4d5864" stroke-width="3"></line>
+<path d="M 834 344 Q 880 360 920 350" fill="none" stroke="#3b444e" stroke-width="1.5"></path>
+<path d="M 824 372 Q 876 390 920 382" fill="none" stroke="#3b444e" stroke-width="1.5"></path>
+<text x="800" y="628" text-anchor="middle" font-size="13" fill="#aab2bb">電力会社</text>
+</g>
+
+<g>
+<rect x="118" y="496" width="58" height="104" rx="10" fill="#141a21" stroke="#2c353f"></rect>
+<rect x="118" y="496" width="58" height="104" rx="10" fill="#5BC0F8" opacity="{{ecoGlow}}"></rect>
+<rect x="68" y="556" width="44" height="44" rx="6" fill="#141a21" stroke="#2c353f"></rect>
+<circle cx="90" cy="578" r="12" fill="none" stroke="#3a4450" stroke-width="2"></circle>
+<text x="122" y="628" text-anchor="middle" font-size="13" fill="#aab2bb">エコキュート</text>
+</g>
+
+<g>
+<rect x="250" y="440" width="300" height="160" fill="#10151b"></rect>
+<polygon points="220,440 300,338 500,338 580,440" fill="#1a222b"></polygon>
+<g>
+<rect x="296" y="350" width="38" height="36" fill="url(#pn)" stroke="#3a4d61"></rect>
+<rect x="338" y="350" width="38" height="36" fill="url(#pn)" stroke="#3a4d61"></rect>
+<rect x="380" y="350" width="38" height="36" fill="url(#pn)" stroke="#3a4d61"></rect>
+<rect x="422" y="350" width="38" height="36" fill="url(#pn)" stroke="#3a4d61"></rect>
+<rect x="464" y="350" width="38" height="36" fill="url(#pn)" stroke="#3a4d61"></rect>
+<rect x="270" y="392" width="38" height="36" fill="url(#pn)" stroke="#3a4d61"></rect>
+<rect x="312" y="392" width="38" height="36" fill="url(#pn)" stroke="#3a4d61"></rect>
+<rect x="354" y="392" width="38" height="36" fill="url(#pn)" stroke="#3a4d61"></rect>
+<rect x="396" y="392" width="38" height="36" fill="url(#pn)" stroke="#3a4d61"></rect>
+<rect x="438" y="392" width="38" height="36" fill="url(#pn)" stroke="#3a4d61"></rect>
+<rect x="480" y="392" width="38" height="36" fill="url(#pn)" stroke="#3a4d61"></rect>
+<polygon points="266,428 296,350 502,350 522,428" fill="#FFB547" opacity="{{panelGlow}}"></polygon>
+</g>
+<rect x="276" y="474" width="84" height="62" rx="2" fill="#FFB547" opacity="{{winOp}}"></rect>
+<rect x="440" y="474" width="84" height="62" rx="2" fill="#FFB547" opacity="{{winOp}}"></rect>
+<rect x="376" y="520" width="48" height="80" rx="2" fill="#0a0e13"></rect>
+<g>
+<rect x="306" y="300" width="188" height="28" rx="14" fill="#0b0f14" stroke="{{ownerStroke}}"></rect>
+<text x="400" y="319" text-anchor="middle" font-size="13" font-weight="700" fill="{{ownerStroke}}">{{ownerLabel}}</text>
+</g>
+</g>
+
+<path d="M 400 430 L 400 548" stroke="#FFB547" stroke-opacity="0.12" stroke-width="3" fill="none"></path>
+<path d="M 400 430 L 400 548" class="{{selfCls}}" stroke="#FFB547" stroke-width="7"></path>
+
+<path d="M 518 372 C 610 290, 700 290, 766 344" stroke="#5BC0F8" stroke-opacity="0.12" stroke-width="3" fill="none"></path>
+<path d="M 518 372 C 610 290, 700 290, 766 344" class="{{sellCls}}" stroke="#5BC0F8" stroke-width="7"></path>
+
+<path d="M 800 380 C 780 540, 560 562, 418 560" stroke="#FF7A66" stroke-opacity="0.12" stroke-width="3" fill="none"></path>
+<path d="M 800 380 C 780 540, 560 562, 418 560" class="{{buyCls}}" stroke="#FF7A66" stroke-width="7"></path>
+
+<path d="M 382 560 L 178 560" stroke="#E9EDF1" stroke-opacity="0.1" stroke-width="3" fill="none"></path>
+<path d="M 382 560 L 178 560" class="{{ecoCls}}" stroke="#E9EDF1" stroke-width="6"></path>
+
+<circle cx="400" cy="560" r="26" fill="#FFB547" class="halo" opacity="0.25"></circle>
+<circle cx="400" cy="560" r="16" fill="#0b0f14" stroke="#E9EDF1" stroke-width="2"></circle>
+<path d="M 393 563 L 400 556 L 407 563 M 395 561 L 395 567 L 405 567 L 405 561" fill="none" stroke="#E9EDF1" stroke-width="1.6"></path>
+
+<g class="chip" opacity="{{selfChipOp}}">
+<rect x="410" y="452" width="104" height="26" rx="13" fill="#0b0f14" stroke="#FFB547" stroke-opacity="0.5"></rect>
+<text x="462" y="470" text-anchor="middle" font-size="13" font-weight="700" fill="#FFB547">自家消費 {{selfKw}}</text>
+</g>
+<g class="chip" opacity="{{sellChipOp}}">
+<rect x="566" y="248" width="150" height="26" rx="13" fill="#0b0f14" stroke="#5BC0F8" stroke-opacity="0.5"></rect>
+<text x="641" y="266" text-anchor="middle" font-size="13" font-weight="700" fill="#5BC0F8">{{sellLabel}} {{sellKw}}</text>
+</g>
+<g class="chip" opacity="{{buyChipOp}}">
+<rect x="604" y="572" width="120" height="26" rx="13" fill="#0b0f14" stroke="#FF7A66" stroke-opacity="0.5"></rect>
+<text x="664" y="590" text-anchor="middle" font-size="13" font-weight="700" fill="#FF7A66">買電 {{buyKw}}</text>
+</g>
+<g class="chip" opacity="{{ecoChipOp}}">
+<rect x="196" y="520" width="112" height="26" rx="13" fill="#0b0f14" stroke="#E9EDF1" stroke-opacity="0.4"></rect>
+<text x="252" y="538" text-anchor="middle" font-size="13" font-weight="700" fill="#E9EDF1">沸き上げ {{ecoKw}}</text>
+</g>
+</svg>
+
+<div style="position: absolute; left: 28px; top: 24px; display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 14px; background: rgba(10,13,17,0.72); border: 1px solid #1d242c; backdrop-filter: blur(10px)">
+<sc-for list="{{groups}}" as="group" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="width: 84px; font-size: 12px; color: #aab2bb">{{group.label}}</span>
+<div role="group" aria-label="{{group.label}}" style="display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: #151b22">
+<sc-for list="{{group.items}}" as="item" hint-placeholder-count="2">
+<button type="button" onClick="{{item.pick}}" aria-pressed="{{item.pressed}}" style="height: 34px; min-width: 64px; padding: 0 14px; border: 0; border-radius: 7px; background: {{item.bg}}; color: {{item.fg}}; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer">{{item.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+
+<p style="position: absolute; left: 28px; bottom: 24px; margin: 0; max-width: 560px; font-size: 17px; font-weight: 700; line-height: 1.6; color: #eef0f2">{{story}}</p>
+</section>
+
+<div style="position: absolute; left: 0; top: 800px; width: 920px; height: 100px; box-sizing: border-box; padding: 0 28px; display: flex; align-items: center; gap: 20px; border-top: 1px solid #161b21; background: #07090c">
+<button type="button" onClick="{{togglePlay}}" aria-label="{{playLabel}}" style="flex-shrink: 0; width: 52px; height: 52px; border: 0; border-radius: 50%; background: #eef0f2; color: #0b0d10; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<sc-if value="{{playing}}" hint-placeholder-val="{{false}}">
+<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="3" y="2" width="4" height="14" rx="1" fill="currentColor"></rect><rect x="11" y="2" width="4" height="14" rx="1" fill="currentColor"></rect></svg>
+</sc-if>
+<sc-if value="{{paused}}" hint-placeholder-val="{{true}}">
+<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M5 2.5v13l11-6.5z" fill="currentColor"></path></svg>
+</sc-if>
+</button>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px">
+<label for="hourSlider" style="font-size: 12px; color: #aab2bb">時刻をドラッグして、1日の電気の流れを見る</label>
+<input id="hourSlider" type="range" min="0" max="24" step="0.25" value="{{hour}}" onChange="{{onHour}}" style="width: 100%; height: 24px; margin: 0; cursor: pointer">
+<div style="display: flex; justify-content: space-between; font-family: Manrope, sans-serif; font-size: 11px; color: #7d8792">
+<span>0:00</span><span>6:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
+</div>
+</div>
+</div>
+
+<aside style="position: absolute; left: 920px; top: 64px; width: 520px; height: 836px; box-sizing: border-box; padding: 28px 36px; display: flex; flex-direction: column; gap: 18px; background: #0b0e12; border-left: 1px solid #161b21">
+<div style="display: flex; align-items: flex-end; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; color: #aab2bb">現在の時刻</span>
+<span style="font-family: Manrope, sans-serif; font-size: 56px; font-weight: 700; line-height: 1; letter-spacing: -0.02em">{{clock}}</span>
+</div>
+<span style="font-size: 13px; color: #aab2bb; padding-bottom: 6px">{{condition}}</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="padding: 14px 16px; border-radius: 12px; background: #11161c; display: flex; flex-direction: column; gap: 6px">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #aab2bb"><span style="width: 8px; height: 8px; border-radius: 50%; background: #FFB547"></span>発電</span>
+<span style="font-family: Manrope, sans-serif; font-size: 28px; font-weight: 700; color: #FFB547">{{genNum}}<span style="font-size: 14px; margin-left: 4px; color: #aab2bb">kW</span></span>
+</div>
+<div style="padding: 14px 16px; border-radius: 12px; background: #11161c; display: flex; flex-direction: column; gap: 6px">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #aab2bb"><span style="width: 8px; height: 8px; border-radius: 50%; background: #E9EDF1"></span>家で使用</span>
+<span style="font-family: Manrope, sans-serif; font-size: 28px; font-weight: 700">{{loadNum}}<span style="font-size: 14px; margin-left: 4px; color: #aab2bb">kW</span></span>
+</div>
+<div style="padding: 14px 16px; border-radius: 12px; background: #11161c; display: flex; flex-direction: column; gap: 6px">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #aab2bb"><span style="width: 8px; height: 8px; border-radius: 50%; background: #5BC0F8"></span>{{sellCardLabel}}</span>
+<span style="font-family: Manrope, sans-serif; font-size: 28px; font-weight: 700; color: #5BC0F8">{{sellNum}}<span style="font-size: 14px; margin-left: 4px; color: #aab2bb">kW</span></span>
+</div>
+<div style="padding: 14px 16px; border-radius: 12px; background: #11161c; display: flex; flex-direction: column; gap: 6px">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #aab2bb"><span style="width: 8px; height: 8px; border-radius: 50%; background: #FF7A66"></span>買電</span>
+<span style="font-family: Manrope, sans-serif; font-size: 28px; font-weight: 700; color: #FF7A66">{{buyNum}}<span style="font-size: 14px; margin-left: 4px; color: #aab2bb">kW</span></span>
+</div>
+</div>
+
+<div style="padding: 16px; border-radius: 12px; background: #11161c; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 13px; font-weight: 700">24時間の発電と消費</span>
+<span style="display: flex; gap: 14px; font-size: 11px; color: #aab2bb">
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 8px; border-radius: 2px; background: #FFB547; opacity: 0.6"></span>発電</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 2px; background: #E9EDF1"></span>消費</span>
+</span>
+</div>
+<svg width="416" height="120" viewBox="0 0 416 120" role="img" aria-label="24時間の発電量と消費量のグラフ">
+<line x1="0" y1="119" x2="416" y2="119" stroke="#2b333c"></line>
+<line x1="104" y1="0" x2="104" y2="119" stroke="#1c232b"></line>
+<line x1="208" y1="0" x2="208" y2="119" stroke="#1c232b"></line>
+<line x1="312" y1="0" x2="312" y2="119" stroke="#1c232b"></line>
+<path d="{{genArea}}" fill="#FFB547" fill-opacity="0.35" stroke="#FFB547" stroke-width="1.5"></path>
+<path d="{{loadLine}}" fill="none" stroke="#E9EDF1" stroke-width="1.8"></path>
+<line x1="{{cursorX}}" y1="0" x2="{{cursorX}}" y2="119" stroke="#ffffff" stroke-opacity="0.7" stroke-dasharray="3 3"></line>
+<circle cx="{{cursorX}}" cy="{{cursorGenY}}" r="4" fill="#FFB547"></circle>
+<circle cx="{{cursorX}}" cy="{{cursorLoadY}}" r="4" fill="#E9EDF1"></circle>
+</svg>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 13px; font-weight: 700">今日 0:00 からの合計</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #aab2bb">自家消費</span><span style="font-family: Manrope, sans-serif; font-size: 22px; font-weight: 700; color: #FFB547">{{selfTot}}<span style="font-size: 12px; margin-left: 3px; color: #aab2bb">kWh</span></span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #aab2bb">{{sellCardLabel}}</span><span style="font-family: Manrope, sans-serif; font-size: 22px; font-weight: 700; color: #5BC0F8">{{sellTot}}<span style="font-size: 12px; margin-left: 3px; color: #aab2bb">kWh</span></span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #aab2bb">買電</span><span style="font-family: Manrope, sans-serif; font-size: 22px; font-weight: 700; color: #FF7A66">{{buyTot}}<span style="font-size: 12px; margin-left: 3px; color: #aab2bb">kWh</span></span></div>
+</div>
+</div>
+
+<sc-if value="{{isLease}}" hint-placeholder-val="{{true}}">
+<div style="padding: 18px; border-radius: 12px; background: #f1f3f5; color: #0b0d10; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 13px; font-weight: 700">SBIリースなら、今日ここまでの効果</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #4a525b">買わずに済んだ電気代</span><span style="font-family: Manrope, sans-serif; font-size: 26px; font-weight: 800">{{saveYen}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #4a525b">売電収入（お客様）</span><span style="font-family: Manrope, sans-serif; font-size: 26px; font-weight: 800">{{sellYen}}</span></div>
+</div>
+<span style="font-size: 11px; line-height: 1.6; color: #4a525b">電気代は昼間単価44.40円＋再エネ賦課金4.18円/kWh、売電は{{sellPriceLabel}}円/kWhで概算。</span>
+</div>
+</sc-if>
+<sc-if value="{{isPpa}}" hint-placeholder-val="{{false}}">
+<div style="padding: 18px; border-radius: 12px; background: #11161c; border: 1px solid #FF7A66; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 13px; font-weight: 700">PPAの場合（契約期間中）</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #aab2bb">自家消費した電気</span><span style="font-size: 16px; font-weight: 700; line-height: 1.5">PPA料金として<br>お支払い</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #aab2bb">売電収入（お客様）</span><span style="font-family: Manrope, sans-serif; font-size: 26px; font-weight: 800; color: #FF7A66">¥0</span></div>
+</div>
+<span style="font-size: 11px; line-height: 1.6; color: #aab2bb">1〜15年目の売電はPPA事業者が取得。今日の売電 {{sellTot}}kWh はお客様の収入になりません。</span>
+</div>
+</sc-if>
+</aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"sellPrice":{"editor":"float","default":15,"min":0,"max":40,"step":0.1,"unit":"円/kWh","section":"試算条件"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { hour: 12, mode: 'lease', cap: 6, weather: 'sun', eco: 'day', playing: false };
+this.timer = null;
+}
+componentWillUnmount() {
+if (this.timer) clearInterval(this.timer);
+}
+renderVals() {
+const s = this.state;
+const H = s.hour;
+const cap = s.cap;
+const wf = s.weather === 'sun' ? 1 : 0.35;
+const sellPrice = this.props.sellPrice ?? 15;
+const buyUnit = 44.40 + 4.18;
+const isLease = s.mode === 'lease';
+
+const gen = (h) => (h <= 5.5 || h >= 18.5) ? 0 : cap * 0.8 * wf * Math.sin(Math.PI * (h - 5.5) / 13);
+const bump = (h, mu, sd, a) => a * Math.exp(-((h - mu) * (h - mu)) / (2 * sd * sd));
+const eco = (h) => s.eco === 'day' ? ((h >= 10 && h < 13) ? 1.5 : 0) : ((h >= 1 && h < 4) ? 1.5 : 0);
+const load = (h) => 0.35 + bump(h, 7.5, 0.9, 1.3) + bump(h, 12.5, 1.2, 0.35) + bump(h, 19.5, 1.6, 1.9) + eco(h);
+
+const hNow = Math.min(H, 23.99);
+const g = gen(hNow), l = load(hNow), e = eco(hNow);
+const self = Math.min(g, l), sell = Math.max(0, g - l), buy = Math.max(0, l - g);
+
+let selfT = 0, sellT = 0, buyT = 0;
+for (let t = 0.125; t < H; t += 0.25) {
+const gg = gen(t), ll = load(t);
+selfT += Math.min(gg, ll) * 0.25;
+sellT += Math.max(0, gg - ll) * 0.25;
+buyT += Math.max(0, ll - gg) * 0.25;
+}
+
+let maxV = 0;
+for (let t = 0; t <= 24; t += 0.25) { maxV = Math.max(maxV, gen(t), load(t)); }
+maxV = maxV * 1.1;
+const X = (t) => (t / 24 * 416).toFixed(1);
+const Y = (v) => (118 - v / maxV * 110).toFixed(1);
+let area = 'M 0 118';
+let line = '';
+for (let t = 0; t <= 24.001; t += 0.25) {
+area += ' L ' + X(t) + ' ' + Y(gen(t));
+line += (line ? ' L ' : 'M ') + X(t) + ' ' + Y(load(t));
+}
+area += ' L 416 118 Z';
+
+const tt = (H - 6) / 12;
+const day = tt > 0 && tt < 1;
+const elev = day ? Math.sin(Math.PI * tt) : 0;
+const sunX = (460 - 400 * Math.cos(Math.PI * Math.max(0, Math.min(1, tt)))).toFixed(1);
+const sunY = (600 - 460 * elev).toFixed(1);
+const mix = (a, b, k) => Math.round(a + (b - a) * k);
+const k = Math.pow(elev, 0.6);
+const skyBg = 'rgb(' + mix(6, 16, k) + ',' + mix(8, 28, k) + ',' + mix(11, 40, k) + ')';
+
+const cls = (v) => v < 0.05 ? 'p off' : v < 0.8 ? 'p slow' : v < 2 ? 'p mid' : 'p fast';
+const op = (v) => v < 0.05 ? 0 : 1;
+const f1 = (v) => v.toFixed(1);
+const kw = (v) => v.toFixed(1) + ' kW';
+const yen = (v) => '¥' + Math.round(v).toLocaleString('ja-JP');
+
+const hh = Math.floor(H), mm = Math.round((H - hh) * 60);
+const clock = hh + ':' + (mm < 10 ? '0' : '') + mm;
+
+let story;
+if (g < 0.05) story = '発電はお休み中。家の電気はすべて電力会社から買っています。';
+else if (sell >= 0.05) story = isLease ? '使いきれない電気は売電へ。その収入は、お客様のものです。' : '使いきれない電気は売電へ。ただしPPAでは、その収入はPPA事業者のものです。';
+else if (buy >= 0.05) story = '発電だけでは足りない分を、電力会社から買っています。';
+else story = '発電した電気を、家の中でちょうど使いきっています。';
+
+const self_ = this;
+const mk = (label, key, opts) => ({
+label,
+items: opts.map((o) => {
+const on = s[key] === o.v;
+return { label: o.label, pressed: on ? 'true' : 'false', bg: on ? '#eef0f2' : 'transparent', fg: on ? '#0b0d10' : '#c3c9d0', pick: () => self_.setState({ [key]: o.v }) };
+})
+});
+const groups = [
+mk('契約の種類', 'mode', [{ label: 'SBIリース', v: 'lease' }, { label: 'PPA', v: 'ppa' }]),
+mk('システム容量', 'cap', [{ label: '6kW', v: 6 }, { label: '8kW', v: 8 }, { label: '12kW', v: 12 }]),
+mk('天気', 'weather', [{ label: '晴れ', v: 'sun' }, { label: 'くもり', v: 'cloud' }]),
+mk('エコキュート', 'eco', [{ label: '昼間に沸き上げ', v: 'day' }, { label: '夜間に沸き上げ', v: 'night' }])
+];
+
+return {
+hour: H, clock, story, skyBg, sunX, sunY,
+sunOp: day ? 1 : 0, nightOp: day ? Math.max(0, 1 - elev * 6).toFixed(2) : 1,
+panelGlow: (g / (cap * 0.8) * 0.5).toFixed(2),
+winOp: (0.1 + Math.min(1, l / 3) * 0.45).toFixed(2),
+ecoGlow: e > 0 ? 0.35 : 0,
+ownerLabel: isLease ? '電気の持ち主：お客様' : '電気の持ち主：PPA事業者',
+ownerStroke: isLease ? '#FFB547' : '#FF7A66',
+selfCls: cls(self), sellCls: cls(sell), buyCls: cls(buy), ecoCls: cls(e),
+selfChipOp: op(self), sellChipOp: op(sell), buyChipOp: op(buy), ecoChipOp: op(e),
+selfKw: kw(self), sellKw: kw(sell), buyKw: kw(buy), ecoKw: kw(e),
+sellLabel: isLease ? '売電' : 'PPA事業者へ',
+sellCardLabel: isLease ? '売電' : '売電（PPA事業者）',
+genNum: f1(g), loadNum: f1(l), sellNum: f1(sell), buyNum: f1(buy),
+condition: (s.weather === 'sun' ? '晴れ' : 'くもり') + '・' + cap + 'kWプラン',
+genArea: area, loadLine: line,
+cursorX: X(Math.min(H, 24)), cursorGenY: Y(g), cursorLoadY: Y(l),
+selfTot: f1(selfT), sellTot: f1(sellT), buyTot: f1(buyT),
+saveYen: yen(selfT * buyUnit), sellYen: yen(sellT * sellPrice), sellPriceLabel: String(sellPrice),
+isLease, isPpa: !isLease,
+groups,
+playing: s.playing, paused: !s.playing, playLabel: s.playing ? '一時停止' : '再生',
+onHour: (ev) => this.setState({ hour: parseFloat(ev.target.value) }),
+togglePlay: () => {
+if (this.timer) { clearInterval(this.timer); this.timer = null; this.setState({ playing: false }); return; }
+this.timer = setInterval(() => {
+this.setState((st) => ({ hour: st.hour >= 24 ? 0 : Math.round((st.hour + 0.25) * 100) / 100 }));
+}, 140);
+this.setState({ playing: true });
+}
+};
+}
+}
+</script>
+</body>
+</html>

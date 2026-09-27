@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>30年試算結果</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#07090c}
+a{color:#f4f5f6;text-decoration:none}a:hover{color:#ffffff}
+@keyframes draw{from{stroke-dashoffset:1200}to{stroke-dashoffset:0}}
+.ln{stroke-dasharray:1200;animation:draw 1.8s cubic-bezier(.3,.7,.2,1) both}
+.ln2{animation-delay:.25s}.ln3{animation-delay:.5s}
+a:focus-visible{outline:2px solid #FFB547;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1260px; position: relative; overflow: hidden; background: #07090c; color: #f4f5f6; font-family: 'Zen Kaku Gothic New', 'Manrope', sans-serif">
+
+<header style="width: 1440px; height: 64px; box-sizing: border-box; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #161b21">
+<a href="Main.dc.html" style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 16px; letter-spacing: 0.32em">STRINGS</a>
+<nav aria-label="進行状況" style="display: flex; align-items: center; gap: 6px; font-size: 13px">
+<span style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #7d8792"><span style="font-family: Manrope, sans-serif; font-weight: 700">01</span>電気代</span>
+<span style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #7d8792"><span style="font-family: Manrope, sans-serif; font-weight: 700">02</span>プラン</span>
+<span style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #7d8792"><span style="font-family: Manrope, sans-serif; font-weight: 700">03</span>オプション</span>
+<span aria-current="step" style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 8px; background: #eef0f2; color: #0b0d10; font-weight: 700"><span style="font-family: Manrope, sans-serif">04</span>試算結果</span>
+<span style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #aab2bb"><span style="font-family: Manrope, sans-serif; font-weight: 700">05</span>まとめ</span>
+<span style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #aab2bb"><span style="font-family: Manrope, sans-serif; font-weight: 700">06</span>お問い合わせ</span>
+</nav>
+<a href="Flow.dc.html" style="font-size: 14px; font-weight: 500; padding: 10px 16px; border-radius: 8px; background: rgba(255,255,255,0.08)">発電の流れを見る</a>
+</header>
+
+<section style="padding: 56px 64px 0; display: flex; justify-content: space-between; align-items: flex-end">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<span style="font-family: Manrope, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.3em; color: #aab2bb">RESULT — 30 YEARS</span>
+<h1 style="margin: 0; font-size: 48px; font-weight: 900; line-height: 1.25">30年で、これだけ変わります。</h1>
+<p style="margin: 0; font-size: 15px; color: #aab2bb">[プラン名]・月間使用量 [入力値] kWh・エコキュート [昼間沸き上げ] の条件で試算</p>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px">
+<span style="font-size: 13px; color: #aab2bb">SBIリースとPPAの30年差額</span>
+<span style="font-family: Manrope, sans-serif; font-size: 64px; font-weight: 800; line-height: 1; color: #FFB547">[差額]<span style="font-size: 22px; margin-left: 6px">円</span></span>
+</div>
+</section>
+
+<section style="padding: 40px 64px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<div style="padding: 24px; border-radius: 16px; background: #0f1318; border: 1px solid #1a2027; display: flex; flex-direction: column; gap: 14px">
+<span style="font-size: 14px; font-weight: 700; color: #c3c9d0">太陽光なし（今のまま）</span>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; color: #aab2bb">30年の累計支出</span><span style="font-family: Manrope, sans-serif; font-size: 34px; font-weight: 700">[金額]<span style="font-size: 15px; margin-left: 4px">円</span></span></div>
+<div style="height: 1px; background: #1d242c"></div>
+<div style="display: flex; justify-content: space-between; font-size: 13px"><span style="color: #aab2bb">月々の電気代（初年度）</span><span style="font-weight: 700">[金額]円</span></div>
+</div>
+<div style="padding: 24px; border-radius: 16px; background: #f1f3f5; color: #0b0d10; display: flex; flex-direction: column; gap: 14px; position: relative">
+<span style="position: absolute; right: 20px; top: 20px; padding: 4px 10px; border-radius: 999px; background: #0b0d10; color: #FFB547; font-size: 11px; font-weight: 700">おすすめ</span>
+<span style="font-size: 14px; font-weight: 700">SBIリース</span>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; color: #4a525b">30年の累計支出</span><span style="font-family: Manrope, sans-serif; font-size: 34px; font-weight: 800">[金額]<span style="font-size: 15px; margin-left: 4px">円</span></span></div>
+<div style="height: 1px; background: #d3d8dd"></div>
+<div style="display: flex; justify-content: space-between; font-size: 13px"><span style="color: #4a525b">売電収入</span><span style="font-weight: 700">1〜30年目 お客様</span></div>
+</div>
+<div style="padding: 24px; border-radius: 16px; background: #0f1318; border: 1px solid #1a2027; display: flex; flex-direction: column; gap: 14px">
+<span style="font-size: 14px; font-weight: 700; color: #c3c9d0">PPA（[サービス名]）</span>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; color: #aab2bb">30年の累計支出</span><span style="font-family: Manrope, sans-serif; font-size: 34px; font-weight: 700">[金額]<span style="font-size: 15px; margin-left: 4px">円</span></span></div>
+<div style="height: 1px; background: #1d242c"></div>
+<div style="display: flex; justify-content: space-between; font-size: 13px"><span style="color: #aab2bb">売電収入</span><span style="font-weight: 700">16〜30年目のみ</span></div>
+</div>
+</section>
+
+<section style="padding: 32px 64px 0; display: flex; gap: 24px">
+<div style="width: 840px; flex-shrink: 0; box-sizing: border-box; padding: 24px 28px; border-radius: 16px; background: #0f1318; border: 1px solid #1a2027; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 16px; font-weight: 700">累計支出の推移</span>
+<span style="display: flex; gap: 18px; font-size: 12px; color: #aab2bb">
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 16px; height: 2px; background: #7d8792"></span>太陽光なし</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 16px; height: 3px; background: #FFB547"></span>SBIリース</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 16px; height: 2px; border-top: 2px dashed #5BC0F8"></span>PPA</span>
+</span>
+</div>
+<svg width="784" height="400" viewBox="0 0 784 400" role="img" aria-label="30年間の累計支出の推移（イメージ）">
+<line x1="56" y1="360" x2="770" y2="360" stroke="#2b333c"></line>
+<line x1="56" y1="270" x2="770" y2="270" stroke="#161c22"></line>
+<line x1="56" y1="180" x2="770" y2="180" stroke="#161c22"></line>
+<line x1="56" y1="90" x2="770" y2="90" stroke="#161c22"></line>
+<text x="56" y="384" font-size="12" fill="#7d8792" font-family="Manrope">0年</text>
+<text x="294" y="384" font-size="12" fill="#7d8792" font-family="Manrope" text-anchor="middle">10年</text>
+<text x="532" y="384" font-size="12" fill="#7d8792" font-family="Manrope" text-anchor="middle">20年</text>
+<text x="770" y="384" font-size="12" fill="#7d8792" font-family="Manrope" text-anchor="end">30年</text>
+<text x="44" y="94" font-size="12" fill="#7d8792" text-anchor="end">多</text>
+<text x="44" y="364" font-size="12" fill="#7d8792" text-anchor="end">0</text>
+<line x1="413" y1="40" x2="413" y2="360" stroke="#ffffff" stroke-opacity="0.12" stroke-dasharray="3 4"></line>
+<text x="419" y="52" font-size="11" fill="#aab2bb">PPA契約満了（15年目）</text>
+<path class="ln" d="M 56 360 L 770 40" fill="none" stroke="#7d8792" stroke-width="2"></path>
+<path class="ln ln3" d="M 56 360 C 200 300, 330 246, 413 214 C 520 186, 650 158, 770 132" fill="none" stroke="#5BC0F8" stroke-width="2.5" stroke-dasharray="7 6"></path>
+<path class="ln ln2" d="M 56 360 C 200 290, 330 250, 413 236 C 520 220, 650 205, 770 190" fill="none" stroke="#FFB547" stroke-width="3.5"></path>
+<circle cx="770" cy="190" r="6" fill="#FFB547"></circle>
+<circle cx="770" cy="132" r="5" fill="#5BC0F8"></circle>
+<circle cx="770" cy="40" r="5" fill="#7d8792"></circle>
+<line x1="740" y1="138" x2="740" y2="184" stroke="#FFB547" stroke-width="1.5"></line>
+<path d="M 735 144 L 740 136 L 745 144 M 735 178 L 740 186 L 745 178" fill="none" stroke="#FFB547" stroke-width="1.5"></path>
+<rect x="580" y="144" width="150" height="34" rx="8" fill="#0b0d10" stroke="#FFB547" stroke-opacity="0.5"></rect>
+<text x="655" y="166" font-size="13" font-weight="700" fill="#FFB547" text-anchor="middle">差額 [金額]円</text>
+</svg>
+<span style="font-size: 11px; color: #7d8792">グラフの線の形はイメージです。実際の画面では calc.js の試算値で描画します。</span>
+</div>
+
+<div style="flex-grow: 1; box-sizing: border-box; padding: 24px 28px; border-radius: 16px; background: #0f1318; border: 1px solid #1a2027; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 16px; font-weight: 700; margin-bottom: 12px">リースとPPAのちがい</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 10px 0; font-size: 12px; color: #aab2bb; border-bottom: 1px solid #1d242c">
+<span></span><span style="font-weight: 700; color: #FFB547">SBIリース</span><span style="font-weight: 700">PPA</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 16px 0; font-size: 13px; line-height: 1.6; border-bottom: 1px solid #1d242c">
+<span style="color: #aab2bb">売電収入</span><span style="font-weight: 700">1〜30年目<br>お客様</span><span>1〜15年目はPPA事業者<br>16〜30年目 お客様</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 16px 0; font-size: 13px; line-height: 1.6; border-bottom: 1px solid #1d242c">
+<span style="color: #aab2bb">契約期間中の売電損失</span><span style="font-weight: 700">なし</span><span>[金額]円</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 16px 0; font-size: 13px; line-height: 1.6; border-bottom: 1px solid #1d242c">
+<span style="color: #aab2bb">パワコン</span><span style="font-weight: 700">全負荷タイプ</span><span>[サービスによる]</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 16px 0; font-size: 13px; line-height: 1.6; border-bottom: 1px solid #1d242c">
+<span style="color: #aab2bb">蓄電池などの後付け</span><span style="font-weight: 700">自由に選べる</span><span>[契約条件による]</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 16px 0; font-size: 13px; line-height: 1.6">
+<span style="color: #aab2bb">エコキュート昼間沸き上げ</span><span style="font-weight: 700">対応</span><span>[サービスによる]</span>
+</div>
+</div>
+</section>
+
+<section style="position: absolute; left: 64px; bottom: 48px; width: 1312px; box-sizing: border-box; padding: 24px 28px; border-radius: 16px; background: #11161c; display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 18px; font-weight: 700">この試算で、ご相談してみませんか。</span>
+<span style="font-size: 13px; color: #aab2bb">屋根の形や日当たりを確認して、より正確な数字をお出しします。</span>
+</div>
+<div style="display: flex; gap: 12px">
+<a href="#" style="height: 50px; padding: 0 22px; display: flex; align-items: center; border-radius: 10px; background: rgba(255,255,255,0.08); font-size: 15px; font-weight: 700">PDFで保存</a>
+<a href="#" style="height: 50px; padding: 0 28px; display: flex; align-items: center; border-radius: 10px; background: #eef0f2; color: #0b0d10; font-size: 15px; font-weight: 700">この内容で相談する</a>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1260}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

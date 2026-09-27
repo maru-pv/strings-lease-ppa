@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>エネルギーフロー体験</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#07090c}
+a{color:#f4f5f6;text-decoration:none}a:hover{color:#ffffff}
+@keyframes dash{from{stroke-dashoffset:36}to{stroke-dashoffset:0}}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:.6}}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes sheen{0%{transform:translateX(-300px)}55%,100%{transform:translateX(560px)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes blink{0%,70%,100%{opacity:.15}80%{opacity:1}}
+@keyframes breathe{0%,100%{box-shadow:0 0 0 0 rgba(255,181,71,0)}50%{box-shadow:0 0 22px 2px rgba(255,181,71,.35)}}
+.p{stroke-dasharray:0 18;stroke-linecap:round;fill:none;animation-name:dash;animation-timing-function:linear;animation-iteration-count:infinite;transition:opacity .4s}
+.slow{animation-duration:4.5s}.mid{animation-duration:3.5s}.fast{animation-duration:2.6s}
+.off{opacity:0}
+.rev{animation-direction:reverse}
+.chip{transition:opacity .4s}
+.halo{animation:pulse 3s ease-in-out infinite}
+.tw{animation:twinkle 3.2s ease-in-out infinite}
+.sheen{animation:sheen 6s ease-in-out infinite}
+.rays{transform-box:fill-box;transform-origin:center;animation:spin 60s linear infinite}
+.fan{transform-box:fill-box;transform-origin:center;animation:spin 1.2s linear infinite}
+.beacon{animation:blink 2.4s ease-in-out infinite}
+.fade{transition:opacity .5s}
+.bar{transition:width .35s ease}
+.appl{transition:background-color .25s,border-color .25s,color .25s,transform .15s}
+.appl:hover{transform:translateY(-1px)}
+.appl:active{transform:scale(.97)}
+.appl[aria-pressed=true]{animation:breathe 2.6s ease-in-out infinite}
+input[type=range]{-webkit-appearance:none;appearance:none;background:transparent}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:#2b333c}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;margin-top:-8px;border-radius:50%;background:#f4f5f6;box-shadow:0 0 0 6px rgba(255,181,71,.25),0 0 18px rgba(255,181,71,.6)}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:#2b333c}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radius:50%;background:#f4f5f6}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #FFB547;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #07090c; color: #f4f5f6; font-family: 'Zen Kaku Gothic New', 'Manrope', sans-serif">
+
+<header style="position: absolute; left: 0; top: 0; width: 1440px; height: 64px; box-sizing: border-box; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #161b21; background: #07090c; z-index: 2">
+<div style="display: flex; align-items: center; gap: 28px">
+<a href="#" style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 16px; letter-spacing: 0.32em">STRINGS</a>
+<span style="font-size: 14px; color: #aab2bb">エネルギーフロー体験</span>
+</div>
+<a href="#" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: 10px; background: #eef0f2; color: #0b0d10; font-size: 14px; font-weight: 700">30年の試算を見る
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"></path></svg>
+</a>
+</header>
+
+<section aria-label="発電と電気の流れ" style="position: absolute; left: 0; top: 64px; width: 920px; height: 736px; overflow: hidden; background: #07090c">
+<svg width="920" height="736" viewBox="0 0 920 736" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="{{skyTop}}"></stop>
+<stop offset="0.7" stop-color="{{skyMid}}"></stop>
+<stop offset="1" stop-color="{{skyBot}}"></stop>
+</linearGradient>
+<radialGradient id="horizon" cx="0.5" cy="1" r="0.7">
+<stop offset="0" stop-color="#FFB547" stop-opacity="{{horizonOp}}"></stop>
+<stop offset="1" stop-color="#FFB547" stop-opacity="0"></stop>
+</radialGradient>
+<radialGradient id="corona" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#FFD58A" stop-opacity="0.55"></stop>
+<stop offset="0.35" stop-color="#FFB547" stop-opacity="0.16"></stop>
+<stop offset="1" stop-color="#FFB547" stop-opacity="0"></stop>
+</radialGradient>
+<radialGradient id="sunCore" cx="0.42" cy="0.4" r="0.6">
+<stop offset="0" stop-color="#FFF4DC"></stop>
+<stop offset="0.45" stop-color="#FFD27A"></stop>
+<stop offset="1" stop-color="#FFB547"></stop>
+</radialGradient>
+<radialGradient id="moonG" cx="0.4" cy="0.35" r="0.7">
+<stop offset="0" stop-color="#f3f5f8"></stop>
+<stop offset="1" stop-color="#9aa6b3"></stop>
+</radialGradient>
+<linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="{{groundTop}}"></stop>
+<stop offset="1" stop-color="{{groundBot}}"></stop>
+</linearGradient>
+<linearGradient id="face" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="{{faceTop}}"></stop>
+<stop offset="1" stop-color="{{faceBot}}"></stop>
+</linearGradient>
+<linearGradient id="side" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="{{sideA}}"></stop>
+<stop offset="1" stop-color="{{sideB}}"></stop>
+</linearGradient>
+<linearGradient id="roofTop" x1="0" y1="1" x2="0.3" y2="0">
+<stop offset="0" stop-color="{{roofA}}"></stop>
+<stop offset="1" stop-color="{{roofB}}"></stop>
+</linearGradient>
+<linearGradient id="panel" x1="0" y1="1" x2="1" y2="0">
+<stop offset="0" stop-color="#0a1320"></stop>
+<stop offset="0.55" stop-color="#16304f"></stop>
+<stop offset="1" stop-color="#2f5378"></stop>
+</linearGradient>
+<linearGradient id="sheenG" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="#ffffff" stop-opacity="0"></stop>
+<stop offset="0.5" stop-color="#ffffff" stop-opacity="0.28"></stop>
+<stop offset="1" stop-color="#ffffff" stop-opacity="0"></stop>
+</linearGradient>
+<linearGradient id="roomBack" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="{{roomA}}"></stop>
+<stop offset="1" stop-color="{{roomB}}"></stop>
+</linearGradient>
+<radialGradient id="roomLight" cx="0.5" cy="0.1" r="0.9">
+<stop offset="0" stop-color="#FFD9A0"></stop>
+<stop offset="0.6" stop-color="#FFB547" stop-opacity="0.5"></stop>
+<stop offset="1" stop-color="#FFB547" stop-opacity="0.1"></stop>
+</radialGradient>
+<linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#ffffff" stop-opacity="0.07"></stop>
+<stop offset="0.4" stop-color="#ffffff" stop-opacity="0"></stop>
+<stop offset="0.55" stop-color="#ffffff" stop-opacity="0.04"></stop>
+<stop offset="1" stop-color="#ffffff" stop-opacity="0"></stop>
+</linearGradient>
+<radialGradient id="spill" cx="0.5" cy="0" r="0.7">
+<stop offset="0" stop-color="#FFB547" stop-opacity="0.35"></stop>
+<stop offset="1" stop-color="#FFB547" stop-opacity="0"></stop>
+</radialGradient>
+<linearGradient id="tank" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="#1a222c"></stop>
+<stop offset="0.35" stop-color="#2d3844"></stop>
+<stop offset="1" stop-color="#10151b"></stop>
+</linearGradient>
+<linearGradient id="tankFill" x1="0" y1="1" x2="0" y2="0">
+<stop offset="0" stop-color="#5BC0F8" stop-opacity="0.9"></stop>
+<stop offset="1" stop-color="#5BC0F8" stop-opacity="0.15"></stop>
+</linearGradient>
+<linearGradient id="car" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#3a4552"></stop>
+<stop offset="1" stop-color="#161c23"></stop>
+</linearGradient>
+<clipPath id="panelClip"><polygon points="186,318 648,376 682,342 220,284"></polygon></clipPath>
+<clipPath id="tankClip"><rect x="110" y="490" width="40" height="108" rx="12"></rect></clipPath>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+<feGaussianBlur stdDeviation="4" result="b"></feGaussianBlur>
+<feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+</filter>
+<radialGradient id="bloomWide" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#FFE9C4" stop-opacity="0.45"></stop>
+<stop offset="0.25" stop-color="#FFC978" stop-opacity="0.14"></stop>
+<stop offset="1" stop-color="#FFB547" stop-opacity="0"></stop>
+</radialGradient>
+<radialGradient id="bloomCore" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#ffffff" stop-opacity="0.9"></stop>
+<stop offset="0.2" stop-color="#FFF1D6" stop-opacity="0.5"></stop>
+<stop offset="1" stop-color="#FFD58A" stop-opacity="0"></stop>
+</radialGradient>
+<filter id="sunBlur" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="6"></feGaussianBlur></filter>
+<filter id="haze" x="-20%" y="-100%" width="140%" height="300%"><feGaussianBlur stdDeviation="16"></feGaussianBlur></filter>
+<filter id="softGlow" x="-100%" y="-100%" width="300%" height="300%">
+<feGaussianBlur stdDeviation="10"></feGaussianBlur>
+</filter>
+</defs>
+
+<rect x="0" y="0" width="920" height="736" fill="url(#sky)"></rect>
+<rect x="0" y="300" width="920" height="300" fill="url(#horizon)"></rect>
+
+<g class="fade" opacity="{{nightOp}}">
+<circle class="tw" cx="120" cy="90" r="1.4" fill="#e6ebf1"></circle>
+<circle class="tw" cx="260" cy="150" r="1" fill="#e6ebf1" style="animation-delay: 1.1s"></circle>
+<circle class="tw" cx="540" cy="70" r="1.2" fill="#e6ebf1" style="animation-delay: 0.4s"></circle>
+<circle class="tw" cx="690" cy="170" r="1" fill="#e6ebf1" style="animation-delay: 2s"></circle>
+<circle class="tw" cx="860" cy="60" r="1.4" fill="#e6ebf1" style="animation-delay: 0.7s"></circle>
+<circle class="tw" cx="380" cy="190" r="0.9" fill="#e6ebf1" style="animation-delay: 1.6s"></circle>
+<circle class="tw" cx="60" cy="230" r="0.8" fill="#e6ebf1" style="animation-delay: 2.4s"></circle>
+<circle class="tw" cx="470" cy="120" r="0.8" fill="#e6ebf1" style="animation-delay: 0.2s"></circle>
+<circle class="tw" cx="610" cy="40" r="1" fill="#e6ebf1" style="animation-delay: 1.3s"></circle>
+<circle class="tw" cx="200" cy="40" r="1.1" fill="#e6ebf1" style="animation-delay: 2.8s"></circle>
+<circle cx="780" cy="130" r="40" fill="#cfd8e3" opacity="0.08" filter="url(#softGlow)"></circle>
+<circle cx="780" cy="130" r="16" fill="url(#moonG)"></circle>
+<circle cx="788" cy="124" r="14" fill="{{skyTop}}"></circle>
+</g>
+
+<g class="fade" opacity="{{sunOp}}" style="mix-blend-mode: screen">
+<circle cx="{{sunX}}" cy="{{sunY}}" r="260" fill="url(#bloomWide)"></circle>
+<circle cx="{{sunX}}" cy="{{sunY}}" r="90" fill="url(#bloomCore)" opacity="{{sunBright}}"></circle>
+<circle cx="{{sunX}}" cy="{{sunY}}" r="13" fill="#FFF8EC" opacity="{{sunBright}}" filter="url(#sunBlur)"></circle>
+<circle cx="{{sunX}}" cy="{{sunY}}" r="9" fill="#ffffff" opacity="{{sunBright}}"></circle>
+</g>
+<g class="fade" opacity="{{cloudOp}}" filter="url(#haze)">
+<g><animateTransform attributeName="transform" type="translate" from="-80 0" to="80 0" dur="90s" repeatCount="indefinite" direction="alternate"></animateTransform>
+<path d="M 40 150 C 160 120, 300 170, 420 140 C 520 116, 600 160, 700 138 L 700 176 C 560 196, 420 170, 300 190 C 190 206, 100 182, 40 186 Z" fill="#e8eef5" opacity="0.35"></path>
+<path d="M 420 250 C 540 226, 700 262, 900 236 L 900 262 C 740 284, 560 262, 420 276 Z" fill="#e8eef5" opacity="0.25"></path>
+</g>
+</g>
+<rect x="0" y="0" width="920" height="600" fill="#8b98a6" opacity="{{overcastOp}}" class="fade"></rect>
+<path d="M 60 600 A 400 460 0 0 1 860 600" fill="none" stroke="#ffffff" stroke-opacity="0.1" stroke-dasharray="2 8"></path>
+<path d="M 0 566 L 70 548 L 140 560 L 230 536 L 330 552 L 440 530 L 560 548 L 680 526 L 780 542 L 920 530 L 920 600 L 0 600 Z" fill="{{hillFill}}" class="fade"></path>
+
+<rect x="0" y="600" width="920" height="136" fill="url(#ground)"></rect>
+<line x1="0" y1="600" x2="920" y2="600" stroke="#2a323c"></line>
+<g stroke="#161d25">
+<line x1="440" y1="600" x2="0" y2="736"></line><line x1="440" y1="600" x2="220" y2="736"></line><line x1="440" y1="600" x2="440" y2="736"></line>
+<line x1="440" y1="600" x2="660" y2="736"></line><line x1="440" y1="600" x2="880" y2="736"></line>
+</g>
+<ellipse cx="420" cy="610" rx="250" ry="22" fill="url(#spill)" opacity="{{spillOp}}" class="fade"></ellipse>
+
+<g>
+<rect x="846" y="330" width="10" height="270" rx="2" fill="#4a5561"></rect>
+<rect x="846" y="330" width="3" height="270" fill="#6a7784" opacity="0.6"></rect>
+<line x1="822" y1="346" x2="880" y2="346" stroke="#6a7784" stroke-width="4" stroke-linecap="round"></line>
+<circle cx="826" cy="342" r="3" fill="#8a97a4"></circle><circle cx="851" cy="342" r="3" fill="#8a97a4"></circle><circle cx="876" cy="342" r="3" fill="#8a97a4"></circle>
+<rect x="858" y="384" width="20" height="34" rx="6" fill="#2a3440" stroke="#56626f"></rect>
+<line x1="858" y1="392" x2="878" y2="392" stroke="#56626f"></line>
+<path d="M 826 342 Q 870 360 920 352 M 876 342 Q 900 350 920 346" fill="none" stroke="#3b444e" stroke-width="1.3"></path>
+<text x="880" y="628" text-anchor="middle" font-size="13" fill="#aab2bb">電柱</text>
+</g>
+
+<g>
+<rect x="110" y="490" width="40" height="108" rx="12" fill="url(#tank)" stroke="#2f3a46"></rect>
+<g clip-path="url(#tankClip)">
+<rect x="110" y="{{tankY}}" width="40" height="120" fill="url(#tankFill)" opacity="{{tankOp}}" class="fade"></rect>
+</g>
+<rect x="116" y="498" width="5" height="92" rx="2.5" fill="#ffffff" opacity="0.07"></rect>
+<rect x="44" y="552" width="58" height="46" rx="6" fill="url(#face)" stroke="#2c353f"></rect>
+<circle cx="70" cy="575" r="15" fill="#0b0f14" stroke="#3a4450" stroke-width="1.5"></circle>
+<g class="{{fanCls}}">
+<path d="M 70 575 L 70 562 A 6 6 0 0 1 76 569 Z M 70 575 L 83 575 A 6 6 0 0 1 76 581 Z M 70 575 L 70 588 A 6 6 0 0 1 64 581 Z M 70 575 L 57 575 A 6 6 0 0 1 64 569 Z" fill="#4a5664"></path>
+</g>
+<text x="96" y="628" text-anchor="middle" font-size="13" fill="#aab2bb">エコキュート</text>
+</g>
+
+<g>
+<line x1="716" y1="500" x2="716" y2="600" stroke="#3a4450" stroke-width="3"></line>
+<line x1="812" y1="506" x2="812" y2="600" stroke="#3a4450" stroke-width="3"></line>
+<polygon points="702,496 822,504 822,510 702,502" fill="#2a3440"></polygon>
+<path d="M 726 596 L 730 578 Q 736 566 752 564 L 782 564 Q 796 566 802 578 L 806 596 Z" fill="url(#car)" stroke="#4a5664"></path>
+<path d="M 740 574 L 746 568 L 786 568 L 794 576 Z" fill="#0b0f14" opacity="0.8"></path>
+<circle cx="742" cy="597" r="6" fill="#0b0f14" stroke="#4a5664"></circle>
+<circle cx="792" cy="597" r="6" fill="#0b0f14" stroke="#4a5664"></circle>
+<rect x="760" y="586" width="14" height="3" rx="1.5" fill="#5BC0F8" opacity="{{evOp}}" filter="url(#glow)" class="fade"></rect>
+</g>
+
+<g>
+<polygon points="648,393 702,352 702,560 648,600" fill="url(#side)"></polygon>
+<polygon points="180,334 650,393 650,600 180,600" fill="url(#face)"></polygon>
+<polygon points="204,340 404,366 404,466 204,466" fill="url(#roomBack)"></polygon>
+<polygon points="412,368 642,397 642,466 412,466" fill="url(#roomBack)"></polygon>
+<rect x="204" y="474" width="160" height="124" fill="url(#roomBack)"></rect>
+<rect x="372" y="474" width="270" height="124" fill="url(#roomBack)"></rect>
+
+<polygon points="204,340 404,366 404,466 204,466" fill="url(#roomLight)" opacity="{{roomBed}}" class="fade"></polygon>
+<polygon points="412,368 642,397 642,466 412,466" fill="url(#roomLight)" opacity="{{roomDesk}}" class="fade"></polygon>
+<rect x="204" y="474" width="160" height="124" fill="url(#roomLight)" opacity="{{roomKitchen}}" class="fade"></rect>
+<rect x="372" y="474" width="270" height="124" fill="url(#roomLight)" opacity="{{roomLiving}}" class="fade"></rect>
+
+<g fill="#0a0e13" stroke="#27313c" stroke-width="1">
+<rect x="296" y="440" width="92" height="22" rx="4"></rect><rect x="296" y="430" width="16" height="32" rx="3"></rect>
+<rect x="540" y="438" width="80" height="5" rx="2"></rect><rect x="546" y="443" width="4" height="23"></rect><rect x="610" y="443" width="4" height="23"></rect>
+<rect x="566" y="420" width="30" height="18" rx="2"></rect>
+<rect x="212" y="560" width="144" height="38" rx="2"></rect><rect x="318" y="512" width="38" height="12" rx="2"></rect>
+<rect x="506" y="566" width="116" height="26" rx="8"></rect><rect x="506" y="556" width="116" height="14" rx="6"></rect>
+<rect x="552" y="504" width="48" height="30" rx="2"></rect>
+</g>
+<rect x="553" y="505" width="46" height="28" rx="1.5" fill="#5BC0F8" opacity="{{tvOp}}" class="fade"></rect>
+
+<polygon points="180,334 650,393 650,600 180,600" fill="url(#glass)"></polygon>
+<rect x="180" y="466" width="470" height="8" fill="#1f2832"></rect>
+<line x1="408" y1="366" x2="408" y2="466" stroke="#1f2832" stroke-width="8"></line>
+<line x1="368" y1="474" x2="368" y2="600" stroke="#1f2832" stroke-width="8"></line>
+<polygon points="180,334 650,393 650,600 180,600" fill="none" stroke="#2c3743"></polygon>
+
+<g font-size="10" fill="#7d8792" letter-spacing="0.08em">
+<text x="212" y="360">寝室</text>
+<text x="420" y="388">書斎</text>
+<text x="212" y="490">キッチン</text>
+<text x="380" y="490">リビング</text>
+</g>
+
+<polygon points="170,322 662,384 662,398 170,336" fill="#2a3440"></polygon>
+<polygon points="662,384 702,344 702,358 648,398 648,392" fill="#1a2129"></polygon>
+<polygon points="170,322 662,384 702,344 210,282" fill="url(#roofTop)"></polygon>
+<polygon points="186,318 648,376 682,342 220,284" fill="url(#panel)"></polygon>
+<g clip-path="url(#panelClip)">
+<path d="{{panelGrid}}" stroke="#07090c" stroke-width="1.6" fill="none"></path>
+<path d="{{panelCells}}" stroke="#6c93ba" stroke-opacity="0.22" stroke-width="0.6" fill="none"></path>
+<rect class="sheen" x="120" y="250" width="90" height="160" fill="url(#sheenG)" transform="skewX(-30)"></rect>
+</g>
+<polygon points="186,318 648,376 682,342 220,284" fill="#FFB547" opacity="{{panelGlow}}" class="fade" style="mix-blend-mode: screen"></polygon>
+<polygon points="186,318 648,376 682,342 220,284" fill="none" stroke="#FFB547" stroke-width="2" opacity="{{panelGlow}}" filter="url(#glow)" class="fade"></polygon>
+<polygon points="186,318 648,376 682,342 220,284" fill="none" stroke="#8fb3d6" stroke-opacity="0.35"></polygon>
+
+</g>
+<rect x="668" y="496" width="26" height="36" rx="4" fill="#11161c" stroke="#8a97a4"></rect>
+<rect x="673" y="502" width="16" height="6" rx="1" fill="#FFB547" opacity="{{genLamp}}" class="fade"></rect>
+<rect x="672" y="556" width="18" height="24" rx="3" fill="#11161c" stroke="#8a97a4"></rect><circle cx="681" cy="566" r="5" fill="none" stroke="{{meterColor}}" stroke-width="1.5"></circle>
+<rect x="608" y="496" width="32" height="40" rx="3" fill="#dfe4ea" stroke="#8a97a4"></rect>
+<rect x="611" y="500" width="26" height="16" rx="1.5" fill="#2a3440"></rect>
+<rect x="613" y="502" width="7" height="12" rx="1" fill="#eef0f2"></rect><rect x="614.5" y="504" width="4" height="4" rx="0.5" fill="#FF7A66"></rect>
+<rect x="622" y="503" width="3" height="10" rx="0.5" fill="#cfd6de"></rect><rect x="626.5" y="503" width="3" height="10" rx="0.5" fill="#cfd6de"></rect><rect x="631" y="503" width="3" height="10" rx="0.5" fill="#cfd6de"></rect>
+<rect x="611" y="519" width="26" height="13" rx="1.5" fill="#2a3440"></rect>
+<rect x="613" y="521" width="3" height="9" rx="0.5" fill="#cfd6de"></rect><rect x="617.5" y="521" width="3" height="9" rx="0.5" fill="#cfd6de"></rect><rect x="622" y="521" width="3" height="9" rx="0.5" fill="#cfd6de"></rect><rect x="626.5" y="521" width="3" height="9" rx="0.5" fill="#cfd6de"></rect><rect x="631" y="521" width="3" height="9" rx="0.5" fill="#cfd6de"></rect>
+<rect x="440" y="476" width="30" height="10" rx="3" fill="#dfe4ea" opacity="0.8"></rect><rect x="304" y="360" width="36" height="10" rx="3" fill="#dfe4ea" opacity="0.8"></rect>
+<g fill="none" stroke="#2c3642" stroke-width="2.5" stroke-linejoin="round">
+<path d="M 656 376 L 656 491 L 681 491 L 681 496"></path>
+<path d="M 668 514 L 638 514"></path>
+<path d="M 638 530 L 658 530 L 658 568 L 672 568"></path>
+<path d="M 690 568 C 760 560, 826 470, 851 346"></path>
+<path d="M 612 500 L 612 480 L 470 480"></path>
+<path d="M 612 520 L 600 520"></path>
+<path d="M 612 480 L 336 480 L 336 508"></path>
+<path d="M 612 480 L 404 480 L 404 378 L 342 370"></path>
+<path d="M 624 536 L 624 616 L 130 616 L 130 598"></path>
+<path d="M 638 540 L 700 578 L 764 586"></path>
+</g>
+<path d="M 656 376 L 656 491 L 681 491 L 681 496" class="{{genCls}}" stroke="#FFB547" stroke-width="5" filter="url(#glow)"></path>
+<path d="M 668 514 L 638 514" class="{{genCls}}" stroke="#FFB547" stroke-width="5" filter="url(#glow)"></path>
+<path d="M 638 530 L 658 530 L 658 568 L 672 568" class="{{sellCls}}" stroke="#5BC0F8" stroke-width="{{sellW}}" filter="url(#glow)"></path>
+<path d="M 638 530 L 658 530 L 658 568 L 672 568" class="{{buyCls}} rev" stroke="#FF7A66" stroke-width="{{buyW}}" filter="url(#glow)"></path>
+<path d="M 690 568 C 760 560, 826 470, 851 346" class="{{sellCls}}" stroke="#5BC0F8" stroke-width="{{sellW}}" filter="url(#glow)"></path>
+<path d="M 690 568 C 760 560, 826 470, 851 346" class="{{buyCls}} rev" stroke="#FF7A66" stroke-width="{{buyW}}" filter="url(#glow)"></path>
+<path d="M 612 500 L 612 480 L 470 480" class="{{bLvCls}}" stroke="{{supplyCol}}" stroke-width="4" filter="url(#glow)"></path>
+<path d="M 612 520 L 600 520" class="{{bTvCls}}" stroke="{{supplyCol}}" stroke-width="4" filter="url(#glow)"></path>
+<path d="M 612 480 L 336 480 L 336 508" class="{{bIhCls}}" stroke="{{supplyCol}}" stroke-width="4" filter="url(#glow)"></path>
+<path d="M 612 480 L 404 480 L 404 378 L 342 370" class="{{bBedCls}}" stroke="{{supplyCol}}" stroke-width="4" filter="url(#glow)"></path>
+<path d="M 624 536 L 624 616 L 130 616 L 130 598" class="{{bEcoCls}}" stroke="{{supplyCol}}" stroke-width="4" filter="url(#glow)"></path>
+<path d="M 638 540 L 700 578 L 764 586" class="{{bEvCls}}" stroke="{{supplyCol}}" stroke-width="4" filter="url(#glow)"></path>
+<g class="fade" opacity="{{genOp}}">
+<circle r="4.5" fill="#ffe2ad" filter="url(#glow)"><animateMotion dur="{{dGen}}" begin="-0s" repeatCount="indefinite" path="M 656 376 L 656 491 L 681 491 L 681 496"></animateMotion></circle>
+<circle r="3.3" fill="#ffe2ad" filter="url(#glow)"><animateMotion dur="{{dGen}}" begin="-2s" repeatCount="indefinite" path="M 656 376 L 656 491 L 681 491 L 681 496"></animateMotion></circle>
+</g>
+<g class="fade" opacity="{{genOp}}">
+<circle r="4.5" fill="#ffe2ad" filter="url(#glow)"><animateMotion dur="{{dGen}}" begin="-0s" repeatCount="indefinite" path="M 668 514 L 638 514"></animateMotion></circle>
+<circle r="3.3" fill="#ffe2ad" filter="url(#glow)"><animateMotion dur="{{dGen}}" begin="-2s" repeatCount="indefinite" path="M 668 514 L 638 514"></animateMotion></circle>
+</g>
+<g class="fade" opacity="{{sellOp}}">
+<circle r="4.5" fill="#d4f0ff" filter="url(#glow)"><animateMotion dur="{{dSell}}" begin="-0s" repeatCount="indefinite" path="M 638 530 L 658 530 L 658 568 L 672 568 L 690 568 C 760 560, 826 470, 851 346"></animateMotion></circle>
+<circle r="3.3" fill="#d4f0ff" filter="url(#glow)"><animateMotion dur="{{dSell}}" begin="-2s" repeatCount="indefinite" path="M 638 530 L 658 530 L 658 568 L 672 568 L 690 568 C 760 560, 826 470, 851 346"></animateMotion></circle>
+<circle r="3.3" fill="#d4f0ff" filter="url(#glow)"><animateMotion dur="{{dSell}}" begin="-4s" repeatCount="indefinite" path="M 638 530 L 658 530 L 658 568 L 672 568 L 690 568 C 760 560, 826 470, 851 346"></animateMotion></circle>
+</g>
+<g class="fade" opacity="{{buyOp}}">
+<circle r="4.5" fill="#ffd0c8" filter="url(#glow)"><animateMotion dur="{{dBuy}}" begin="-0s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear" path="M 638 530 L 658 530 L 658 568 L 672 568 L 690 568 C 760 560, 826 470, 851 346"></animateMotion></circle>
+<circle r="3.3" fill="#ffd0c8" filter="url(#glow)"><animateMotion dur="{{dBuy}}" begin="-2s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear" path="M 638 530 L 658 530 L 658 568 L 672 568 L 690 568 C 760 560, 826 470, 851 346"></animateMotion></circle>
+<circle r="3.3" fill="#ffd0c8" filter="url(#glow)"><animateMotion dur="{{dBuy}}" begin="-4s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear" path="M 638 530 L 658 530 L 658 568 L 672 568 L 690 568 C 760 560, 826 470, 851 346"></animateMotion></circle>
+</g>
+<g class="fade" opacity="{{bLvOp}}">
+<circle r="3.8" fill="{{supplyDot}}" filter="url(#glow)"><animateMotion dur="{{dBranch}}" begin="-0s" repeatCount="indefinite" path="M 612 500 L 612 480 L 470 480"></animateMotion></circle>
+</g>
+<g class="fade" opacity="{{bTvOp}}">
+<circle r="3.8" fill="{{supplyDot}}" filter="url(#glow)"><animateMotion dur="{{dBranch}}" begin="-0s" repeatCount="indefinite" path="M 612 520 L 600 520"></animateMotion></circle>
+</g>
+<g class="fade" opacity="{{bIhOp}}">
+<circle r="3.8" fill="{{supplyDot}}" filter="url(#glow)"><animateMotion dur="{{dBranch}}" begin="-0s" repeatCount="indefinite" path="M 612 480 L 336 480 L 336 508"></animateMotion></circle>
+</g>
+<g class="fade" opacity="{{bBedOp}}">
+<circle r="3.8" fill="{{supplyDot}}" filter="url(#glow)"><animateMotion dur="{{dBranch}}" begin="-0s" repeatCount="indefinite" path="M 612 480 L 404 480 L 404 378 L 342 370"></animateMotion></circle>
+</g>
+<g class="fade" opacity="{{bEcoOp}}">
+<circle r="3.8" fill="{{supplyDot}}" filter="url(#glow)"><animateMotion dur="{{dBranch}}" begin="-0s" repeatCount="indefinite" path="M 624 536 L 624 616 L 130 616 L 130 598"></animateMotion></circle>
+</g>
+<g class="fade" opacity="{{bEvOp}}">
+<circle r="3.8" fill="{{supplyDot}}" filter="url(#glow)"><animateMotion dur="{{dBranch}}" begin="-0s" repeatCount="indefinite" path="M 638 540 L 700 578 L 764 586"></animateMotion></circle>
+</g>
+<line x1="681" y1="496" x2="681" y2="488" stroke="#56626f"></line><g><rect x="662" y="450" width="128" height="38" rx="8" fill="#0b0f14" fill-opacity="0.9" stroke="#FFB547" stroke-opacity="0.55"></rect><text x="672" y="465" font-size="10" fill="#aab2bb">パワーコンディショナ</text><text x="672" y="480" font-size="12" font-weight="700" fill="#FFB547" font-family="Manrope, sans-serif">{{genKw}}<tspan font-size="10" fill="#aab2bb" font-family="Zen Kaku Gothic New, sans-serif"> 直流→交流</tspan></text></g>
+
+<text x="624" y="490" text-anchor="middle" font-size="10" font-weight="700" fill="#E9EDF1">分電盤</text>
+<text x="696" y="590" font-size="10" font-weight="700" fill="#E9EDF1">メーター</text>
+
+<g class="chip" opacity="{{ecoOp}}"><rect x="330" y="604" width="120" height="24" rx="12" fill="#0b0f14" fill-opacity="0.9" stroke="#E9EDF1" stroke-opacity="0.45"></rect><text x="390" y="621" text-anchor="middle" font-size="12" font-weight="700" fill="#E9EDF1">沸き上げ {{ecoKw}}</text></g>
+</svg>
+
+<div style="position: absolute; left: 24px; top: 20px; display: flex; align-items: center; gap: 16px; padding: 10px 14px; border-radius: 14px; background: rgba(10,13,17,0.72); border: 1px solid #1d242c; backdrop-filter: blur(10px)">
+<sc-for list="{{groups}}" as="group" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 8px">
+<span style="font-size: 11px; color: #aab2bb">{{group.label}}</span>
+<div role="group" aria-label="{{group.label}}" style="display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: #151b22">
+<sc-for list="{{group.items}}" as="item" hint-placeholder-count="2">
+<button type="button" onClick="{{item.pick}}" aria-pressed="{{item.pressed}}" style="height: 32px; min-width: 44px; padding: 0 10px; border: 0; border-radius: 7px; background: {{item.bg}}; color: {{item.fg}}; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer">{{item.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+
+<sc-for list="{{appliances}}" as="a" hint-placeholder-count="7">
+<button type="button" class="appl" onClick="{{a.toggle}}" aria-pressed="{{a.pressed}}" aria-label="{{a.aria}}" style="position: absolute; left: {{a.left}}; top: {{a.top}}; height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 14px 0 6px; border-radius: 22px; border: 1px solid {{a.border}}; background: {{a.bg}}; color: {{a.fg}}; font-family: inherit; cursor: pointer; backdrop-filter: blur(8px)">
+<span style="width: 32px; height: 32px; border-radius: 50%; background: {{a.iconBg}}; display: flex; align-items: center; justify-content: center">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{a.icon}}"></path></svg>
+</span>
+<span style="display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2">
+<span style="font-size: 12px; font-weight: 700">{{a.label}}</span>
+<span style="font-family: Manrope, sans-serif; font-size: 11px; opacity: 0.8">{{a.state}}</span>
+</span>
+</button>
+</sc-for>
+
+<div style="position: absolute; left: 140px; top: 646px; width: 560px; min-height: 76px; box-sizing: border-box; padding: 12px 18px; display: flex; align-items: center; gap: 22px; border-radius: 16px; background: rgba(10,13,17,0.82); border: 1px solid {{meterBorder}}; backdrop-filter: blur(12px); box-shadow: 0 0 40px {{meterShadow}}">
+<div style="width: 170px; flex-shrink: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 11px; color: #aab2bb">いまの電気</span>
+<span style="font-size: 20px; font-weight: 900; color: {{meterColor}}; white-space: nowrap">{{meterLabel}} <span style="font-family: Manrope, sans-serif">{{meterKw}}</span></span>
+</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 700"><span style="color: #5BC0F8">← 売電</span><span style="color: #aab2bb">±0</span><span style="color: #FF7A66">買電 →</span></div>
+<div style="position: relative; height: 10px; border-radius: 5px; background: #151b22; overflow: hidden">
+<div class="bar" style="position: absolute; right: 50%; top: 0; height: 10px; width: {{sellBarW}}; background: #5BC0F8; border-radius: 5px 0 0 5px; box-shadow: 0 0 12px #5BC0F8"></div>
+<div class="bar" style="position: absolute; left: 50%; top: 0; height: 10px; width: {{buyBarW}}; background: #FF7A66; border-radius: 0 5px 5px 0; box-shadow: 0 0 12px #FF7A66"></div>
+<div style="position: absolute; left: 50%; top: 0; width: 1px; height: 10px; background: #E9EDF1"></div>
+</div>
+<span style="font-size: 12px; line-height: 1.5; color: #c3c9d0">{{story}}</span>
+</div>
+</div>
+</section>
+
+<div style="position: absolute; left: 0; top: 800px; width: 920px; height: 100px; box-sizing: border-box; padding: 0 28px; display: flex; align-items: center; gap: 20px; border-top: 1px solid #161b21; background: #07090c">
+<button type="button" onClick="{{togglePlay}}" aria-label="{{playLabel}}" style="flex-shrink: 0; width: 52px; height: 52px; border: 0; border-radius: 50%; background: #eef0f2; color: #0b0d10; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 24px rgba(255,181,71,0.25)">
+<sc-if value="{{playing}}" hint-placeholder-val="{{false}}">
+<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="3" y="2" width="4" height="14" rx="1" fill="currentColor"></rect><rect x="11" y="2" width="4" height="14" rx="1" fill="currentColor"></rect></svg>
+</sc-if>
+<sc-if value="{{paused}}" hint-placeholder-val="{{true}}">
+<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M5 2.5v13l11-6.5z" fill="currentColor"></path></svg>
+</sc-if>
+</button>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px">
+<label for="hourSlider" style="font-size: 12px; color: #aab2bb">時刻をドラッグして、1日の電気の流れを見る。家電のボタンを押すと、使う電気が変わります</label>
+<input id="hourSlider" type="range" min="0" max="24" step="0.25" value="{{hour}}" onChange="{{onHour}}" style="width: 100%; height: 24px; margin: 0; cursor: pointer">
+<div style="display: flex; justify-content: space-between; font-family: Manrope, sans-serif; font-size: 11px; color: #7d8792">
+<span>0:00</span><span>6:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
+</div>
+</div>
+</div>
+
+<aside style="position: absolute; left: 920px; top: 64px; width: 520px; height: 836px; box-sizing: border-box; padding: 28px 36px; display: flex; flex-direction: column; gap: 16px; background: #0b0e12; border-left: 1px solid #161b21">
+<div style="display: flex; align-items: flex-end; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; color: #aab2bb">現在の時刻</span>
+<span style="font-family: Manrope, sans-serif; font-size: 56px; font-weight: 700; line-height: 1; letter-spacing: -0.02em">{{clock}}</span>
+</div>
+<span style="font-size: 13px; color: #aab2bb; padding-bottom: 6px">{{condition}}</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="padding: 14px 16px; border-radius: 12px; background: #11161c; border: 1px solid #1a2129; display: flex; flex-direction: column; gap: 6px">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #aab2bb"><span style="width: 8px; height: 8px; border-radius: 50%; background: #FFB547; box-shadow: 0 0 8px #FFB547"></span>発電</span>
+<span style="font-family: Manrope, sans-serif; font-size: 28px; font-weight: 700; color: #FFB547">{{genNum}}<span style="font-size: 14px; margin-left: 4px; color: #aab2bb">kW</span></span>
+<div style="height: 3px; border-radius: 2px; background: #1c232b"><div class="bar" style="height: 3px; border-radius: 2px; background: #FFB547; width: {{genBar}}"></div></div>
+</div>
+<div style="padding: 14px 16px; border-radius: 12px; background: #11161c; border: 1px solid #1a2129; display: flex; flex-direction: column; gap: 6px">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #aab2bb"><span style="width: 8px; height: 8px; border-radius: 50%; background: #E9EDF1; box-shadow: 0 0 8px #E9EDF1"></span>家で使用</span>
+<span style="font-family: Manrope, sans-serif; font-size: 28px; font-weight: 700">{{loadNum}}<span style="font-size: 14px; margin-left: 4px; color: #aab2bb">kW</span></span>
+<div style="height: 3px; border-radius: 2px; background: #1c232b"><div class="bar" style="height: 3px; border-radius: 2px; background: #E9EDF1; width: {{loadBar}}"></div></div>
+</div>
+<div style="padding: 14px 16px; border-radius: 12px; background: #11161c; border: 1px solid #1a2129; display: flex; flex-direction: column; gap: 6px">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #aab2bb"><span style="width: 8px; height: 8px; border-radius: 50%; background: #5BC0F8; box-shadow: 0 0 8px #5BC0F8"></span>{{sellCardLabel}}</span>
+<span style="font-family: Manrope, sans-serif; font-size: 28px; font-weight: 700; color: #5BC0F8">{{sellNum}}<span style="font-size: 14px; margin-left: 4px; color: #aab2bb">kW</span></span>
+<div style="height: 3px; border-radius: 2px; background: #1c232b"><div class="bar" style="height: 3px; border-radius: 2px; background: #5BC0F8; width: {{sellBar}}"></div></div>
+</div>
+<div style="padding: 14px 16px; border-radius: 12px; background: #11161c; border: 1px solid #1a2129; display: flex; flex-direction: column; gap: 6px">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #aab2bb"><span style="width: 8px; height: 8px; border-radius: 50%; background: #FF7A66; box-shadow: 0 0 8px #FF7A66"></span>買電</span>
+<span style="font-family: Manrope, sans-serif; font-size: 28px; font-weight: 700; color: #FF7A66">{{buyNum}}<span style="font-size: 14px; margin-left: 4px; color: #aab2bb">kW</span></span>
+<div style="height: 3px; border-radius: 2px; background: #1c232b"><div class="bar" style="height: 3px; border-radius: 2px; background: #FF7A66; width: {{buyBar}}"></div></div>
+</div>
+</div>
+
+<div style="padding: 16px; border-radius: 12px; background: #11161c; border: 1px solid #1a2129; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 13px; font-weight: 700">24時間の発電と消費</span>
+<span style="display: flex; gap: 14px; font-size: 11px; color: #aab2bb">
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 8px; border-radius: 2px; background: #FFB547; opacity: 0.6"></span>発電</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 2px; background: #E9EDF1"></span>消費</span>
+</span>
+</div>
+<svg width="416" height="110" viewBox="0 -14 416 134" role="img" aria-label="24時間の発電量と消費量のグラフ">
+<defs>
+<linearGradient id="genFill" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#FFB547" stop-opacity="0.55"></stop>
+<stop offset="1" stop-color="#FFB547" stop-opacity="0.02"></stop>
+</linearGradient>
+<filter id="lineGlow" x="-10%" y="-50%" width="120%" height="200%"><feGaussianBlur stdDeviation="2" result="b"></feGaussianBlur><feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter>
+</defs>
+<line x1="0" y1="119" x2="416" y2="119" stroke="#2b333c"></line>
+<line x1="104" y1="0" x2="104" y2="119" stroke="#1c232b" stroke-dasharray="2 4"></line>
+<line x1="208" y1="0" x2="208" y2="119" stroke="#1c232b" stroke-dasharray="2 4"></line>
+<line x1="312" y1="0" x2="312" y2="119" stroke="#1c232b" stroke-dasharray="2 4"></line>
+<path d="{{genArea}}" fill="url(#genFill)" stroke="#FFB547" stroke-width="1.8" filter="url(#lineGlow)"></path>
+<path d="{{loadLine}}" fill="none" stroke="#E9EDF1" stroke-width="1.8"></path>
+<line x1="{{cursorX}}" y1="0" x2="{{cursorX}}" y2="119" stroke="#ffffff" stroke-opacity="0.7" stroke-dasharray="3 3"></line>
+<circle cx="{{cursorX}}" cy="{{cursorGenY}}" r="7" fill="#FFB547" opacity="0.25"></circle>
+<circle cx="{{cursorX}}" cy="{{cursorGenY}}" r="4" fill="#FFB547"></circle>
+<circle cx="{{cursorX}}" cy="{{cursorLoadY}}" r="4" fill="#E9EDF1"></circle>
+<g font-size="10" font-weight="700" text-anchor="middle">
+<text x="{{nMornX}}" y="{{nMornY}}" fill="#E9EDF1">朝の支度</text>
+<text x="{{nEveX}}" y="{{nEveY}}" fill="#E9EDF1">夕食・団らん</text>
+<text x="{{nEcoX}}" y="{{nEcoY}}" fill="#5BC0F8">エコキュート</text>
+<text x="{{nEvX}}" y="{{nEvY}}" fill="#5BC0F8" opacity="{{nEvOp}}">EV充電</text>
+</g>
+</svg>
+<div style="display: flex; justify-content: space-between; margin-top: -6px; font-family: Manrope, sans-serif; font-size: 10px; color: #7d8792"><span>0時</span><span>6時</span><span>12時</span><span>18時</span><span>24時</span></div>
+<span style="font-size: 11px; color: #7d8792">※体験用の概算です（一般的な家庭の使い方から計算）。エコキュートを「夜」にすると深夜にお湯を沸かすため、夜中の使用量が増えます。30年試算の数値とは別に計算しています。</span>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 13px; font-weight: 700">今日 0:00 からの合計</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #aab2bb">自家消費</span><span style="font-family: Manrope, sans-serif; font-size: 22px; font-weight: 700; color: #FFB547">{{selfTot}}<span style="font-size: 12px; margin-left: 3px; color: #aab2bb">kWh</span></span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #aab2bb">{{sellCardLabel}}</span><span style="font-family: Manrope, sans-serif; font-size: 22px; font-weight: 700; color: #5BC0F8">{{sellTot}}<span style="font-size: 12px; margin-left: 3px; color: #aab2bb">kWh</span></span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #aab2bb">買電</span><span style="font-family: Manrope, sans-serif; font-size: 22px; font-weight: 700; color: #FF7A66">{{buyTot}}<span style="font-size: 12px; margin-left: 3px; color: #aab2bb">kWh</span></span></div>
+</div>
+</div>
+
+<sc-if value="{{isLease}}" hint-placeholder-val="{{true}}">
+<div style="padding: 18px; border-radius: 12px; background: #f1f3f5; color: #0b0d10; display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 13px; font-weight: 700">今日ここまでのおトク</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #4a525b">買わずに済んだ電気代</span><span style="font-family: Manrope, sans-serif; font-size: 26px; font-weight: 800">{{saveYen}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #4a525b">売電収入（お客様）</span><span style="font-family: Manrope, sans-serif; font-size: 26px; font-weight: 800">{{sellYen}}</span></div>
+</div>
+<span style="font-size: 11px; line-height: 1.6; color: #4a525b">電気代は昼間単価44.40円＋再エネ賦課金4.18円/kWh、売電は{{sellPriceLabel}}円/kWh（仮の値）で概算。SBIリースなら、売電収入は1〜30年目までお客様のものです。</span>
+</div>
+</sc-if>
+
+</aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"sellPrice":{"editor":"float","default":15,"min":0,"max":40,"step":0.1,"unit":"円/kWh","section":"試算条件"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { hour: 12, mode: 'lease', cap: 6, weather: 'sun', life: 'away', playing: false,
+evTime: 'none', ecoTime: 'day', ovr: {} };
+this.timer = null;
+}
+componentWillUnmount() {
+if (this.timer) clearInterval(this.timer);
+}
+renderVals() {
+const s = this.state;
+const H = s.hour;
+const cap = s.cap;
+const wf = s.weather === 'sun' ? 1 : 0.35;
+const sellPrice = this.props.sellPrice ?? 15;
+const buyUnit = 44.40 + 4.18;
+const isLease = true;
+
+const APPL = [
+{ key: 'bedAc', label: '寝室エアコン', kw: 0.6, left: '216px', top: '400px', icon: 'M3 6h18v7H3z M7 17c0 1.5-1 2.5-1 2.5 M12 17v2.5 M17 17c0 1.5 1 2.5 1 2.5' },
+{ key: 'ih', label: 'IH調理', kw: 2.0, left: '212px', top: '504px', icon: 'M4 7h16v12H4z M9 13m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0 M17 13m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0' },
+{ key: 'lvAc', label: 'リビングエアコン', kw: 0.8, left: '380px', top: '498px', icon: 'M3 6h18v7H3z M7 17c0 1.5-1 2.5-1 2.5 M12 17v2.5 M17 17c0 1.5 1 2.5 1 2.5' },
+{ key: 'tv', label: 'テレビ', kw: 0.15, left: '380px', top: '548px', icon: 'M3 5h18v11H3z M9 20h6' },
+{ key: 'ev', label: 'EV充電', kw: 3.0, left: '712px', top: '606px', icon: 'M13 3L5 14h6l-1 7 8-11h-6z' },
+{ key: 'eco', label: 'エコキュート', kw: 1.5, left: '24px', top: '430px', icon: 'M8 3h8v18H8z M12 8c-1.5 2-1.5 3.5 0 5 1.5-1.5 1.5-3 0-5z' }
+];
+// 暮らし方ごとの家電の使用時間帯（体験用の想定）
+const home = s.life === 'home';
+const win = (h, ranges) => ranges.some((r) => h >= r[0] && h < r[1]);
+const SCHED = {
+bedAc: [[0, 6.5], [22, 24]],
+ih: home ? [[6.5, 7.2], [11.5, 12.5], [18.5, 19.5]] : [[6.5, 7.2], [18.5, 19.5]],
+lvAc: home ? [[6.5, 23]] : [[6.5, 8], [17.5, 23]],
+tv: home ? [[7, 8], [12, 13], [19, 23]] : [[7, 8], [19, 23]],
+ev: s.evTime === 'day' ? [[10, 14]] : s.evTime === 'night' ? [[0, 4]] : [],
+eco: s.ecoTime === 'day' ? [[10, 13]] : [[1, 4]]
+};
+const kwOf = {};
+APPL.forEach((a) => { kwOf[a.key] = a.kw; });
+const isOn = (key, h) => {
+const o = s.ovr[key];
+if (o && h >= o.from && h < o.to) return o.v;
+return win(h, SCHED[key]);
+};
+// 普段の家電はベースの曲線に含まれる。ボタンで普段と違う使い方をした分だけ増減する
+// 家電の立ち上がり・立ち下がりは約30分かけてなめらかに変化させる
+const SHIFT = { ev: 1, eco: 1 };
+const sig = (x) => 1 / (1 + Math.exp(-x));
+const soft = (h, r) => sig((h - r[0]) / 0.25) * sig((r[1] - h) / 0.25);
+const softWin = (h, ranges) => Math.min(1, ranges.reduce((m, r) => m + soft(h, r), 0));
+const onW = (key, h) => {
+const base = SHIFT[key] ? softWin(h, SCHED[key]) : 0;
+const o = s.ovr[key];
+if (!o) return base;
+const target = SHIFT[key] ? (o.v ? 1 : 0) : (o.v ? 1 : 0) - (win(h, SCHED[key]) ? 1 : 0);
+return base + (target - base) * soft(h, [o.from, o.to]);
+};
+const applLoad = (h) => APPL.reduce((sum, a) => sum + onW(a.key, h) * a.kw, 0);
+
+const gen = (h) => (h <= 5.5 || h >= 18.5) ? 0 : cap * 0.8 * wf * Math.sin(Math.PI * (h - 5.5) / 13);
+// 一般家庭の典型的な1日（深夜は冷蔵庫・待機電力のみ、朝7時と夜20時前後にピーク）
+const bump = (h, mu, sd, a) => a * Math.exp(-((h - mu) * (h - mu)) / (2 * sd * sd));
+const baseLoad = (h) => home
+? 0.3 + bump(h, 7, 0.9, 0.8) + bump(h, 12.5, 2.6, 0.45) + bump(h, 19.5, 1.9, 1.3)
+: 0.3 + bump(h, 7, 0.8, 0.9) + bump(h, 19.5, 1.8, 1.4);
+const load = (h) => Math.max(0.2, baseLoad(h) + applLoad(h));
+
+const hNow = Math.min(H, 23.99);
+const g = gen(hNow), l = load(hNow);
+const e = isOn('eco', hNow) ? 1.5 : 0;
+const evNow = isOn('ev', hNow);
+const self = Math.min(g, l), sell = Math.max(0, g - l), buy = Math.max(0, l - g);
+
+let selfT = 0, sellT = 0, buyT = 0;
+for (let t = 0.125; t < H; t += 0.25) {
+const gg = gen(t), ll = load(t);
+selfT += Math.min(gg, ll) * 0.25;
+sellT += Math.max(0, gg - ll) * 0.25;
+buyT += Math.max(0, ll - gg) * 0.25;
+}
+
+let maxV = 0;
+for (let t = 0; t <= 24; t += 0.25) { maxV = Math.max(maxV, gen(t), load(t)); }
+maxV = maxV * 1.1;
+const X = (t) => (t / 24 * 416).toFixed(1);
+const Y = (v) => (118 - v / maxV * 110).toFixed(1);
+let area = 'M 0 118';
+let line = '';
+for (let t = 0; t <= 24.001; t += 0.25) {
+area += ' L ' + X(t) + ' ' + Y(gen(t));
+line += (line ? ' L ' : 'M ') + X(t) + ' ' + Y(load(t));
+}
+area += ' L 416 118 Z';
+
+const A = [186, 318], B = [648, 376], C = [682, 342], D = [220, 284];
+const lp = (p, q, k) => (p[0] + (q[0] - p[0]) * k).toFixed(1) + ' ' + (p[1] + (q[1] - p[1]) * k).toFixed(1);
+let grid = '';
+for (let i = 1; i < 10; i++) grid += 'M ' + lp(A, B, i / 10) + ' L ' + lp(D, C, i / 10) + ' ';
+grid += 'M ' + lp(A, D, 0.5) + ' L ' + lp(B, C, 0.5);
+let cells = '';
+for (let i = 1; i < 40; i++) if (i % 4) cells += 'M ' + lp(A, B, i / 40) + ' L ' + lp(D, C, i / 40) + ' ';
+for (let j = 1; j < 6; j++) if (j !== 3) cells += 'M ' + lp(A, D, j / 6) + ' L ' + lp(B, C, j / 6) + ' ';
+
+const tt = (H - 6) / 12;
+const day = tt > 0 && tt < 1;
+const elev = day ? Math.sin(Math.PI * tt) : 0;
+const sunX = (460 - 400 * Math.cos(Math.PI * Math.max(0, Math.min(1, tt)))).toFixed(1);
+const sunY = (600 - 460 * elev).toFixed(1);
+const mix = (a, b, k) => Math.round(a + (b - a) * k);
+const rgb = (a, b, c) => 'rgb(' + a + ',' + b + ',' + c + ')';
+const k = Math.pow(elev, 0.6);
+const dusk = day ? Math.max(0, 1 - elev * 2.2) : 0;
+// 昼は澄んだ青空、朝夕は地平線が暖色に、夜は黒に近い紺
+const skyTop = rgb(mix(4, 22, k), mix(6, 74, k), mix(10, 140, k));
+const skyMid = rgb(mix(8, 62, k), mix(11, 128, k), mix(16, 196, k));
+const skyBot = rgb(mix(mix(10, 150, k), 236, dusk * 0.55), mix(mix(14, 196, k), 150, dusk * 0.55), mix(mix(20, 228, k), 90, dusk * 0.55));
+
+const cls = (v) => v < 0.05 ? 'p off' : v < 0.8 ? 'p slow' : v < 2 ? 'p mid' : 'p fast';
+const op = (v) => v < 0.05 ? 0 : 1;
+const dur = (v) => v < 0.8 ? '6s' : v < 2 ? '5s' : '4s';
+const f1 = (v) => v.toFixed(1);
+const kw = (v) => v.toFixed(1) + ' kW';
+const yen = (v) => '¥' + Math.round(v).toLocaleString('ja-JP');
+const pct = (v) => Math.min(100, Math.round(v / (cap * 0.8) * 100)) + '%';
+const halfPct = (v) => Math.min(50, v / 5 * 50).toFixed(1) + '%';
+
+const hh = Math.floor(H), mm = Math.round((H - hh) * 60);
+const clock = hh + ':' + (mm < 10 ? '0' : '') + mm;
+
+let story, meterLabel, meterColor, meterKw;
+if (g < 0.05) { story = '発電はお休み中。家の電気はすべて電力会社から買っています。'; }
+else if (sell >= 0.05) {
+if (!isLease) story = '余った電気は売電へ。ただしPPAでは、その収入はPPA事業者のものです。';
+else if (s.ecoTime === 'night' || s.evTime === 'night') story = '余った電気は売電へ。エコキュートやEVを昼に動かすと、もっと家で使えます。';
+else story = '余った電気は売電へ。その収入は、お客様のものです。';
+}
+else if (buy >= 0.05) { story = '発電だけでは足りない分を、電力会社から買っています。'; }
+else { story = '発電した電気を、家の中でちょうど使いきっています。'; }
+if (sell >= 0.05) { meterLabel = '売電中'; meterColor = '#5BC0F8'; meterKw = kw(sell); }
+else if (buy >= 0.05) { meterLabel = '買電中'; meterColor = '#FF7A66'; meterKw = kw(buy); }
+else { meterLabel = '自給中'; meterColor = '#FFB547'; meterKw = kw(self); }
+
+const lit = (v) => v ? (day ? 0.5 : 0.85) : (day ? 0.03 : 0.12);
+
+const self_ = this;
+const mk = (label, key, opts) => ({
+label,
+items: opts.map((o) => {
+const on = s[key] === o.v;
+return { label: o.label, pressed: on ? 'true' : 'false', bg: on ? '#eef0f2' : 'transparent', fg: on ? '#0b0d10' : '#c3c9d0', pick: () => self_.setState({ [key]: o.v }) };
+})
+});
+const groups = [
+mk('容量', 'cap', [{ label: '6kW', v: 6 }, { label: '8kW', v: 8 }, { label: '12kW', v: 12 }]),
+mk('天気', 'weather', [{ label: '晴れ', v: 'sun' }, { label: 'くもり', v: 'cloud' }])
+];
+const fmtH = (h) => { const x = h % 24; const a = Math.floor(x), b = Math.round((x - a) * 60); return a + ':' + (b < 10 ? '0' : '') + b; };
+const appliances = APPL.map((a) => {
+const on = isOn(a.key, hNow);
+const shift = a.key === 'ev' || a.key === 'eco';
+const tkey = a.key === 'ev' ? 'evTime' : 'ecoTime';
+const o = s.ovr[a.key];
+const manual = o && hNow >= o.from && hNow < o.to;
+let state;
+if (shift) {
+const r = SCHED[a.key][0];
+state = r ? (s[tkey] === 'day' ? '昼' : '夜') + ' ' + r[0] + '–' + r[1] + '時' + (on ? ' ・ ON' : '') : 'なし';
+} else {
+state = (on ? 'ON ・ ' + a.kw + ' kW' : 'OFF') + (manual ? ' ・ 〜' + fmtH(o.to) : '');
+}
+return {
+label: shift ? a.label + '（時間帯）' : a.label, left: a.left, top: a.top, icon: a.icon,
+state,
+aria: shift ? a.label + 'の時間帯を切り替える' : a.label + (on ? 'を1時間オフにする' : 'を1時間オンにする'),
+pressed: on ? 'true' : 'false',
+bg: on ? 'rgba(255,181,71,0.16)' : 'rgba(11,14,18,0.78)',
+border: on ? '#FFB547' : '#2a323c',
+fg: on ? '#FFE1B0' : '#aab2bb',
+iconBg: on ? '#FFB547' : '#1a2129',
+toggle: shift
+? () => self_.setState((st) => ({ [tkey]: a.key === 'ev' ? ({ none: 'night', night: 'day', day: 'none' })[st[tkey]] : (st[tkey] === 'day' ? 'night' : 'day') }))
+: () => self_.setState((st) => {
+const h0 = Math.floor(Math.min(st.hour, 23.99) * 4) / 4;
+return { ovr: Object.assign({}, st.ovr, { [a.key]: { v: !on, from: h0, to: h0 + 1 } }) };
+})
+};
+});
+
+const er = SCHED.eco[0];
+const fillRatio = hNow >= er[1] ? 1 - (hNow >= 18 ? Math.min(0.6, (hNow - 18) / 5 * 0.6) : 0) : hNow >= er[0] ? 0.3 + 0.7 * (hNow - er[0]) / (er[1] - er[0]) : 0.3;
+const occupied = win(hNow, [[6, 8.5], [17.5, 23.5]]) || (home && win(hNow, [[8.5, 17.5]]));
+
+return {
+hour: H, clock, story,
+groundTop: rgb(mix(13, 58, k), mix(18, 74, k), mix(24, 88, k)), groundBot: rgb(mix(5, 26, k), mix(7, 34, k), mix(10, 42, k)),
+faceTop: rgb(mix(28, 150, k), mix(37, 162, k), mix(48, 176, k)), faceBot: rgb(mix(18, 104, k), mix(24, 116, k), mix(32, 130, k)),
+sideA: rgb(mix(11, 70, k), mix(15, 80, k), mix(20, 94, k)), sideB: rgb(mix(23, 96, k), mix(31, 108, k), mix(40, 122, k)),
+roofA: rgb(mix(30, 80, k), mix(39, 92, k), mix(49, 106, k)), roofB: rgb(mix(43, 120, k), mix(54, 134, k), mix(66, 150, k)),
+roomA: rgb(mix(16, 40, k), mix(23, 52, k), mix(32, 66, k)), roomB: rgb(mix(10, 28, k), mix(15, 38, k), mix(21, 50, k)),
+cloudOp: (s.weather === 'sun' ? 0.45 : 1) * Math.min(1, elev * 2),
+sunBright: s.weather === 'sun' ? 1 : 0.35,
+overcastOp: s.weather === 'sun' ? 0 : (0.18 * Math.min(1, elev * 2)).toFixed(2), hillFill: rgb(mix(11, 38, k), mix(16, 62, k), mix(22, 84, k)), skyTop, skyMid, skyBot, sunX, sunY,
+horizonOp: (0.05 + dusk * 0.35 + (day ? 0.05 : 0)).toFixed(2),
+sunOp: day ? 1 : 0, nightOp: day ? Math.max(0, 1 - elev * 6).toFixed(2) : 1,
+panelGlow: (g / (cap * 0.8) * 0.45).toFixed(2),
+panelGrid: grid, panelCells: cells,
+roomBed: lit(isOn('bedAc', hNow)), roomDesk: lit(home && win(hNow, [[9, 18]])), roomKitchen: lit(isOn('ih', hNow)), roomLiving: lit(isOn('lvAc', hNow) || isOn('tv', hNow) || (occupied && !day)),
+tvOp: isOn('tv', hNow) ? 0.55 : 0,
+spillOp: day ? 0.15 : 0.6,
+tankY: (598 - 108 * fillRatio).toFixed(1), tankOp: e > 0 ? 0.95 : 0.6,
+fanCls: e > 0 ? 'fan' : '',
+evOp: evNow ? 1 : 0,
+ownerLabel: isLease ? '電気の持ち主：お客様' : '電気の持ち主：PPA事業者',
+ownerStroke: isLease ? '#FFB547' : '#FF7A66',
+selfCls: cls(self), sellCls: cls(sell), buyCls: cls(buy), ecoCls: cls(e), evCls: cls(evNow ? 3 : 0), genCls: cls(g), genOp: op(g), genKw: kw(g),
+sellW: (5 + Math.min(6, sell * 1.2)).toFixed(1), buyW: (5 + Math.min(6, buy * 1.2)).toFixed(1),
+selfOp: op(self), sellOp: op(sell), buyOp: op(buy), ecoOp: op(e),
+selfKw: kw(self), ecoKw: kw(e),
+meterLabel, meterColor, meterKw,
+meterBorder: meterColor + '66', meterShadow: meterColor + '22',
+sellBarW: halfPct(sell), buyBarW: halfPct(buy),
+sellCardLabel: isLease ? '売電' : '売電（PPA事業者）',
+genNum: f1(g), loadNum: f1(l), sellNum: f1(sell), buyNum: f1(buy),
+genBar: pct(g), loadBar: pct(l), sellBar: pct(sell), buyBar: pct(buy),
+condition: (s.weather === 'sun' ? '晴れ' : 'くもり') + '・' + cap + 'kWプラン',
+genArea: area, loadLine: line,
+nMornX: X(7), nMornY: (Y(load(7)) - 7).toFixed(1),
+nEveX: X(19.5), nEveY: (Y(load(19.5)) - 7).toFixed(1),
+nEcoX: X((SCHED.eco[0][0] + SCHED.eco[0][1]) / 2), nEcoY: (Y(load((SCHED.eco[0][0] + SCHED.eco[0][1]) / 2)) - 7).toFixed(1),
+nEvX: SCHED.ev[0] ? X((SCHED.ev[0][0] + SCHED.ev[0][1]) / 2) : 0, nEvY: SCHED.ev[0] ? (Y(load((SCHED.ev[0][0] + SCHED.ev[0][1]) / 2)) - 20).toFixed(1) : 0, nEvOp: SCHED.ev[0] ? 1 : 0,
+genLamp: g > 0.05 ? 1 : 0.15,
+loadKwLabel: kw(l),
+supplyCol: buy > self ? '#FF7A66' : '#FFB547', supplyDot: buy > self ? '#ffd0c8' : '#ffe2ad',
+dGen: dur(g), dSell: dur(sell), dBuy: dur(buy), dBranch: '5s',
+bLvCls: cls(isOn('lvAc', hNow) ? 1 : 0), bTvCls: cls(isOn('tv', hNow) ? 1 : 0), bIhCls: cls(isOn('ih', hNow) ? 1 : 0), bBedCls: cls(isOn('bedAc', hNow) ? 1 : 0), bEcoCls: cls(e), bEvCls: cls(evNow ? 3 : 0),
+bLvOp: isOn('lvAc', hNow) ? 1 : 0, bTvOp: isOn('tv', hNow) ? 1 : 0, bIhOp: isOn('ih', hNow) ? 1 : 0, bBedOp: isOn('bedAc', hNow) ? 1 : 0, bEcoOp: e > 0 ? 1 : 0, bEvOp: evNow ? 1 : 0,
+cursorX: X(Math.min(H, 24)), cursorGenY: Y(g), cursorLoadY: Y(l),
+selfTot: f1(selfT), sellTot: f1(sellT), buyTot: f1(buyT),
+saveYen: yen(selfT * buyUnit), sellYen: yen(sellT * sellPrice), sellPriceLabel: String(sellPrice),
+isLease, isPpa: !isLease,
+groups, appliances,
+playing: s.playing, paused: !s.playing, playLabel: s.playing ? '一時停止' : '再生',
+onHour: (ev) => this.setState({ hour: parseFloat(ev.target.value) }),
+togglePlay: () => {
+if (this.timer) { clearInterval(this.timer); this.timer = null; this.setState({ playing: false }); return; }
+this.timer = setInterval(() => {
+this.setState((st) => ({ hour: st.hour >= 24 ? 0 : Math.round((st.hour + 0.25) * 100) / 100 }));
+}, 140);
+this.setState({ playing: true });
+}
+};
+}
+}
+</script>
+</body>
+</html>

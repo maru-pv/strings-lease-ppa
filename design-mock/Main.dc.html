@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Strings ソーラー シミュレーター トップ</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#07090c}
+a{color:#f4f5f6;text-decoration:none}a:hover{color:#ffffff}
+@keyframes glint{0%,100%{opacity:.35}50%{opacity:.9}}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.glint{animation:glint 4.5s ease-in-out infinite}
+.rise{animation:rise 1s cubic-bezier(.2,.7,.2,1) both}
+.rise2{animation:rise 1s .15s cubic-bezier(.2,.7,.2,1) both}
+.rise3{animation:rise 1s .3s cubic-bezier(.2,.7,.2,1) both}
+.btn-primary:hover{background:#ffffff !important}
+.btn-ghost:hover{background:rgba(255,255,255,.18) !important}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #07090c; color: #f4f5f6; font-family: 'Zen Kaku Gothic New', 'Manrope', sans-serif">
+
+<svg width="1440" height="900" viewBox="0 0 1440 900" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+<defs>
+<radialGradient id="sunGlow" cx="1120" cy="250" r="520" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="{{accent}}" stop-opacity="0.55"></stop>
+<stop offset="0.25" stop-color="{{accent}}" stop-opacity="0.16"></stop>
+<stop offset="1" stop-color="#07090c" stop-opacity="0"></stop>
+</radialGradient>
+<linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#2a3b4d"></stop>
+<stop offset="0.55" stop-color="#101924"></stop>
+<stop offset="1" stop-color="#0b1119"></stop>
+</linearGradient>
+<linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#11161c"></stop>
+<stop offset="1" stop-color="#07090c"></stop>
+</linearGradient>
+</defs>
+<rect x="0" y="0" width="1440" height="900" fill="url(#sunGlow)"></rect>
+<circle cx="1120" cy="250" r="46" fill="{{accent}}" opacity="0.95"></circle>
+<rect x="0" y="742" width="1440" height="158" fill="url(#ground)"></rect>
+<line x1="0" y1="742" x2="1440" y2="742" stroke="#2a323b" stroke-width="1"></line>
+<g>
+<polygon points="430,742 430,610 720,540 1010,610 1010,742" fill="#0e1318"></polygon>
+<polygon points="400,618 720,530 1040,618 1040,626 720,540 400,626" fill="#1c252e"></polygon>
+<polygon points="470,600 720,535 970,600 960,606 720,544 480,606" fill="#0a0e13"></polygon>
+<g>
+<polygon points="486,596 604,565 612,574 494,605" fill="url(#panel)" stroke="#3a4d61" stroke-width="1"></polygon>
+<polygon points="612,562 718,535 722,545 620,572" fill="url(#panel)" stroke="#3a4d61" stroke-width="1"></polygon>
+<polygon points="722,535 828,562 820,572 718,545" fill="url(#panel)" stroke="#3a4d61" stroke-width="1"></polygon>
+<polygon points="836,565 954,596 946,605 828,574" fill="url(#panel)" stroke="#3a4d61" stroke-width="1"></polygon>
+<polygon points="836,565 954,596 946,605 828,574" fill="{{accent}}" class="glint" opacity="0.5"></polygon>
+<polygon points="722,535 828,562 820,572 718,545" fill="{{accent}}" class="glint" opacity="0.35"></polygon>
+</g>
+<rect x="520" y="650" width="120" height="70" rx="2" fill="{{accent}}" opacity="0.28"></rect>
+<rect x="800" y="650" width="120" height="70" rx="2" fill="{{accent}}" opacity="0.22"></rect>
+<rect x="684" y="640" width="72" height="102" rx="2" fill="#161d25"></rect>
+</g>
+</svg>
+
+<header style="position: absolute; left: 0; top: 0; width: 1440px; height: 72px; box-sizing: border-box; padding: 0 48px; display: flex; align-items: center; justify-content: space-between">
+<a href="Main.dc.html" style="font-family: Manrope, sans-serif; font-weight: 800; font-size: 18px; letter-spacing: 0.32em">STRINGS</a>
+<nav aria-label="メイン" style="display: flex; gap: 36px; font-size: 14px; font-weight: 500">
+<a href="Flow.dc.html">発電の流れ</a>
+<a href="Result.dc.html">リースとPPAの比較</a>
+<a href="Result.dc.html">30年試算</a>
+<a href="Result.dc.html">お問い合わせ</a>
+</nav>
+<a href="#" style="font-size: 14px; font-weight: 500; padding: 10px 18px; border-radius: 8px; background: rgba(255,255,255,0.08)">担当者ログイン</a>
+</header>
+
+<main style="position: absolute; left: 0; top: 150px; width: 1440px; display: flex; flex-direction: column; align-items: center; text-align: center">
+<p class="rise" style="margin: 0 0 20px; font-family: Manrope, sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.34em; color: #b9c0c8">SOLAR LEASE vs PPA SIMULATOR</p>
+<h1 class="rise2" style="margin: 0; font-size: 68px; line-height: 1.18; font-weight: 900; letter-spacing: 0.02em">屋根の電気を、<br>30年あなたのものに。</h1>
+<p class="rise3" style="margin: 28px 0 0; max-width: 640px; font-size: 18px; line-height: 1.8; color: #c3c9d0">月々の支払いだけでは見えない、リースとPPAの差。<br>発電の流れと30年の累計で、その場で確かめられます。</p>
+<div class="rise3" style="margin-top: 40px; display: flex; gap: 16px">
+<a href="Result.dc.html" class="btn-primary" style="width: 264px; height: 52px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: #eef0f2; color: #0b0d10; font-size: 16px; font-weight: 700">試算をはじめる</a>
+<a href="Flow.dc.html" class="btn-ghost" style="width: 264px; height: 52px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: rgba(255,255,255,0.1); color: #f4f5f6; font-size: 16px; font-weight: 700; backdrop-filter: blur(8px)">発電の流れを体験する</a>
+</div>
+</main>
+
+<div style="position: absolute; left: 0; bottom: 44px; width: 1440px; display: flex; justify-content: center; gap: 96px">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+<span style="font-family: Manrope, sans-serif; font-size: 34px; font-weight: 700">30<span style="font-size: 16px; margin-left: 4px">年</span></span>
+<span style="font-size: 13px; color: #aab2bb">累計の支出で比較</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+<span style="font-family: Manrope, sans-serif; font-size: 34px; font-weight: 700">6 / 8 / 12<span style="font-size: 16px; margin-left: 4px">kW</span></span>
+<span style="font-size: 13px; color: #aab2bb">SBIリースの3プラン</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+<span style="font-family: Manrope, sans-serif; font-size: 34px; font-weight: 700">1<span style="font-size: 16px; margin-left: 4px">年目から</span></span>
+<span style="font-size: 13px; color: #aab2bb">売電収入はお客様のもの</span>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FFB547","options":["#FFB547","#F5C451","#FF9F43"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#FFB547' };
+}
+}
+</script>
+</body>
+</html>
