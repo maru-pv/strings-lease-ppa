@@ -258,3 +258,93 @@ h1 { color: #E9EDF1 !important; letter-spacing: 0.02em; }
 .menu-card.admin .ttl { color: #FFB547 !important; }
 [style*="--blue-l,#EBF2FB"] { background: #0e1720 !important; color: #b9e3fb !important; }
 [style*="--orange-l,"], [style*="--amber-l,"] { background: #16120a !important; }
+
+/* =========================================================
+   STEP4 試算結果（刷新レイアウト）
+   ========================================================= */
+#step4 .r4 { display: flex; flex-direction: column; gap: 44px; }
+#step4 .r4-main, #step4 .r4-side { display: flex; flex-direction: column; gap: 32px; min-width: 0; }
+#step4 .step-head { margin-bottom: 0; }
+
+/* 結論：大きな数字（枠なし・光のにじみ） */
+#step4 .result-hero {
+  position: relative; text-align: left !important;
+  background: radial-gradient(closest-side at 30% 45%, rgba(255,181,71,0.16), rgba(255,181,71,0) 100%) !important;
+  border: 0 !important; box-shadow: none !important; border-radius: 0 !important;
+  padding: 8px 0 0 !important; margin: 0 !important;
+  display: flex; flex-direction: column; gap: 10px;
+}
+#step4 .rh-label { font-size: 13px !important; color: #aab2bb !important; letter-spacing: .06em; margin: 0 !important; opacity: 1 !important; }
+#step4 .rh-line { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+#step4 .rh-pre { font-size: 15px; color: #E9EDF1; }
+#step4 .rh-value { font-size: clamp(64px, 16vw, 112px) !important; font-weight: 800 !important; letter-spacing: -.04em !important; line-height: 1 !important; color: #FFB547 !important; }
+#step4 .rh-unit { font-size: 20px !important; font-weight: 700 !important; color: #E9EDF1 !important; opacity: 1 !important; }
+#step4 .rh-compare { font-size: 16px !important; font-weight: 700; color: #E9EDF1 !important; opacity: 1 !important; margin: 0 !important; display: flex; flex-direction: column; gap: 4px; }
+#step4 .rh-compare span { font-size: 12px; font-weight: 400; color: #7d8792; }
+#step4 .rh-sub { font-size: 12px !important; font-weight: 400 !important; color: #8a949f !important; opacity: 1 !important; margin: 0 !important; }
+
+/* リースの強み：1本の帯 */
+#step4 .r4-points { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid #1d242c; border-bottom: 1px solid #1d242c; }
+#step4 .r4-points > div { padding: 18px 10px; display: flex; flex-direction: column; gap: 6px; }
+#step4 .r4-points > div:first-child { padding-left: 0; }
+#step4 .r4-points > div + div { border-left: 1px solid #1d242c; padding-left: 14px; }
+#step4 .r4-k { font-size: 11px; color: #aab2bb; }
+#step4 .r4-v { font-size: 15px; font-weight: 700; line-height: 1.35; color: #E9EDF1; }
+#step4 .r4-v b { font-family: 'Manrope', sans-serif; font-size: 26px; font-weight: 800; }
+#step4 .r4-v b.sell { font-size: 22px; color: #5BC0F8; }
+
+/* 選ぶ理由 */
+#step4 .r4-reason { padding: 24px 22px; border-radius: 16px; background: linear-gradient(160deg, #1a150b 0%, #0b0e12 70%); border: 1px solid #2a2212; display: flex; flex-direction: column; gap: 12px; }
+#step4 .r4-reason-k { font-size: 11px; color: #FFB547; letter-spacing: .12em; font-weight: 700; }
+#step4 .r4-reason-t { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.75; color: #E9EDF1; }
+#step4 .r4-reason-x { margin: 0; font-size: 13px; color: #aab2bb; line-height: 1.8; }
+
+/* 見出し */
+#step4 h3 { margin: 0; font-size: 18px; font-weight: 700; color: #E9EDF1; }
+#step4 .r4-note { margin: 4px 0 16px; font-size: 12px; color: #7d8792; }
+
+/* グラフ：枠を外して地に置く */
+#step4 .chart-wrap { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+
+/* 比較：見出し2枚＋表を1つのまとまりに */
+#step4 .compare-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; margin: 0 !important; }
+#step4 .compare-card { background: transparent !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; padding: 16px 14px !important; text-align: left !important; position: relative; }
+#step4 .compare-card.winner, #step4 #resLeaseCard { background: #151108 !important; border-top: 2px solid #FFB547 !important; border-radius: 14px 14px 0 0 !important; }
+#step4 .compare-card .cc-label { font-size: 11px !important; color: #aab2bb !important; }
+#step4 .compare-card .cc-name { font-size: 13px !important; font-weight: 700 !important; color: #c3c9d0 !important; }
+#step4 #resLeaseCard .cc-name { color: #FFB547 !important; }
+#step4 .compare-card .cc-val { font-family: 'Manrope', sans-serif !important; font-size: 24px !important; font-weight: 800 !important; color: #c3c9d0 !important; }
+#step4 #resLeaseCard .cc-val { color: #FFB547 !important; }
+#step4 .compare-card .cc-unit { font-size: 10px !important; color: #7d8792 !important; }
+#step4 .winner-badge { position: absolute; top: 14px; right: 12px; font-size: 10px !important; padding: 3px 8px !important; border-radius: 20px !important; }
+#step4 .r4-table { overflow-x: auto; }
+#step4 .breakdown-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+#step4 .breakdown-table th { background: transparent !important; color: #7d8792 !important; font-size: 11px; font-weight: 700; padding: 10px 10px; border-bottom: 1px solid #2b333c; }
+#step4 .breakdown-table td { padding: 14px 10px; border-bottom: 1px solid #1d242c !important; color: #c3c9d0; vertical-align: top; font-family: 'Manrope', 'Zen Kaku Gothic New', sans-serif; }
+#step4 .breakdown-table td:first-child { color: #aab2bb; font-family: 'Zen Kaku Gothic New', sans-serif; line-height: 1.5; }
+#step4 .breakdown-table th:nth-child(2), #step4 .breakdown-table td:nth-child(2) { background: #151108 !important; color: #E9EDF1; }
+#step4 .breakdown-table tr:last-child td { border-bottom: 0 !important; padding-block: 18px; font-size: 16px; }
+#step4 .breakdown-table tr:last-child td:nth-child(2) { border-radius: 0 0 14px 0; }
+#step4 .breakdown-table .val-blue { color: #FFB547 !important; }
+#step4 .breakdown-table .val-orange { color: #c3c9d0 !important; }
+
+/* 試算条件：閉じておく */
+#step4 .r4-cond { border-top: 1px solid #1d242c; border-bottom: 1px solid #1d242c; }
+#step4 .r4-cond summary { list-style: none; cursor: pointer; height: 52px; display: flex; align-items: center; justify-content: space-between; font-size: 14px; color: #E9EDF1; }
+#step4 .r4-cond summary::-webkit-details-marker { display: none; }
+#step4 .r4-cond summary::after { content: ''; width: 8px; height: 8px; border-right: 1.8px solid #aab2bb; border-bottom: 1.8px solid #aab2bb; transform: rotate(45deg); margin-right: 4px; transition: transform .2s; }
+#step4 .r4-cond[open] summary::after { transform: rotate(-135deg); }
+#step4 .r4-cond > div { padding-bottom: 16px; }
+
+/* PC：画面幅に合わせて2列（左＝結論、右＝根拠） */
+@media (min-width: 960px) {
+  .steps-container:has(#step4.active) { max-width: 1280px !important; padding-inline: clamp(20px, 5.5vw, 80px) !important; }
+  #step4 .r4 { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: clamp(40px, 7vw, 120px); align-items: start; }
+  #step4 .r4-main { position: sticky; top: 110px; }
+}
+
+/* STEP4 調整：金額は表の最終行に集約（見出しカードは非表示。値はJSがそのまま更新） */
+#step4 .compare-row { display: none !important; }
+#step4 .breakdown-table th:nth-child(2) { border-top: 2px solid #FFB547; border-radius: 14px 14px 0 0; color: #FFB547 !important; }
+#step4 .chart-wrap { position: relative; width: 100%; min-height: 240px; }
+#step4 .chart-wrap canvas { max-width: 100%; }
