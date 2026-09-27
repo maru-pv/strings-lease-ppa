@@ -480,6 +480,7 @@ optgroup { font-weight: 700; }
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="theme-dark.css">
+<script src="theme-switch.js"></script>
 </head>
 <body>
 
@@ -2608,14 +2609,14 @@ function renderChart(r) {
           const saving = ((ns30 - ls30) / 10000).toFixed(0);
           const midY  = (yNs + yLs) / 2;
           ctx.save();
-          ctx.strokeStyle = '#E9EDF1';
+          ctx.strokeStyle = '#8a949f';
           ctx.lineWidth = 1.5;
           ctx.setLineDash([]);
           ctx.beginPath(); ctx.moveTo(xPos - 20, yNs); ctx.lineTo(xPos - 20, yLs); ctx.stroke();
           ctx.beginPath(); ctx.moveTo(xPos - 24, yNs + 4); ctx.lineTo(xPos - 20, yNs); ctx.lineTo(xPos - 16, yNs + 4); ctx.stroke();
           ctx.beginPath(); ctx.moveTo(xPos - 24, yLs - 4); ctx.lineTo(xPos - 20, yLs); ctx.lineTo(xPos - 16, yLs - 4); ctx.stroke();
           ctx.font = 'bold 11px sans-serif';
-          ctx.fillStyle = '#E9EDF1';
+          ctx.fillStyle = '#8a949f';
           ctx.textAlign = 'right';
           ctx.fillText('節約 ' + saving + '万円', xPos - 24, midY + 4);
           ctx.restore();
@@ -2647,7 +2648,7 @@ function renderChart(r) {
         {
           label: r.ppaPlan.name,
           data: ppaSpendArr,
-          borderColor: '#c3c9d0',
+          borderColor: '#8a949f',
           backgroundColor: 'rgba(195,201,208,0.04)',
           borderWidth: 2, pointRadius: 0, fill: false, tension: 0.3,
           borderDash: [5, 3],
@@ -2658,7 +2659,7 @@ function renderChart(r) {
     options: {
       responsive: true,
       plugins: {
-        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 14, color: '#aab2bb', boxHeight: 2 } },
+        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 14, color: '#8a949f', boxHeight: 2 } },
         tooltip: {
           callbacks: {
             label: ctx => `${ctx.dataset.label}: 累積支出 ${(ctx.raw / 10000).toFixed(1)}万円`
@@ -2684,7 +2685,7 @@ function renderChart(r) {
             font: { size: 10 },
             callback: v => (v / 10000).toFixed(0) + '万'
           },
-          grid: { color: '#161b21' }, border: { display: false }
+          grid: { color: 'rgba(128,128,128,0.15)' }, border: { display: false }
         }
       }
     }
