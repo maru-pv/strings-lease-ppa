@@ -99,7 +99,7 @@ td{padding:10px 6px;border-bottom:1px solid #F3F4F6;vertical-align:top}
   <div id="loadingBox">読み込み中…</div>
 
   <div id="noAccess">
-    <div class="icon">🔒</div>
+    <div class="icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
     <div style="font-size:15px;font-weight:700;margin-bottom:6px">この画面は管理者専用です</div>
     <div style="font-size:13px;color:#6B7280">アクセス権限がありません。担当のStrings社員にお問い合わせください。</div>
   </div>
@@ -107,7 +107,7 @@ td{padding:10px 6px;border-bottom:1px solid #F3F4F6;vertical-align:top}
   <div id="mainContent" style="display:none">
     <a class="back-link" href="navi.html">← 比較ナビに戻る</a>
     <header>
-      <h1>🏢 取引先管理</h1>
+      <h1>取引先管理</h1>
       <div class="sub">工務店（取引先）の登録・対応PPAサービスの設定ができます</div>
     </header>
 
@@ -126,11 +126,11 @@ td{padding:10px 6px;border-bottom:1px solid #F3F4F6;vertical-align:top}
       </div>
       <div class="frow">
         <div class="fld">
-          <label>リース料（円/kW・月額・税別）</label>
+          <label>リース料（円/kW・月額・税抜）</label>
           <input type="number" id="newLease" value="2000">
         </div>
         <div class="fld">
-          <label>購入kW単価（円・税別）</label>
+          <label>購入kW単価（円・税抜）</label>
           <input type="number" id="newBuy" value="300000">
         </div>
       </div>
@@ -152,7 +152,7 @@ td{padding:10px 6px;border-bottom:1px solid #F3F4F6;vertical-align:top}
       <div class="card-ttl">登録済みの取引先一覧</div>
       <table>
         <thead>
-          <tr><th>工務店名</th><th>対応契約方式</th><th>対応PPAサービス</th><th>リース料/kW</th><th>購入単価/kW</th><th></th></tr>
+          <tr><th>工務店名</th><th>対応契約方式</th><th>対応PPAサービス</th><th>リース料/kW（税抜・月額）</th><th>購入単価/kW（税抜）</th><th></th></tr>
         </thead>
         <tbody id="companyTable"></tbody>
       </table>
@@ -293,8 +293,8 @@ function editPanelHtml(c, idx){
     + '  <div class="fld" style="margin-bottom:12px"><label>対応している契約方式</label><div class="chk-group">'+financingChecks+'</div></div>'
     + '  <div class="fld" style="margin-bottom:12px"><label>対応PPAサービス</label><div class="chk-group">'+checks+'</div></div>'
     + '  <div class="frow">'
-    + '    <div class="fld"><label>リース料（円/kW・月額）</label><input type="number" id="editLease'+idx+'" value="'+(c.lease_monthly_per_kw||2000)+'"></div>'
-    + '    <div class="fld"><label>購入kW単価（円）</label><input type="number" id="editBuy'+idx+'" value="'+(c.buy_price_per_kw||300000)+'"></div>'
+    + '    <div class="fld"><label>リース料（円/kW・月額・税抜）</label><input type="number" id="editLease'+idx+'" value="'+(c.lease_monthly_per_kw||2000)+'"></div>'
+    + '    <div class="fld"><label>購入kW単価（円・税抜）</label><input type="number" id="editBuy'+idx+'" value="'+(c.buy_price_per_kw||300000)+'"></div>'
     + '  </div>'
     + '  <button class="btn-primary" onclick="saveCompany('+idx+')">保存する</button>'
     + '  <span class="msg" id="editMsg'+idx+'"></span>'
@@ -330,7 +330,7 @@ async function saveCompany(idx){
     msgEl.style.display = 'inline-block';
     return;
   }
-  msgEl.textContent = '✓ 保存しました';
+  msgEl.textContent = '保存しました';
   msgEl.className = 'msg ok';
   msgEl.style.display = 'inline-block';
   await loadCompanies();
@@ -376,7 +376,7 @@ async function addCompany(){
     return;
   }
 
-  msgEl.textContent = '✓ 「'+name+'」を登録しました';
+  msgEl.textContent = '「'+name+'」を登録しました';
   msgEl.className = 'msg ok';
   msgEl.style.display = 'block';
 

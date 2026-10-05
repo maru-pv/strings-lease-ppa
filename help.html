@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光熱費まるごと比較ナビ | 使い方</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme-dark.css">
+<script src="theme-switch.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{line-height:1.75;font-size:14px}
+.wrap{max-width:860px;margin:0 auto;padding:40px 16px 80px}
+a{color:inherit}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:24px;font-size:12.5px;color:var(--gray-500)}
+.top a{text-decoration:none;border:1px solid var(--gray-300);border-radius:10px;padding:6px 12px}
+h1{font-size:26px;font-weight:900;letter-spacing:.01em;margin-bottom:6px}
+.ver{font-family:'Manrope',sans-serif;font-size:12px;color:var(--gray-500);margin-bottom:22px}
+.lead{color:var(--gray-700);margin-bottom:24px}
+nav.toc{background:var(--white);border:1px solid var(--gray-300);border-radius:14px;padding:16px 20px;margin-bottom:32px}
+nav.toc ol{padding-left:1.4em;columns:2;column-gap:28px;font-size:13.5px}
+nav.toc a{text-decoration:none}
+nav.toc a:hover{text-decoration:underline}
+section{background:var(--white);border:1px solid var(--gray-300);border-radius:14px;padding:22px 24px;margin-bottom:20px}
+h2{font-size:19px;font-weight:900;margin-bottom:4px}
+h3{font-size:14.5px;font-weight:800;margin:18px 0 6px}
+.what{color:var(--gray-700);margin-bottom:6px}
+ol.steps{padding-left:1.4em}
+ol.steps li{margin:3px 0}
+.b{display:inline-block;font-weight:700;border:1px solid var(--gray-300);border-radius:8px;padding:0 8px;margin:0 2px;font-size:13px;line-height:1.7;white-space:nowrap}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:4px}
+th,td{text-align:left;vertical-align:top;padding:7px 10px;border-top:1px solid var(--gray-300)}
+th{font-weight:700;width:38%}
+.note{font-size:12.5px;color:var(--gray-500);margin-top:8px}
+.tbl-scroll{overflow-x:auto}
+@media (max-width:767px){ nav.toc ol{columns:1} h1{font-size:22px} section{padding:18px 16px} th{width:auto} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span>光熱費まるごと比較ナビ</span><a href="./">ホームへ</a></div>
+  <h1>使い方</h1>
+  <div class="ver">版 v1.0 ・ 2026-10-05</div>
+  <p class="lead">画面ごとに「何ができるか」「押す順番」「困ったとき」をまとめています。ボタン名は画面に出ている文字と同じです。金額はすべて概算で、実際の屋根・図面に合わせた金額は詳細シミュレーションで確認します。</p>
+
+  <nav class="toc" aria-label="目次">
+    <ol>
+      <li><a href="#home">ホーム</a></li>
+      <li><a href="#login">ログイン</a></li>
+      <li><a href="#navi-input">比較ナビ ① 条件入力</a></li>
+      <li><a href="#navi-elec">比較ナビ ② オール電化なら？</a></li>
+      <li><a href="#navi-solar">比較ナビ ③ さらに太陽光なら？</a></li>
+      <li><a href="#customer">お客様用 導入診断（STEP1〜6）</a></li>
+      <li><a href="#flow">太陽光の仕組み体感ツール</a></li>
+      <li><a href="#lab">提案パターン・ラボ</a></li>
+      <li><a href="#admin">取引先管理</a></li>
+      <li><a href="#common">どの画面でも共通</a></li>
+      <li><a href="#history">更新履歴</a></li>
+    </ol>
+  </nav>
+
+  <section id="home">
+    <h2>ホーム</h2>
+    <p class="what">ログインすると最初に出る画面です。使うツールをここから選びます。</p>
+    <h3>押す順番</h3>
+    <ol class="steps">
+      <li>商談で使うときは「光熱費まるごと比較ナビ」を選ぶ</li>
+      <li>発電の流れを見せたいときは「太陽光の仕組み体感ツール」を選ぶ</li>
+      <li>打ち合わせの準備は「提案パターン・ラボ」</li>
+      <li>管理者だけ「取引先管理」が出ます</li>
+      <li>終わったら一番下の「ログアウト」</li>
+    </ol>
+    <h3>困ったとき</h3>
+    <table><tr><th>「取引先管理」が出ない</th><td>管理者の権限がある人にだけ出ます。必要なら管理者に頼んでください。</td></tr>
+    <tr><th>すぐログイン画面に戻される</th><td>ログインの期限が切れています。もう一度ログインしてください。</td></tr></table>
+  </section>
+
+  <section id="login">
+    <h2>ログイン</h2>
+    <p class="what">メールアドレスとパスワードで入ります。</p>
+    <h3>押す順番</h3>
+    <ol class="steps">
+      <li>メールアドレスとパスワードを入れる</li>
+      <li><span class="b">ログイン</span> を押す</li>
+    </ol>
+    <h3>パスワードを忘れたとき</h3>
+    <ol class="steps">
+      <li><span class="b">パスワードを忘れた方</span> を押す</li>
+      <li>登録メールアドレスを入れて <span class="b">再設定メールを送る</span> を押す</li>
+      <li>届いたメールから新しいパスワードを決める。入力画面に戻るときは <span class="b">ログインに戻る</span></li>
+    </ol>
+    <h3>困ったとき</h3>
+    <table><tr><th>メールが届かない</th><td>迷惑メールのフォルダを確認してください。それでも無いときは管理者に連絡してください。</td></tr></table>
+  </section>
+
+  <section id="navi-input">
+    <h2>光熱費まるごと比較ナビ ① 条件入力</h2>
+    <p class="what">お客様の暮らしを入れると、新築後の光熱費（電気ガス併用とオール電化）を試算します。営業がお客様の前で使う画面です。</p>
+    <h3>押す順番</h3>
+    <ol class="steps">
+      <li>工務店名・担当者名・案件名 / お客様名を入れる（どの案件の試算かが記録されます）</li>
+      <li>家族人数・居住エリア・日中の在宅時間を選ぶ（新築後の電気代・ガス代が自動で入ります。実態に近ければそのままで大丈夫です）</li>
+      <li>現在の月間ガス代など、わかる所を直す</li>
+      <li><span class="b">オール電化にしたらいくら？を見る</span> を押す</li>
+    </ol>
+    <h3>困ったとき</h3>
+    <table><tr><th>先に進めない</th><td>赤い文字が出ている項目を入れてください（工務店名・担当者名・案件名・家族人数・エリア・金額）。</td></tr>
+    <tr><th>今の家より高く出る</th><td>新築で家が広くなる分です。画面の「なぜ今より高い？」で説明できます。</td></tr></table>
+  </section>
+
+  <section id="navi-elec">
+    <h2>光熱費まるごと比較ナビ ② オール電化なら？</h2>
+    <p class="what">電気ガス併用とオール電化の月額光熱費を並べ、オール電化で月いくら変わるかを見せます。</p>
+    <h3>押す順番</h3>
+    <ol class="steps">
+      <li>上の大きな数字（月いくら変わるか）と内訳を説明する</li>
+      <li>発電の流れを見せたいときは <span class="b">太陽光の仕組みをインタラクティブに体感する</span>（別の画面で体感ツールが開きます）</li>
+      <li><span class="b">仕組みはわかった！導入方法を比較する</span> を押して ③ へ</li>
+      <li>入力を直すときは <span class="b">入力に戻る</span></li>
+    </ol>
+    <h3>困ったとき</h3>
+    <table><tr><th>お客様に理由を聞かれた</th><td>画面下の「なぜオール電化は安くなるの？」（エコキュートの省エネ性・基本料金の一本化・夜間電力・暮らしの安心）を使ってください。</td></tr></table>
+  </section>
+
+  <section id="navi-solar">
+    <h2>光熱費まるごと比較ナビ ③ さらに太陽光なら？</h2>
+    <p class="what">太陽光を「リース」「購入」「建て得（PPA）」で入れたとき、30年でどれだけ得かを比べます。</p>
+    <h3>押す順番</h3>
+    <ol class="steps">
+      <li>上のタブ <span class="b">リース</span> <span class="b">購入</span> <span class="b">建て得</span> を切り替えて、それぞれの30年の得と月々のイメージを見せる</li>
+      <li>購入は工務店ごとの kW単価（税抜）で計算します。初期費用は税込で出ます</li>
+      <li>正確な金額を出したいお客様には <span class="b">具体的なシミュレーション試算はこちら（無料）</span> を押し、下の「お客様用 導入診断」に進む</li>
+      <li>② に戻るときは <span class="b">オール電化の比較に戻る</span></li>
+    </ol>
+    <h3>困ったとき</h3>
+    <table><tr><th>数字が実際の見積と違う</th><td>標準的な屋根条件での概算です。屋根の向き・面積・地域で変わります。詳細シミュレーションで確認してください。</td></tr>
+    <tr><th>リース料の金額</th><td>月額・税抜で表示しています。</td></tr></table>
+  </section>
+
+  <section id="customer">
+    <h2>お客様用 導入診断（STEP1〜6）</h2>
+    <p class="what">お客様ご自身でも使える試算の画面です。比較ナビの ③ から進んだ場合は、入力済みの内容が引き継がれます。下の <span class="b">次へ</span> で進み、<span class="b">←</span> で1つ戻ります。</p>
+    <div class="tbl-scroll"><table>
+      <tr><th>STEP1 電気代</th><td>電力会社のプランと毎月の電気使用量を選ぶ。使用量がわからないときは <span class="b">目安を見る</span>。</td></tr>
+      <tr><th>STEP2 プラン</th><td>リースの容量（月額・税抜）と、PPAを選ぶ。PPAは <span class="b">建て得（LIXIL）</span> と <span class="b">その他のPPA</span> で切り替え。</td></tr>
+      <tr><th>STEP3 オプション</th><td>エコキュートの設定（ソーラーモード／おひさまECO）と年間の使用量を選ぶ。</td></tr>
+      <tr><th>STEP4 試算結果</th><td>リース・PPA・購入の30年の合計を並べて見せる。<span class="b">まとめへ</span> で次へ。</td></tr>
+      <tr><th>STEP5 まとめ</th><td>数字以外でリースが選ばれる理由を見せる。<span class="b">お問い合わせへ</span> で次へ。</td></tr>
+      <tr><th>STEP6 お問い合わせ</th><td>お名前・電話番号（必須）などを入れて <span class="b">問い合わせを送る</span>。送ると担当者から連絡します。</td></tr>
+    </table></div>
+    <h3>困ったとき</h3>
+    <table><tr><th>使用量の注意が出る</th><td>一般的な世帯より少ない使用量です。入力に間違いがないか確かめてください。合っていればそのまま進めます。</td></tr>
+    <tr><th>比較ナビから進むと STEP5 が無い</th><td>選んだ比べ方によっては STEP4 から <span class="b">お問い合わせへ</span> に直接進みます。</td></tr></table>
+  </section>
+
+  <section id="flow">
+    <h2>太陽光の仕組み体感ツール</h2>
+    <p class="what">発電・家で使う電気・売電・買電の流れを、1日の時間に沿って動かして見せます。体験用の概算で、試算結果の数字とは別物です。</p>
+    <h3>押す順番</h3>
+    <ol class="steps">
+      <li>容量（6kW／8kW／12kW）と天気（晴れ／くもり）を選ぶ</li>
+      <li>時刻のつまみを左右に動かす。<span class="b">再生</span> で1日が自動で進み、<span class="b">一時停止</span> で止まる</li>
+      <li>家の中の家電（エアコン・IH調理・テレビ・EV充電・エコキュート）を押すと、使う電気が増えたり減ったりする</li>
+    </ol>
+    <h3>困ったとき</h3>
+    <table><tr><th>売電の金額を聞かれた</th><td>この画面の売電単価は説明用の仮の値です。金額は比較ナビの ③ で見せてください。</td></tr></table>
+  </section>
+
+  <section id="lab">
+    <h2>提案パターン・ラボ</h2>
+    <p class="what">お客様のエネルギー方針と、重視している価値観を選ぶと、見せ方・言い回し・想定される反応と切り返しが出ます。社内の打ち合わせ準備用で、保存や試算はしません。</p>
+    <h3>押す順番</h3>
+    <ol class="steps">
+      <li>① お客様のエネルギー方針を選ぶ</li>
+      <li>② 重視している価値観を選ぶ</li>
+      <li>下に出る流れ・キーメッセージ・トークスクリプトを確認する</li>
+      <li>選び直すときは <span class="b">選択をリセット</span></li>
+    </ol>
+  </section>
+
+  <section id="admin">
+    <h2>取引先管理（管理者のみ）</h2>
+    <p class="what">工務店の登録と、対応する契約方式・PPAサービス・単価の設定をします。</p>
+    <h3>押す順番</h3>
+    <ol class="steps">
+      <li>新しく登録するときは、工務店名などを入れて <span class="b">この内容で登録</span></li>
+      <li>直すときは一覧の行の <span class="b">編集</span> を押し、リース料（円/kW・月額・税抜）や購入kW単価（税抜）を直して <span class="b">保存する</span></li>
+    </ol>
+    <h3>困ったとき</h3>
+    <table><tr><th>画面が開けない</th><td>管理者の権限がない場合は開けません。</td></tr></table>
+  </section>
+
+  <section id="common">
+    <h2>どの画面でも共通</h2>
+    <table>
+      <tr><th>見た目の切り替え</th><td>画面の隅の <span class="b">暗め</span> <span class="b">クリーン</span> で切り替えます。数字は変わりません。</td></tr>
+      <tr><th>金額の書き方</th><td>マイナスは「−」で表します。リース料と kW単価は税抜、購入の初期費用は税込です。</td></tr>
+      <tr><th>終わるとき</th><td>ホームの「ログアウト」、または比較ナビ右上の「ログアウト」。</td></tr>
+    </table>
+  </section>
+
+  <section id="history">
+    <h2>更新履歴</h2>
+    <table>
+      <tr><th>2026-10-05 v1.0</th><td>使い方ページを作成。絵文字をやめ、金額のマイナス表記と税抜・税込の書き方をそろえた。ボタン名を「問い合わせを送る」「再設定メールを送る」に変更。</td></tr>
+    </table>
+  </section>
+</div>
+</body>
+</html>

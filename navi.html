@@ -493,6 +493,7 @@ optgroup { font-weight: 700; }
     <div class="hdr-s" id="userInfo" style="display:none">
       <span id="userCompany"></span> / <span id="userName"></span>
     </div>
+    <a href="help" target="_blank" rel="noopener" style="padding:4px 10px;font-size:11px;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.3);border-radius:12px;white-space:nowrap">使い方</a>
     <button id="btnLogout" onclick="doLogout()"
       style="display:none;padding:4px 10px;font-size:11px;
              background:rgba(255,255,255,.15);color:#fff;
@@ -752,13 +753,13 @@ optgroup { font-weight: 700; }
           <div class="nv-sub">購入価格の設定（工務店専用）</div>
           <div class="nv-set-row">
             <input type="number" id="buyKwInput" placeholder="300000" min="100000" max="600000" step="10000" oninput="onBuyKwChange()">
-            <span>円 / kW（税別）</span>
+            <span>円 / kW（税抜）</span>
           </div>
           <div class="nv-note">工務店側で設定。8kWの場合の総額（税込）が自動計算されます。</div>
         </div>
         <div class="nv-list">
           <div class="nv-sub">購入 月々のイメージ（初年度・概算）</div>
-          <div class="sim-line"><span>kW単価（税別）</span><span id="buyCostKw" style="font-weight:700">—</span></div>
+          <div class="sim-line"><span>kW単価（税抜）</span><span id="buyCostKw" style="font-weight:700">—</span></div>
           <div class="sim-line"><span>初期費用（8kW・税込）</span><span id="buyCost" style="font-weight:700;color:#B91C1C">—</span></div>
           <div class="sim-line"><span>自家消費による削減</span><span id="buyL2" style="font-weight:700;color:#15803D">—</span></div>
           <div class="sim-line"><span>余剰電力の売電収入</span><span id="buyL3" style="font-weight:700;color:#15803D">—</span></div>
@@ -994,11 +995,11 @@ optgroup { font-weight: 700; }
         <div class="card-title">エコキュートのタイプ</div>
         <div class="sel-group col2" id="ecoModeGroup">
           <button class="sel-btn" id="ecoBtn_solar" onclick="selectEcoMode('solar',this)">
-            <div class="sb-main">☀️ ソーラーモード</div>
+            <div class="sb-main">ソーラーモード</div>
             <div class="sb-sub">一般的なエコキュート</div>
           </button>
           <button class="sel-btn selected" id="ecoBtn_ohisama" onclick="selectEcoMode('ohisama',this)">
-            <div class="sb-main">🌟 おひさまECO</div>
+            <div class="sb-main">おひさまECO</div>
             <div class="sb-sub">専用機種（推奨）</div>
           </button>
         </div>
@@ -1119,15 +1120,15 @@ optgroup { font-weight: 700; }
         <div class="nudge-row">
           <div class="nudge-cell lease">
             <div class="nudge-cell-label">SBIリース（Q.READY）</div>
-            <div class="nudge-item"><span class="ico-ok">✓</span><span><strong>全負荷型・1台</strong>で家中すべてのコンセント・照明が使える</span></div>
-            <div class="nudge-item"><span class="ico-ok">✓</span><span>最大 <strong>5.9kW</strong> まで使用可能</span></div>
-            <div class="nudge-item"><span class="ico-ok">✓</span><span>パワコン交換費用 <strong>20万円/回</strong>（1台）</span></div>
+            <div class="nudge-item"><span class="ico-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span><span><strong>全負荷型・1台</strong>で家中すべてのコンセント・照明が使える</span></div>
+            <div class="nudge-item"><span class="ico-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span><span>最大 <strong>5.9kW</strong> まで使用可能</span></div>
+            <div class="nudge-item"><span class="ico-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span><span>パワコン交換費用 <strong>20万円/回</strong>（1台）</span></div>
           </div>
           <div class="nudge-cell ppa">
             <div class="nudge-cell-label" id="nudgePpaLabel1">建て得</div>
-            <div class="nudge-item"><span class="ico-ng">✗</span><span><strong>特定負荷型</strong>のため使えるのは一部の回路のみ</span></div>
-            <div class="nudge-item"><span class="ico-ng">✗</span><span>最大 <strong>1.5kW程度</strong> に制限</span></div>
-            <div class="nudge-item"><span class="ico-ng">✗</span><span>バリューはパワコン2台以上・<strong>40万円/回</strong></span></div>
+            <div class="nudge-item"><span class="ico-ng"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span><span><strong>特定負荷型</strong>のため使えるのは一部の回路のみ</span></div>
+            <div class="nudge-item"><span class="ico-ng"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span><span>最大 <strong>1.5kW程度</strong> に制限</span></div>
+            <div class="nudge-item"><span class="ico-ng"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span><span>バリューはパワコン2台以上・<strong>40万円/回</strong></span></div>
           </div>
         </div>
         <div style="padding:10px 14px;font-size:11px;color:var(--gray-500);background:var(--gray-100)">
@@ -1143,15 +1144,15 @@ optgroup { font-weight: 700; }
         <div class="nudge-row">
           <div class="nudge-cell lease">
             <div class="nudge-cell-label">SBIリース</div>
-            <div class="nudge-item"><span class="ico-ok">✓</span><span>蓄電池・EVをいつでも<strong>自由に後付け</strong>できる</span></div>
-            <div class="nudge-item"><span class="ico-ok">✓</span><span>V2H（電気自動車から給電）にも対応</span></div>
-            <div class="nudge-item"><span class="ico-ok">✓</span><span>メーカー・建材の縛りなし</span></div>
+            <div class="nudge-item"><span class="ico-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span><span>蓄電池・EVをいつでも<strong>自由に後付け</strong>できる</span></div>
+            <div class="nudge-item"><span class="ico-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span><span>V2H（電気自動車から給電）にも対応</span></div>
+            <div class="nudge-item"><span class="ico-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span><span>メーカー・建材の縛りなし</span></div>
           </div>
           <div class="nudge-cell ppa">
             <div class="nudge-cell-label" id="nudgePpaLabel2">建て得</div>
-            <div class="nudge-item"><span class="ico-ng">✗</span><span>契約15年間は<strong>蓄電池の後付けが不可</strong></span></div>
-            <div class="nudge-item"><span class="ico-ng">✗</span><span>EV・V2Hも制限あり</span></div>
-            <div class="nudge-item"><span class="ico-ng">✗</span><span>建材・設備が<strong>LIXIL製に限定</strong></span></div>
+            <div class="nudge-item"><span class="ico-ng"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span><span>契約15年間は<strong>蓄電池の後付けが不可</strong></span></div>
+            <div class="nudge-item"><span class="ico-ng"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span><span>EV・V2Hも制限あり</span></div>
+            <div class="nudge-item"><span class="ico-ng"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span><span>建材・設備が<strong>LIXIL製に限定</strong></span></div>
           </div>
         </div>
       </div>
@@ -1164,14 +1165,14 @@ optgroup { font-weight: 700; }
         <div class="nudge-row">
           <div class="nudge-cell lease">
             <div class="nudge-cell-label">SBIリース</div>
-            <div class="nudge-item"><span class="ico-ok">✓</span><span>FIT売電収入が<strong>初日から全額</strong>お客様へ</span></div>
-            <div class="nudge-item"><span class="ico-ok">✓</span><span>リース終了後は売電・節電を<strong>完全独占</strong></span></div>
-            <div class="nudge-item"><span class="ico-ok">✓</span><span>モジュール出力保証 <strong>30年</strong></span></div>
+            <div class="nudge-item"><span class="ico-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span><span>FIT売電収入が<strong>初日から全額</strong>お客様へ</span></div>
+            <div class="nudge-item"><span class="ico-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span><span>リース終了後は売電・節電を<strong>完全独占</strong></span></div>
+            <div class="nudge-item"><span class="ico-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span><span>モジュール出力保証 <strong>30年</strong></span></div>
           </div>
           <div class="nudge-cell ppa">
             <div class="nudge-cell-label" id="nudgePpaLabel3">建て得</div>
-            <div class="nudge-item"><span class="ico-ng">✗</span><span>15年間の売電収入は<strong>すべて事業者側</strong>へ</span></div>
-            <div class="nudge-item"><span class="ico-ng">✗</span><span>お客様には売電収入が入りません</span></div>
+            <div class="nudge-item"><span class="ico-ng"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span><span>15年間の売電収入は<strong>すべて事業者側</strong>へ</span></div>
+            <div class="nudge-item"><span class="ico-ng"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span><span>お客様には売電収入が入りません</span></div>
             <div class="nudge-item"><span class="ico-tri">△</span><span>15年後の譲渡後はお客様のものになります</span></div>
           </div>
         </div>
@@ -1180,21 +1181,21 @@ optgroup { font-weight: 700; }
 
     <!-- エコキュートの差別化 -->
     <div class="eco-nudge">
-      <h4>☀️ エコキュートの昼間沸き上げで電気代をさらに削減</h4>
+      <h4>エコキュートの昼間沸き上げで電気代をさらに削減</h4>
       <p style="font-size:12px;color:var(--gray-700);margin-bottom:10px;line-height:1.6">
         太陽光の電力でお湯を沸かす「昼間沸き上げ」を活用すると、夜間の買電が減り電気代削減効果がさらに高まります。<strong>この機能を使えるかどうかが、リースと建て得の大きな差別化ポイントです。</strong>
       </p>
       <div class="eco-nudge-grid">
         <div class="eco-side lease">
           <div class="eco-name">SBIリース</div>
-          <div class="nudge-item"><span class="ico-ok">✓</span><span>制限なく<strong>自由に活用可能</strong></span></div>
-          <div class="nudge-item"><span class="ico-ok">✓</span><span><strong>ソーラーモード</strong>（追加費用なし）</span></div>
-          <div class="nudge-item"><span class="ico-ok">✓</span><span><strong>おひさまECO</strong>（専用機種・最大効果）</span></div>
+          <div class="nudge-item"><span class="ico-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span><span>制限なく<strong>自由に活用可能</strong></span></div>
+          <div class="nudge-item"><span class="ico-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span><span><strong>ソーラーモード</strong>（追加費用なし）</span></div>
+          <div class="nudge-item"><span class="ico-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span><span><strong>おひさまECO</strong>（専用機種・最大効果）</span></div>
         </div>
         <div class="eco-side ppa">
           <div class="eco-name" id="ecoNudgePpaName">建て得</div>
-          <div class="nudge-item"><span class="ico-ng">✗</span><span><strong>原則使用・設置不可</strong>（契約条件）</span></div>
-          <div class="nudge-item"><span class="ico-ng">✗</span><span>違反は契約解除・違約金の対象</span></div>
+          <div class="nudge-item"><span class="ico-ng"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span><span><strong>原則使用・設置不可</strong>（契約条件）</span></div>
+          <div class="nudge-item"><span class="ico-ng"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span><span>違反は契約解除・違約金の対象</span></div>
           <div class="nudge-item"><span class="ico-tri">△</span><span>19.8万円のオプションで利用可</span></div>
         </div>
       </div>
@@ -1231,7 +1232,7 @@ optgroup { font-weight: 700; }
       </div>
       <div class="card" style="background:var(--blue-light);border:1.5px solid var(--blue)">
         <div style="font-size:12px;color:var(--blue);line-height:1.7">
-          ✉️ 送信後、担当者よりご連絡差し上げます。<br>
+          送信後、担当者よりご連絡差し上げます。<br>
           いただいた情報は詳細シミュレーション作成のみに使用します。
         </div>
       </div>
@@ -1239,7 +1240,7 @@ optgroup { font-weight: 700; }
     </div>
 
     <div class="form-sent" id="formSent">
-      <div class="sent-icon">✅</div>
+      <div class="sent-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg></div>
       <h3>送信が完了しました</h3>
       <p>内容を受け付けました。<br>担当者より改めてご連絡いたします。</p>
     </div>
@@ -1373,7 +1374,7 @@ var CFG = null;
    ユーティリティ
 ================================================================ */
 function $id(x){ return document.getElementById(x); }
-function fy(n){ return '\u00A5' + Math.round(n).toLocaleString('ja-JP'); }
+function fy(n){ const v=Math.round(n); return (v<0?'−':'') + '\u00A5' + Math.abs(v).toLocaleString('ja-JP'); }
 function fman(n){ return Math.round(Math.abs(n)/10000).toLocaleString('ja-JP'); }
 function fmd(n){ return fman(n) + '\u4E07\u5186'; }
 function goScreen(id){
@@ -1506,7 +1507,7 @@ function renderResult(){
     $id('nowCompare').style.display = 'none';
   }
 
-  $id('heroNum').textContent = (d>=0 ? '-' : '+') + Math.abs(Math.round(d)).toLocaleString('ja-JP');
+  $id('heroNum').textContent = (d>=0 ? '−' : '+') + Math.abs(Math.round(d)).toLocaleString('ja-JP');
   if(d>=0){
     $id('heroSub').textContent  = '\u65B0\u7BC9\u30FB\u96FB\u6C17\u30AC\u30B9\u4F75\u7528 '+fy(r.combined)+'/\u6708 \u2192 \u65B0\u7BC9\u30FB\u30AA\u30FC\u30EB\u96FB\u5316 '+fy(r.allElec)+'/\u6708';
     $id('heroBadge').textContent = '\u5E74\u9593 '+fmd(d*12)+' \u306E\u7BC0\u7D04\u304C\u898B\u8FBC\u3081\u307E\u3059';
@@ -1692,7 +1693,7 @@ function renderSolar(){
   document.getElementById('lsL1').textContent = fy(r.allElec);
   document.getElementById('lsL2').textContent = '−'+fy(ls.saveM)+'（自家消費＋エコシフト）';
   document.getElementById('lsL3').textContent = '−'+fy(ls.sellM)+'（余剰売電）';
-  document.getElementById('lsL4').textContent = '+¥'+ls.monthly.toLocaleString()+'/月（税別）';
+  document.getElementById('lsL4').textContent = '+¥'+ls.monthly.toLocaleString()+'/月（税抜）';
   document.getElementById('lsL5').textContent = fy(ls.netM);
   /* 参考：30年メリットを月割り（テスラ方式） */
   var lsMonthlyMeritEl = document.getElementById('leaseMonthlyMerit');
@@ -1728,7 +1729,7 @@ function renderSolar(){
   document.getElementById('buyHeroNum').textContent   = bMerit;
   document.getElementById('buyHeroBadge').textContent = '初期費用回収後に最大リターン';
   var kwEl = document.getElementById('buyCostKw');
-  if(kwEl) kwEl.textContent = fy(bu.pricePerKw)+'/kW（税別）';
+  if(kwEl) kwEl.textContent = fy(bu.pricePerKw)+'/kW（税抜）';
   document.getElementById('buyCost').textContent = fy(bu.initCost)
     +'（'+Math.round(bu.initCost/10000)+'万円・税込）';
   document.getElementById('buyL2').textContent = '−'+fy(bu.saveM)+'（自家消費削減）';
@@ -1768,7 +1769,7 @@ function renderBreakdown(s, pp){
   var bd = s.breakdown;
   if(!bd) return;
 
-  var fmt    = function(n){ return (n>=0?'+':'')+(n/10000).toFixed(1)+'万円'; };
+  var fmt    = function(n){ return (n>=0?'+':'−')+Math.abs(n/10000).toFixed(1)+'万円'; };
   var fmtAbs = function(n){ return Math.abs(n/10000).toFixed(1)+'万円'; };
 
   document.getElementById('brkPpaHeader').textContent = pp.name;
@@ -2070,10 +2071,10 @@ function goToCustomer() {
   var banner = document.getElementById('naviHandoffBanner');
   if (banner && r) {
     banner.innerHTML =
-      '<strong>✅ 比較ナビから引き継ぎました<\/strong><br>' +
+      '<strong>比較ナビから引き継ぎました<\/strong><br>' +
       '月間使用量: ' + s.monthlyKwh + ' kWh　' +
       '電力会社: ' + r.utilName + '　' +
-      'オール電化で月 ' + (r.diff1>=0?'-':'+') + Math.abs(Math.round(r.diff1)).toLocaleString() + '円節約';
+      'オール電化で月 ' + (r.diff1>=0?'−':'+') + Math.abs(Math.round(r.diff1)).toLocaleString() + '円節約';
     banner.style.display = '';
   }
 
@@ -2113,7 +2114,7 @@ function buildUtilSelect() {
   const manualKey = [['manual', UTIL_DATA.manual]];
 
   const grpEv  = document.createElement('optgroup');
-  grpEv.label  = '⚡ オール電化プラン（推奨）';
+  grpEv.label  = 'オール電化プラン（推奨）';
   evKeys.forEach(([k,d]) => {
     const o = document.createElement('option');
     o.value = k;
@@ -2123,7 +2124,7 @@ function buildUtilSelect() {
   });
 
   const grpStd  = document.createElement('optgroup');
-  grpStd.label  = '📋 従量電灯プラン';
+  grpStd.label  = '従量電灯プラン';
   stdKeys.forEach(([k,d]) => {
     const o = document.createElement('option');
     o.value = k;
@@ -2167,10 +2168,10 @@ function onKwhInput() {
   state.monthlyKwh = kwh;
   const warn = document.getElementById('kwhWarning');
   if (kwh < 300) {
-    warn.textContent = '⚠️ 300kWh未満は一般的なオール電化世帯より低い使用量です。入力値をご確認ください。';
+    warn.textContent = '300kWh未満は一般的なオール電化世帯より低い使用量です。入力値をご確認ください。';
     warn.style.display = '';
   } else if (kwh < 500) {
-    warn.textContent = 'ℹ️ 500kWh未満：2人世帯や省エネ設備充実の場合は適正なこともあります。';
+    warn.textContent = '500kWh未満：2人世帯や省エネ設備充実の場合は適正なこともあります。';
     warn.style.display = '';
     warn.style.color = '#92400E';
   } else {
@@ -2521,7 +2522,7 @@ function cRenderResult(r, effUnit) {
 
   // 内訳
   document.getElementById('brkPpaHeader').textContent = r.ppaPlan.name;
-  const fmt    = n => (n >= 0 ? '+' : '') + (n / 10000).toFixed(1) + '万円';
+  const fmt    = n => (n >= 0 ? '+' : '−') + Math.abs(n / 10000).toFixed(1) + '万円';
   const fmtAbs = n => Math.abs(n / 10000).toFixed(1) + '万円';
   const rows = [
     ['電気代節約（30年）',      fmt(r.lSvTotal),    fmt(r.pSvTotal)],
@@ -2548,7 +2549,7 @@ function cRenderResult(r, effUnit) {
     `実効単価：${effUnit.toFixed(2)}円/kWh　月間使用量：${state.monthlyKwh} kWh<br>` +
     `SBIリース：${r.leasePlan.cap}kW・月額${r.leasePlan.monthly.toLocaleString()}円（税抜）・10年<br>` +
     `${r.ppaPlan.name}：${r.ppaCap}kW・初期費用${(r.pInitCost/10000).toFixed(1)}万円・${r.ppaPlan.term}年<br>` +
-    `購入：${bp.cap}kW・初期費用${(bp.initCost/10000).toFixed(1)}万円（税込・kW単価${bp.buyPricePerKw.toLocaleString()}円）・売電 1〜4年目24円／5〜10年目8.3円／11年目〜7.15円<br>` +
+    `購入：${bp.cap}kW・初期費用${(bp.initCost/10000).toFixed(1)}万円（税込。kW単価は${bp.buyPricePerKw.toLocaleString()}円・税抜）・売電 1〜4年目24円／5〜10年目8.3円／11年目〜7.15円<br>` +
     `エコキュート：${state.hasEco
       ? (state.ecoMode === 'ohisama' ? 'おひさまECO' : 'ソーラーモード') + `（年${state.ecoKwh}kWh）`
       : 'なし'}　電気代上昇率：年2%（固定）`;
@@ -2820,8 +2821,8 @@ function cUpdateNavButtons() {
   btnBack.style.display = state.cstep > 1 ? '' : 'none';
   const step4Mode = getStep4Mode();
   const labels = (step4Mode !== 'both')
-    ? { 4:'お問い合わせへ →', 6:'送信する ✉️' }
-    : { 4:'まとめへ →', 5:'お問い合わせへ →', 6:'送信する ✉️' };
+    ? { 4:'お問い合わせへ →', 6:'問い合わせを送る' }
+    : { 4:'まとめへ →', 5:'お問い合わせへ →', 6:'問い合わせを送る' };
   btnNext.textContent = labels[state.cstep] || '次へ →';
 }
 
