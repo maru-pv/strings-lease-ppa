@@ -420,6 +420,8 @@ h1 { color: var(--lk-e9edf1) !important; letter-spacing: 0.02em; }
 #step4 .breakdown-table tr:last-child td:nth-child(2) { border-radius: 0 0 14px 0; }
 #step4 .breakdown-table .val-blue { color: var(--lk-ffb547) !important; }
 #step4 .breakdown-table .val-orange { color: var(--lk-c3c9d0) !important; }
+#step4 .breakdown-table td:nth-child(2), #step4 .breakdown-table td:nth-child(4) { white-space: nowrap; }
+@media (max-width: 600px) { #step4 .breakdown-table th, #step4 .breakdown-table td { padding-inline: 6px; } #step4 .breakdown-table td { font-size: 12px; } #step4 .breakdown-table tr:last-child td { font-size: 14px; } }
 
 /* 試算条件：閉じておく */
 #step4 .r4-cond { border-top: 1px solid var(--lk-1d242c); border-bottom: 1px solid var(--lk-1d242c); }
