@@ -609,8 +609,8 @@ optgroup { font-weight: 700; }
         </div>
 
         <div class="r4-compare">
-          <h3>2つの方法を並べると</h3>
-          <p class="r4-note">30年の合計に加えて、「いつ・誰に」お金が入るかも比べてください</p>
+          <h3>3つの方法を並べると</h3>
+          <p class="r4-note">SBIリース・PPA・購入の30年の合計に加えて、「いつ・誰に」お金が入るかも比べてください</p>
           <div class="compare-row">
             <div class="compare-card winner" id="resLeaseCard">
               <div class="winner-badge" id="resLeaseBadge">おすすめ</div>
@@ -633,6 +633,7 @@ optgroup { font-weight: 700; }
                   <th>項目</th>
             <th style="text-align:right">SBIリース</th>
             <th style="text-align:right" id="brkPpaHeader">PPA</th>
+            <th style="text-align:right" class="brk-buy-col">購入</th>
                 </tr>
               </thead>
               <tbody id="breakdownBody"></tbody>
@@ -1061,8 +1062,41 @@ function calcSpend30(r, effUnit, ecoParams) {
   return { nsArr, lsArr, ppArr, nsCum, lsCum, ppaCum, pInitCost: r.pInitCost };
 }
 
+// ===== 購入（自己所有）の30年支出：calcSpend30 のリースと同じ前提で、リース料なし・初期費用あり =====
+function calcBuy30(r, effUnit, ecoParams, buyPricePerKw) {
+  const _ecoMode = ecoParams?.ecoMode || 'none';
+  const _ecoKwh  = ecoParams?.ecoKwh  || 0;
+  const cap  = r.leasePlan.cap;
+  const lscR = calcAutoSC(cap > 0 ? state.monthlyKwh : 600, cap);
+  const ecoOn      = _ecoMode !== 'none';
+  const ECO_SHIFT_RATES = { none:0.00, solar:0.40, ohisama:0.70 };
+  const shiftedKwh = _ecoKwh * (ecoOn ? (ECO_SHIFT_RATES[_ecoMode] || 0) : 0);
+  const initCost = Math.round(cap * buyPricePerKw * 1.10); // 税込
+  let nsCum=0, buyCum=initCost, svTotal=0, slTotal=0, pconTotal=0;
+  const buyArr=[];
+  for (let y = 1; y <= 30; y++) {
+    const pm  = Math.pow(1.02, y - 1);
+    const eu  = effUnit * pm;
+    const gen = cap * 1000 * Math.pow(0.995, y - 1);
+    nsCum += state.monthlyKwh * eu * 12;
+    const fit = y<=4 ? 24 : y<=10 ? 8.3 : 7.15; // 購入はFIT10年
+    const ecoShiftEff = ecoOn && (fit < eu);
+    const shiftRatio  = (gen > 0 && ecoShiftEff) ? Math.min(shiftedKwh / gen, 1 - lscR) : 0;
+    const scEco = lscR + shiftRatio;
+    const sv = gen * scEco * eu;
+    const sl = gen * (1 - scEco) * fit;
+    const pc = (y===15||y===30) ? 200000 : 0;
+    svTotal += sv; slTotal += sl; pconTotal += pc;
+    buyCum += state.monthlyKwh * eu * 12 - sv - sl + pc;
+    buyArr.push(Math.round(buyCum));
+  }
+  return { buyArr, buyCum, nsCum, initCost, svTotal, slTotal, pconTotal, cum30: nsCum - buyCum, cap, buyPricePerKw };
+}
+function getBuyPricePerKw() { return 300000 /* お客様用ページには工務店設定がないため既定値 */; }
+
 function renderResult(r, effUnit) {
   const sp = calcSpend30(r, effUnit, { ecoMode: state.hasEco ? state.ecoMode : 'none', ecoKwh: state.ecoKwh });
+  const bp = calcBuy30(r, effUnit, { ecoMode: state.hasEco ? state.ecoMode : 'none', ecoKwh: state.ecoKwh }, getBuyPricePerKw());
   const { nsCum: nsCum30, lsCum: lsCum30, ppaCum: ppaCum30 } = sp;
   // 節約額（対 太陽光なし）
   const lSaving  = nsCum30 - lsCum30;
@@ -1108,8 +1142,10 @@ function renderResult(r, effUnit) {
       `<strong class="val-blue">${fmt(r.lCum30)}</strong>`,
       `<strong class="val-orange">${fmt(r.pCum30)}</strong>`],
   ];
-  document.getElementById('breakdownBody').innerHTML = rows.map(([l,a,b]) =>
-    `<tr><td>${l}</td><td style="text-align:right">${a}</td><td style="text-align:right">${b}</td></tr>`
+  const buyCol = [fmt(bp.svTotal), `<span style="font-size:10px;color:#B91C1C;display:block;margin-bottom:2px">1年目〜30年目</span>${fmt(bp.slTotal)}`, '—', fmt(-bp.pconTotal), fmt(-bp.initCost), `<strong>${fmt(bp.cum30)}</strong>`];
+  rows.forEach((row, i) => row.push(buyCol[i]));
+  document.getElementById('breakdownBody').innerHTML = rows.map(([l,a,b,c]) =>
+    `<tr><td>${l}</td><td style="text-align:right">${a}</td><td style="text-align:right">${b}</td><td class="brk-buy-col" style="text-align:right">${c}</td></tr>`
   ).join('');
 
   // 試算条件
@@ -1118,6 +1154,7 @@ function renderResult(r, effUnit) {
     `実効単価：${effUnit.toFixed(2)}円/kWh　月間使用量：${state.monthlyKwh} kWh<br>` +
     `SBIリース：${r.leasePlan.cap}kW・月額${r.leasePlan.monthly.toLocaleString()}円（税抜）・10年<br>` +
     `${r.ppaPlan.name}：${r.ppaCap}kW・初期費用${(r.pInitCost/10000).toFixed(1)}万円・${r.ppaPlan.term}年<br>` +
+    `購入：${bp.cap}kW・初期費用${(bp.initCost/10000).toFixed(1)}万円（税込・kW単価${bp.buyPricePerKw.toLocaleString()}円）・売電 1〜4年目24円／5〜10年目8.3円／11年目〜7.15円<br>` +
     `エコキュート：${state.hasEco
       ? (state.ecoMode === 'ohisama' ? 'おひさまECO' : 'ソーラーモード') + `（年${state.ecoKwh}kWh）`
       : 'なし'}　電気代上昇率：年2%（固定）`;
@@ -1134,6 +1171,7 @@ function renderChart(r) {
   const noSolarSpendArr = sp.nsArr;
   const leaseSpendArr   = sp.lsArr;
   const ppaSpendArr     = sp.ppArr;
+  const buySpendArr     = calcBuy30(r, eff, { ecoMode: state.hasEco ? state.ecoMode : 'none', ecoKwh: state.ecoKwh }, getBuyPricePerKw()).buyArr;
 
   // 30年終点ラベル用プラグイン
   const endLabelPlugin = {
@@ -1207,6 +1245,14 @@ function renderChart(r) {
           backgroundColor: 'rgba(195,201,208,0.04)',
           borderWidth: 2, pointRadius: 0, fill: false, tension: 0.3,
           borderDash: [5, 3],
+        },
+        {
+          label: '購入',
+          data: buySpendArr,
+          borderColor: '#8a949f',
+          backgroundColor: 'rgba(195,201,208,0.04)',
+          borderWidth: 2, pointRadius: 0, fill: false, tension: 0.3,
+          borderDash: [1, 4], borderCapStyle: 'round',
         }
       ]
     },
