@@ -831,7 +831,7 @@ function buildUtilSelect() {
   const manualKey = [['manual', UTIL_DATA.manual]];
 
   const grpEv  = document.createElement('optgroup');
-  grpEv.label  = '⚡ オール電化プラン（推奨）';
+  grpEv.label  = 'オール電化プラン（推奨）';
   evKeys.forEach(([k,d]) => {
     const o = document.createElement('option');
     o.value = k;
@@ -841,7 +841,7 @@ function buildUtilSelect() {
   });
 
   const grpStd  = document.createElement('optgroup');
-  grpStd.label  = '📋 従量電灯プラン';
+  grpStd.label  = '従量電灯プラン';
   stdKeys.forEach(([k,d]) => {
     const o = document.createElement('option');
     o.value = k;
@@ -885,10 +885,10 @@ function onKwhInput() {
   state.monthlyKwh = kwh;
   const warn = document.getElementById('kwhWarning');
   if (kwh < 300) {
-    warn.textContent = '⚠️ 300kWh未満は一般的なオール電化世帯より低い使用量です。入力値をご確認ください。';
+    warn.textContent = '300kWh未満は一般的なオール電化世帯より低い使用量です。入力値をご確認ください。';
     warn.style.display = '';
   } else if (kwh < 500) {
-    warn.textContent = 'ℹ️ 500kWh未満：2人世帯や省エネ設備充実の場合は適正なこともあります。';
+    warn.textContent = '500kWh未満：2人世帯や省エネ設備充実の場合は適正なこともあります。';
     warn.style.display = '';
     warn.style.color = '#92400E';
   } else {
@@ -1127,7 +1127,7 @@ function renderResult(r, effUnit) {
 
   // 内訳
   document.getElementById('brkPpaHeader').textContent = r.ppaPlan.name;
-  const fmt    = n => (n >= 0 ? '+' : '') + (n / 10000).toFixed(1) + '万円';
+  const fmt    = n => (n >= 0 ? '+' : '−') + Math.abs(n / 10000).toFixed(1) + '万円';
   const fmtAbs = n => Math.abs(n / 10000).toFixed(1) + '万円';
   const rows = [
     ['電気代節約（30年）',      fmt(r.lSvTotal),    fmt(r.pSvTotal)],
@@ -1154,7 +1154,7 @@ function renderResult(r, effUnit) {
     `実効単価：${effUnit.toFixed(2)}円/kWh　月間使用量：${state.monthlyKwh} kWh<br>` +
     `SBIリース：${r.leasePlan.cap}kW・月額${r.leasePlan.monthly.toLocaleString()}円（税抜）・10年<br>` +
     `${r.ppaPlan.name}：${r.ppaCap}kW・初期費用${(r.pInitCost/10000).toFixed(1)}万円・${r.ppaPlan.term}年<br>` +
-    `購入：${bp.cap}kW・初期費用${(bp.initCost/10000).toFixed(1)}万円（税込・kW単価${bp.buyPricePerKw.toLocaleString()}円）・売電 1〜4年目24円／5〜10年目8.3円／11年目〜7.15円<br>` +
+    `購入：${bp.cap}kW・初期費用${(bp.initCost/10000).toFixed(1)}万円（税込。kW単価は${bp.buyPricePerKw.toLocaleString()}円・税抜）・売電 1〜4年目24円／5〜10年目8.3円／11年目〜7.15円<br>` +
     `エコキュート：${state.hasEco
       ? (state.ecoMode === 'ohisama' ? 'おひさまECO' : 'ソーラーモード') + `（年${state.ecoKwh}kWh）`
       : 'なし'}　電気代上昇率：年2%（固定）`;
@@ -1371,7 +1371,7 @@ function updateNavButtons() {
   const btnBack = document.getElementById('btnBack');
   const btnNext = document.getElementById('btnNext');
   btnBack.style.display = state.step > 1 ? '' : 'none';
-  const labels = { 4:'まとめへ →', 5:'お問い合わせへ →', 6:'送信する' };
+  const labels = { 4:'まとめへ →', 5:'お問い合わせへ →', 6:'問い合わせを送る' };
   btnNext.textContent = labels[state.step] || '次へ →';
 }
 </script>

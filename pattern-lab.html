@@ -391,19 +391,19 @@ function render(){
   if(selA){
     html += `
       <div class="block">
-        <div class="block-ttl">🧭 最初に見せる流れ</div>
+        <div class="block-ttl">最初に見せる流れ</div>
         <div class="block-body">${selA.firstShow}</div>
       </div>
       <div class="block">
-        <div class="block-ttl">💬 伝えるべきキーメッセージ</div>
+        <div class="block-ttl">伝えるべきキーメッセージ</div>
         <div class="block-body"><strong>${selA.keyMsg}</strong></div>
       </div>
       <div class="block">
-        <div class="block-ttl">🚫 避けたい言い回し</div>
+        <div class="block-ttl">避けたい言い回し</div>
         <div class="block-body">${selA.avoid}</div>
       </div>
       <div class="block">
-        <div class="block-ttl">⚠️ 想定される先方（工務店様）の反応</div>
+        <div class="block-ttl">想定される先方（工務店様）の反応</div>
         <div class="pushback">${selA.pushback}</div>
         <div class="counter">${selA.counter}</div>
       </div>
@@ -413,15 +413,15 @@ function render(){
   if(selB){
     html += `
       <div class="block">
-        <div class="block-ttl">🎯 強調すべきポイント（②の価値観向け）</div>
+        <div class="block-ttl">強調すべきポイント（②の価値観向け）</div>
         <div class="block-body"><strong>${selB.emphasize}</strong></div>
       </div>
       <div class="block">
-        <div class="block-ttl">🔑 刺さりやすいキーワード</div>
+        <div class="block-ttl">刺さりやすいキーワード</div>
         <div class="block-body">${selB.keywords.map(k => `<span class="kw">${k}</span>`).join('')}</div>
       </div>
       <div class="block">
-        <div class="block-ttl">📊 一緒に見せると効果的な画面・数字</div>
+        <div class="block-ttl">一緒に見せると効果的な画面・数字</div>
         <div class="block-body">${selB.pairWith}</div>
       </div>
     `;
@@ -435,11 +435,11 @@ function render(){
     const s = buildScript(selA, selB);
     scriptBox.style.display = '';
     scriptBox.innerHTML = `
-      <div class="script-ttl">💰 このまま話せるトークスクリプト（サンプル世帯・概算）</div>
+      <div class="script-ttl">このまま話せるトークスクリプト（サンプル世帯・概算）</div>
       <div class="script-body">${s.body}</div>
       ${s.caveat ? `<div class="script-caveat">${s.caveat}</div>` : ''}
-      <div class="script-show">📺 見せ方：<b>${s.showHint}</b></div>
-      <div class="script-cta">👉 クロージング一言：${s.cta}</div>
+      <div class="script-show">見せ方：<b>${s.showHint}</b></div>
+      <div class="script-cta">クロージング一言：${s.cta}</div>
     `;
   } else {
     scriptBox.style.display = 'none';
