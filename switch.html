@@ -101,6 +101,21 @@ button{font:inherit;color:inherit}
 .rows td{padding:9px 0;border-bottom:1px solid var(--mist)}
 .rows td:last-child{text-align:right;font-family:'Manrope',sans-serif;font-variant-numeric:tabular-nums;font-weight:700;padding-left:12px;white-space:nowrap}
 .rows tr.total td{border-bottom:0;font-weight:900;font-size:15.5px;padding-top:12px}
+.official{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:22px;padding:16px 18px;border-radius:var(--r-md);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16)}
+.official p{font-size:13px;color:#D5DFEC;line-height:1.6}
+.official p b{display:block;color:#fff;font-size:14.5px}
+.official .links{display:flex;gap:10px;flex-wrap:wrap}
+.official a{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:10px 16px;border-radius:var(--r-sm);font-size:14px;font-weight:700;text-decoration:none}
+.official a.pri{background:var(--switch);color:#fff}
+.official a.sec{border:1px solid rgba(255,255,255,.5);color:#fff}
+.vs{background:var(--paper);border-radius:var(--r-md);padding:20px 22px;margin-top:16px}
+.vs h3{font-size:15px;font-weight:900;margin-bottom:4px}
+.vs .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.vs .grid>div{border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.vs .grid>div.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.vs .t{font-size:13.5px;font-weight:900}
+.vs .v{font-size:24px;font-weight:800;margin-top:2px}
+.vs .s{font-size:12.5px;color:var(--ink-soft)}
 .notice{margin-top:16px;padding:14px 18px;border-radius:var(--r-md);background:#FFF4E8;color:#7A3B06;font-size:13px}
 details.base{margin-top:16px;font-size:13px;color:var(--ink-soft)}
 details.base summary{cursor:pointer;font-weight:700;color:var(--ink)}
@@ -202,10 +217,17 @@ footer{max-width:1200px;margin:0 auto;padding:0 24px 40px;font-size:12px;color:v
           <span class="why"><button type="button" class="info" aria-label="太陽光の計算の根拠">根拠</button><span class="tip" id="tipSun" role="tooltip"></span></span>
           <span class="p" id="pSun"></span></div>
       </div>
+      <div class="official">
+        <p><b>ENEOSでんき 中国Aプランの料金は公式サイトで確認できます</b>提供：ENEOS Power株式会社。単価・お申し込み条件は公式サイトの内容が優先されます。</p>
+        <div class="links">
+          <a class="pri" href="https://www.eneos-power.co.jp/denki/plan/v/#chugoku" target="_blank" rel="noopener">公式サイトで料金を見る</a>
+          <a class="sec" href="https://www.eneos-power.co.jp/denki/entry/" target="_blank" rel="noopener">お申し込みページ</a>
+        </div>
+      </div>
     </section>
 
     <div class="cards">
-      <div class="card good"><div class="l">今と比べて 1年目で</div><div class="big num" id="cDown">-</div></div>
+      <div class="card good"><div class="l" id="cDownL">今と比べて 1年目で</div><div class="big num" id="cDown">-</div></div>
       <div class="card"><div class="l" id="c10l">10年間の合計</div><div class="big num" id="c10">-</div></div>
       <div class="card"><div class="l" id="c20l">20年間の合計</div><div class="big num" id="c20">-</div></div>
     </div>
@@ -222,6 +244,15 @@ footer{max-width:1200px;margin:0 auto;padding:0 24px 40px;font-size:12px;color:v
       </table>
     </section>
 
+    <section class="vs">
+      <h3>リースと購入の比べ（20年間の合計）</h3>
+      <p class="s">購入は1年目の負担が小さく見えますが、最初に購入価格を支払います。最初の支払いも含めて比べると次のとおりです。</p>
+      <div class="grid">
+        <div id="vsL"><div class="t">リース</div><div class="v num" id="vsLv">-</div><div class="s">初期費用0円・月 <span id="vsLf"></span>×10年</div></div>
+        <div id="vsB"><div class="t">購入</div><div class="v num" id="vsBv">-</div><div class="s">最初に <span id="vsBp"></span>（税込）・元が取れるのは <span id="vsBy"></span></div></div>
+      </div>
+    </section>
+
     <div class="notice">中国電力エリアでは、国の認定が下りてから電力網につなぎます。お申し込みから発電・売電の開始まで、数か月かかることがあります。</div>
 
     <details class="base">
@@ -230,7 +261,7 @@ footer{max-width:1200px;margin:0 auto;padding:0 24px 40px;font-size:12px;color:v
         <li>電気代は料金表の単価（税込）に、燃料費調整額 1kWhあたり<span class="num" id="pFuel"></span>円と再エネ賦課金 1kWhあたり<span class="num" id="pRen"></span>円を足しています。国の一時的な値引き（電気・ガス料金支援）は入れていません。</li>
         <li>オール電化の今の料金は、中国電力「電化Styleコース」で計算しています。土日祝は終日、夜の単価です。平日の昼の単価は、夏（7〜9月）とそれ以外を月数で平均しています。</li>
         <li>太陽光の計算は、弊社の比較シミュレーターと同じ計算式です（発電量 1kWあたり年1,000kWh、劣化 年0.5%、売電単価 1〜4年目24円・5〜10年目8.3円・11年目以降7.15円、パワコン交換 15年目・30年目に各20万円、電気代の上昇 年2%）。</li>
-        <li>単価は比較サイトの掲載値をもとに、2026年10月17日に確認しました。中国電力は2026年11月1日に料金の見直しが予定されています。</li>
+        <li>ENEOSでんきの単価は公式サイト、中国電力の単価は比較サイトの掲載値をもとに、2026年10月17日に確認しました。どちらも2026年11月1日に料金の見直しが予定されています。</li>
       </ul>
     </details>
   </div>
@@ -299,7 +330,7 @@ function renderTips() {
     : '<b>中国電力 従量電灯A</b>' + tipTable([['最低料金（15kWhまで）', '759.68円/月'], ['15〜120kWh', '32.75円/kWh'], ['120〜300kWh', '39.43円/kWh'], ['300kWh超', '41.55円/kWh'], ...add])
       + '<div class="src">出典：<a href="https://selectra.jp/energy/kaisha/cepco/bill" target="_blank" rel="noopener">Selectra掲載の料金表</a>（2026年10月17日確認）</div><div class="warn">2026年11月1日に料金の見直しが予定されています。</div>';
   $('tipEne').innerHTML = '<b>ENEOSでんき 中国Aプラン</b>' + tipTable([['最低料金（15kWhまで）', '759.68円/月'], ['16〜120kWh', '32.58円/kWh'], ['121〜300kWh', '38.71円/kWh'], ['301kWh超', '39.72円/kWh'], ...add])
-    + '<div class="src">出典：<a href="https://enechange.jp/articles/electricity-eneos-denki" target="_blank" rel="noopener">エネチェンジ掲載の料金表</a>（2026年10月17日確認）。燃料費調整は中国電力と同じ値で計算しています。</div>'
+    + '<div class="src">出典：<a href="https://www.eneos-power.co.jp/denki/plan/v/#chugoku" target="_blank" rel="noopener">ENEOSでんき公式サイト（Vプラン・中国エリア）</a>（2026年10月17日確認）。2026年10月31日までの料金です。燃料費調整は中国電力と同じ値で計算し、2年契約の割引（にねん とく2割）は入れていません。</div>'
     + '<div class="warn">中国エリアのENEOSでんきには、オール電化向けのプランがありません。オール電化の家も、時間帯で単価が変わらないこのプランで計算しています。</div>';
   $('tipSun').innerHTML = '<b>太陽光の計算</b>' + tipTable([['発電量', '1kWあたり年1,000kWh'], ['売電単価 1〜4年目', '24円/kWh'], ['売電単価 5〜10年目', '8.3円/kWh'], ['売電単価 11年目以降', '7.15円/kWh'], ['劣化', '年0.5%'], ['パワコン交換', '15年目・30年目に各20万円']])
     + '<div class="src">弊社の比較シミュレーターと同じ計算式です。家で使う割合は、月の使用量の30%を昼に使う想定で自動計算しています。エコキュートを昼に沸かすと、年1,200kWhのうち4割を太陽光でまかなう想定です。</div>';
@@ -328,20 +359,34 @@ function render() {
   if (buy && !state.priceTouched) $('priceIn').value = cap * PRICE_PER_KW;
   const price = buy ? (+$('priceIn').value || 0) * 10000 : 0;
   const net1 = yEne - selfY - sellY + (buy ? 0 : feeY);
+  const buyPrice = (buy || state.priceTouched ? (+$('priceIn').value || 0) : cap * PRICE_PER_KW) * 10000;
 
   // 今のままと比べて、N年で減る合計（電気代の上昇は calc.js の既定と同じ年2%）
-  const cum = n => {
-    let s = -price;
-    for (let y = 1; y <= n; y++) s += (yNow - yEne) * Math.pow(1.02, y - 1) + r.annualLease[y - 1] + (buy && y <= lp.term ? feeY : 0);
+  const cumWay = (n, isBuy) => {
+    let s = isBuy ? -buyPrice : 0;
+    for (let y = 1; y <= n; y++) s += (yNow - yEne) * Math.pow(1.02, y - 1) + r.annualLease[y - 1] + (isBuy && y <= lp.term ? feeY : 0);
     return s;
   };
+  const cum = n => cumWay(n, buy);
+  // 購入の元が取れる年（太陽光の分だけで、購入価格を取り戻す年）
+  let bep = null, acc = -buyPrice;
+  for (let y = 1; y <= 30 && bep === null; y++) { acc += r.annualLease[y - 1] + (y <= lp.term ? feeY : 0); if (acc >= 0) bep = y; }
 
   const top = Math.max(yNow, yEne, 1);
   [[yNow, 'v1', 'b1', 'm1', bNow], [yEne, 'v2', 'b2', 'm2', bEne], [net1, 'v3', 'b3', 'm3', net1 / 12]].forEach(([v, vi, bi, mi, mo]) => {
     countTo($(vi), v, x => (x < 0 ? '−' : '') + man(x) + '<small>万円/年</small>');
     $(bi).style.height = Math.max(0, v / top * 62) + '%';
     $(mi).textContent = '月あたり ' + yen(mo);
+    if (vi === 'v3' && buy) $(mi).textContent += '（別に購入価格 ' + man(price) + '万円）';
   });
+  $('cDownL').textContent = buy ? '今と比べて 1年目で（購入価格は別）' : '今と比べて 1年目で';
+  const l20 = cumWay(20, false), b20 = cumWay(20, true);
+  $('vsLv').innerHTML = man(l20) + '<span class="u">万円 ' + (l20 >= 0 ? 'おトク' : '負担増') + '</span>';
+  $('vsBv').innerHTML = man(b20) + '<span class="u">万円 ' + (b20 >= 0 ? 'おトク' : '負担増') + '</span>';
+  $('vsLf').textContent = yen(lp.monthly);
+  $('vsBp').textContent = man(buyPrice) + '万円';
+  $('vsBy').textContent = bep ? bep + '年目' : '30年以内に届かない';
+  $('vsL').classList.toggle('on', !buy); $('vsB').classList.toggle('on', buy);
   $('pSun').textContent = (buy ? '購入' : 'リース') + ' ' + cap + 'kW' + (eco ? '・昼に沸かす' : '');
 
   const down = yNow - net1;
