@@ -127,6 +127,18 @@ input[type=range]{width:100%;accent-color:var(--orange);margin-top:8px;height:28
 .tip .src{color:var(--sub)}
 .tip .warn{color:var(--warn);margin-top:6px}
 
+.map{margin-top:40px;border:1px solid var(--line);border-radius:22px;padding:22px 24px}
+.map h3{font-size:17px;font-weight:900}
+.mapwrap{overflow-x:auto;margin-top:12px}
+#mapT{width:100%;border-collapse:separate;border-spacing:6px;font-size:13px;min-width:460px}
+#mapT th{font-weight:700;color:var(--sub);font-size:12.5px;text-align:center;padding:4px}
+#mapT th.r{text-align:left;white-space:nowrap}
+#mapT td{text-align:center;border-radius:12px;padding:10px 6px;font-family:'Manrope',sans-serif;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+#mapT td.ok{background:#FFF1E6;color:#C2410C}
+#mapT td.ok.strong{background:var(--orange);color:#fff}
+#mapT td.ng{background:var(--surface);color:#A1A1A6;font-family:inherit;font-weight:700;font-size:12px}
+#mapT td.me{box-shadow:0 0 0 3px var(--text)}
+#mapT td small{display:block;font-size:10.5px;font-weight:700}
 .official{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:36px;padding:20px 24px;border-radius:22px;background:var(--surface)}
 .official p{font-size:12.5px;color:var(--sub);line-height:1.6}
 .official p b{display:block;font-size:15px;color:var(--text)}
@@ -261,10 +273,14 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
         <div id="modeKwh" hidden><h3>毎月の使用量（平均）</h3><div class="field"><input id="kwhIn" type="number" inputmode="numeric" min="50" step="10" value="550" aria-label="毎月の使用量"><span>kWh／月</span></div></div>
         <p class="hint">月 <span class="num" id="kwhShow">-</span> kWh として計算しています。</p>
       </div>
-      <div class="range full" id="dayBox">
-        <label for="dayIn"><span>平日の昼（9〜21時）に使う割合</span><span class="num" id="dayShow">30%</span></label>
-        <input id="dayIn" type="range" min="15" max="50" step="5" value="30">
-        <p class="hint">共働きで昼に留守がちなら少なめ、日中も家にいるなら多めにします。</p>
+      <div class="full" id="dayBox">
+        <h3>日中、ご家族が家にいる時間</h3>
+        <div class="tiles three" id="lifeOpts">
+          <button type="button" class="opt" data-life="few">少ない<small>共働きで日中は留守がち</small></button>
+          <button type="button" class="opt" data-life="mid" aria-pressed="true">ふつう<small>ときどき家にいる</small></button>
+          <button type="button" class="opt" data-life="many">多い<small>在宅勤務・子育て・ご高齢の方</small></button>
+        </div>
+        <p class="hint">平日の昼（9〜21時）に使う電気を <span class="num" id="dayShow">35%</span> として計算します。家にいる時間が長いほど、使用量も増えます。</p>
       </div>
     </div>
     <div class="next">
@@ -292,6 +308,11 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
     <div class="win">
       <span class="lbl" id="w2Lbl">切り替えるだけで 年</span><span class="big num" id="w2">-</span><span class="u" id="w2u">円 おトク</span>
       <span class="s" id="w2s"></span>
+    </div>
+    <div class="map" id="mapBox">
+      <h3>切り替えでおトクになるご家庭</h3>
+      <p class="hint" id="mapLead"></p>
+      <div class="mapwrap"><table id="mapT"></table></div>
     </div>
     <div class="official">
       <p><b>ENEOSでんき 中国Aプランの料金は公式サイトで確認できます</b>提供：ENEOS Power株式会社。単価・お申し込み条件は公式サイトの内容が優先されます。</p>
@@ -437,6 +458,7 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
           <summary>計算の前提</summary>
           <ul>
             <li>電気代は料金表の単価（税込）に、燃料費調整額 1kWhあたり<span class="num" id="pFuel"></span>円と再エネ賦課金 1kWhあたり<span class="num" id="pRen"></span>円を足しています。国の一時的な値引き（電気・ガス料金支援）は入れていません。</li>
+            <li>日中の在宅は、平日の昼（9〜21時）に使う電気の割合を 少ない25%・ふつう35%・多い45% とし、使用量を比較ツールと同じ 0.9・1.0・1.2倍 にしています。</li>
             <li>オール電化の今の料金は、中国電力「電化Styleコース」です。土日祝は終日、夜の単価です。平日の昼の単価は、夏（7〜9月）とそれ以外を月数で平均しています。</li>
             <li>太陽光の計算は、弊社の比較シミュレーターと同じ前提です。ただし家で使える量は、パネルを増やすほど、これまで電気を買っていた時間帯をまかなえる分が増える計算にしています（発電量 1kWあたり年1,000kWh、劣化 年0.5%、売電単価 1〜4年目24円・5〜10年目8.3円・11年目以降7.15円、パワコン交換 15年目・30年目に各20万円、電気代の上昇 年2%）。</li>
             <li>ローンは元利均等返済で計算しています。金利・期間は実際の借入条件に合わせて変えてください。購入時の保険や点検の費用は入れていません。</li>
@@ -471,7 +493,7 @@ const $ = id => document.getElementById(id);
 const yen = n => (n < 0 ? '−' : '') + Math.round(Math.abs(n)).toLocaleString('ja-JP') + '円';
 const man = n => (Math.abs(n) / 10000).toFixed(1);
 const manU = n => man(n) + '<small>万円</small>';
-const state = { step: 1, reached: 1, home: 'denka', mode: 'family', n: 4, day: 0.30, cap: 6, pay: 'loan', rate: 2.5, term: 15, priceTouched: false };
+const state = { step: 1, reached: 1, home: 'denka', mode: 'family', n: 4, day: 0.35, life: 'mid', cap: 6, pay: 'loan', rate: 2.5, term: 15, priceTouched: false };
 
 function tieredBill(t, kwh) {
   let y = t.min, prev = MIN_KWH;
@@ -482,7 +504,10 @@ function tieredBill(t, kwh) {
   }
   return y + kwh * (FUEL + REN);
 }
-const denkaBill = kwh => DENKA.basic + kwh * (state.day * DENKA_DAY + (1 - state.day) * DENKA.night + FUEL + REN);
+const denkaBillAt = (kwh, day) => DENKA.basic + kwh * (day * DENKA_DAY + (1 - day) * DENKA.night + FUEL + REN);
+const denkaBill = kwh => denkaBillAt(kwh, state.day);
+// 日中の在宅：昼の割合と、使用量の補正（比較ツール navi.html の在宅補正 少ない0.9／普通1.0／多い1.2 と同じ）
+const LIFE = { few: { day: 0.25, mult: 0.90, label: '少ない' }, mid: { day: 0.35, mult: 1.00, label: 'ふつう' }, many: { day: 0.45, mult: 1.20, label: '多い' } };
 const nowBill = kwh => state.home === 'denka' ? denkaBill(kwh) : tieredBill(TIERED.chugokuA, kwh);
 function billToKwhNow(bill) {
   let lo = 0, hi = 4000;
@@ -496,7 +521,7 @@ function loanMonthly(principal, ratePct, years) {
 }
 function pick(groupId, btn) { $(groupId).querySelectorAll('.opt').forEach(b => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false')); }
 function currentKwh() {
-  if (state.mode === 'family') return FAMILY_KWH[state.home][state.n];
+  if (state.mode === 'family') return Math.round(FAMILY_KWH[state.home][state.n] * LIFE[state.life].mult);
   if (state.mode === 'bill') return billToKwhNow(+$('billIn').value || 0);
   return Math.max(0, Math.round(+$('kwhIn').value || 0));
 }
@@ -580,6 +605,26 @@ function render() {
   $('w2u').textContent = swY >= 0 ? '円 おトク' : '円（今のプランの方が安い）';
   $('w2s').textContent = swY >= 0 ? '月あたり約' + yen(swY / 12) + '。2年契約の割引（にねん とく2割）込みです。3年目からは割引が増えます。'
     : '夜に使う電気が多いオール電化のご家庭では、夜が安い今のプランの方が安くなることがあります。中国エリアのENEOSでんきには、オール電化向けのプランがないためです。';
+
+  // おトクになるご家庭の早見表（家族の人数 × 日中の在宅）
+  const ns = [1, 2, 3, 4, 5], lifes = ['few', 'mid', 'many'];
+  let html = '<tr><th></th>' + lifes.map(l => '<th>在宅 ' + LIFE[l].label + '</th>').join('') + '</tr>';
+  ns.forEach(n => {
+    html += '<tr><th class="r">' + (n === 5 ? '5人〜' : n + '人') + '</th>';
+    lifes.forEach(l => {
+      const k = Math.round(FAMILY_KWH[state.home][n] * LIFE[l].mult);
+      const now = denka ? denkaBillAt(k, LIFE[l].day) : tieredBill(TIERED.chugokuA, k);
+      const d = (now - (tieredBill(TIERED.eneosA, k) - k * NINEN(1))) * 12;
+      const me = state.mode === 'family' && state.n === n && state.life === l ? ' me' : '';
+      html += d > 0 ? '<td class="ok' + (d >= 10000 ? ' strong' : '') + me + '">年 ' + Math.round(d).toLocaleString('ja-JP') + '円<small>おトク</small></td>'
+        : '<td class="ng' + me + '">今のプランの<br>ままがおトク</td>';
+    });
+    html += '</tr>';
+  });
+  $('mapT').innerHTML = html;
+  $('mapLead').textContent = denka
+    ? '中国電力 電化Styleコースから切り替えた場合（2年契約の割引込み）。日中に家にいる時間が長いご家庭ほどおトクです。黒い枠が、このご家庭です。'
+    : '中国電力 従量電灯Aから切り替えた場合（2年契約の割引込み）。どのご家庭でもおトクになります。黒い枠が、このご家庭です。';
 
   // ③ 太陽光の積み上げ（今のままの20年間の電気代を1本の帯にして、切り替え・太陽光・残りに分ける）
   const sc3 = state.reached >= 3;
@@ -700,7 +745,7 @@ onPick('capOpts', d => {
 });
 onPick('payOpts', d => state.pay = d.pay);
 onPick('termOpts', d => state.term = +d.term);
-$('dayIn').addEventListener('input', e => { state.day = +e.target.value / 100; render(); });
+onPick('lifeOpts', d => { state.life = d.life; state.day = LIFE[d.life].day; });
 $('rateIn').addEventListener('input', e => { state.rate = +e.target.value; render(); });
 ['billIn', 'kwhIn'].forEach(id => $(id).addEventListener('input', render));
 $('ecoIn').addEventListener('change', render);
