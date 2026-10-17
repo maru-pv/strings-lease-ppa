@@ -332,14 +332,14 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
 
     <div class="bars">
       <div class="bar">
-        <div class="row"><div>今の年間電気代<span class="p">この1本の中に、おトクを積み上げていきます</span></div><div class="num" id="b3Now">-</div></div>
+        <div class="row"><div>今のままの電気代（20年間）<span class="p">この1本の中に、おトクを積み上げていきます</span></div><div class="num" id="b3Now">-</div></div>
         <div class="track" aria-label="今の電気代の内訳"><div class="seg ene" id="g3Ene"></div><div class="seg sun" id="g3Sun"></div><div class="seg rest" id="g3Rest"></div></div>
         <div class="stack-legend">
           <span><i style="background:var(--orange)"></i>切り替えのおトク <b class="num" id="l3Ene">-</b></span>
           <span><i style="background:var(--sun)"></i>太陽光のおトク <b class="num" id="l3Sun">-</b><span class="why"><button type="button" class="info" aria-label="太陽光の計算の根拠">根拠</button><span class="tip" id="tipSun" role="tooltip"></span></span></span>
           <span><i style="background:var(--now)"></i>残る負担 <b class="num" id="l3Rest">-</b></span>
         </div>
-        <p class="hint">1年目の内訳です。</p>
+        <p class="hint">20年間の合計です（電気代の上昇 年2%、パワコン交換を含む）。容量を変えると、太陽光のおトクの長さが変わります。</p>
       </div>
     </div>
     <div class="win">
@@ -460,8 +460,11 @@ const TIERED = {
 };
 const DENKA = { basic: 2255.36, daySummer: 47.06, dayOther: 45.00, night: 30.92 }; // 中国電力 電化Styleコース（10kWまで）
 const DENKA_DAY = (DENKA.daySummer * 3 + DENKA.dayOther * 9) / 12;
-const FAMILY_KWH = { denka: { 1: 300, 2: 420, 3: 500, 4: 550, 5: 650 }, gas: { 1: 200, 2: 300, 3: 370, 4: 430, 5: 500 } };
-const MIN_KWH = 15, PRICE_PER_KW = 28, ECO_KWH = 1200; // 購入価格の初期値（万円/kW）・エコキュート年間使用量
+// 人数別の月間使用量・エコキュート年間使用量は、比較ツール（navi.html）と同じ値。ガス併用は戸建ての平均的な使用量
+const FAMILY_KWH = { denka: { 1: 380, 2: 520, 3: 600, 4: 700, 5: 800 }, gas: { 1: 200, 2: 300, 3: 370, 4: 430, 5: 500 } };
+const ECO_KWH_BY_FAMILY = { 1: 600, 2: 900, 3: 1200, 4: 1400, 5: 1600 };
+const ECO_MODE = 'ohisama', ECO_SHIFT = 0.70; // 比較ツールと同じ「おひさまモード」（エコキュートの7割を昼に沸かす）
+const MIN_KWH = 15, PRICE_PER_KW = 28; // 購入価格の初期値（万円/kW）
 
 const $ = id => document.getElementById(id);
 const yen = n => (n < 0 ? '−' : '') + Math.round(Math.abs(n)).toLocaleString('ja-JP') + '円';
@@ -521,7 +524,7 @@ function renderTips() {
     + '<div class="src" style="margin-top:6px">照合：<a href="https://www.eneos-power.co.jp/denkigas/simulator/" target="_blank" rel="noopener">ENEOSでんき公式の料金シミュレーション</a>で、鳥取市・戸建て・中国電力 従量電灯A・月430kWhを入れると「年間最大5,853円おトク」（2年契約の割引込み）。このページの同じ条件は年4,624円（割引なし）で、差はおおむね割引の分です（2026年10月17日確認）。公式シミュレーションには、電化Styleコースからの比較はありません。</div>'
     + '<div class="warn">中国エリアのENEOSでんきには、オール電化向けのプランがありません。オール電化の家も、時間帯で単価が変わらないこのプランで計算しています。</div>';
   $('tipSun').innerHTML = '<b>太陽光の計算</b>' + tipTable([['発電量', '1kWあたり年1,000kWh'], ['売電単価 1〜4年目', '24円/kWh'], ['売電単価 5〜10年目', '8.3円/kWh'], ['売電単価 11年目以降', '7.15円/kWh'], ['劣化', '年0.5%'], ['パワコン交換', '15年目・30年目に各20万円']])
-    + '<div class="src">弊社の比較シミュレーターと同じ計算式です。家で使う割合は、月の使用量の30%を昼に使う想定で自動計算しています。エコキュートを昼に沸かすと、年1,200kWhのうち4割を太陽光でまかなう想定です。</div>';
+    + '<div class="src">弊社の比較シミュレーターと同じ計算式です。家で使う割合は、月の使用量の30%を昼に使う想定で自動計算しています。エコキュートを昼に沸かすと、年間使用量（4人家族で1,400kWh）の7割を太陽光でまかなう想定です（比較ツールの「おひさまモード」と同じ）。家で使える量は家族の使い方で決まるため、パネルを増やして増える発電は、主に売電に回ります。</div>';
 }
 
 function render() {
@@ -536,19 +539,20 @@ function render() {
 
   // 太陽光（SBIリース）：calc.js の計算をそのまま使う（切り替え後の実効単価で）
   const cap = state.cap, eco = denka && $('ecoIn').checked;
+  const ECO_KWH = ECO_KWH_BY_FAMILY[state.n] || 1200;
   const effUnit = kwh > 0 ? bEne / kwh : getEffUnitByKey('chugoku');
   const leaseKey = LEASE_PLANS[String(cap)] ? String(cap) : 'custom';
-  const r = calcMain({ effUnit, monthlyKwh: kwh, leaseKey, leaseCapCustom: cap, ppaKey: 'smile', ppaCap: cap, ecoMode: eco ? 'solar' : 'none', ecoKwh: ECO_KWH });
+  const r = calcMain({ effUnit, monthlyKwh: kwh, leaseKey, leaseCapCustom: cap, ppaKey: 'smile', ppaCap: cap, ecoMode: eco ? ECO_MODE : 'none', ecoKwh: ECO_KWH });
   const lp = r.leasePlan, feeY = lp.monthly * 12;
   const gen = cap * 1000, sc = calcAutoSC(kwh, cap);
-  const scEco = sc + (eco && DEFAULT_LF1 < effUnit ? Math.min(ECO_KWH * 0.40 / gen, 1 - sc) : 0);
+  const scEco = sc + (eco && DEFAULT_LF1 < effUnit ? Math.min(ECO_KWH * ECO_SHIFT / gen, 1 - sc) : 0);
   const selfY = gen * scEco * effUnit, sellY = gen * (1 - scEco) * DEFAULT_LF1;
   const net1 = yEne - selfY - sellY + feeY;   // リースの1年目の実質負担
   const sunY = yEne - net1;                   // 太陽光のおトク（1年目）
 
   // 容量ごとの20年間の合計（タイルに表示して、いちばんおトクな容量に印をつける）
   const lease20For = c => {
-    const rc = calcMain({ effUnit, monthlyKwh: kwh, leaseKey: LEASE_PLANS[String(c)] ? String(c) : 'custom', leaseCapCustom: c, ppaKey: 'smile', ppaCap: c, ecoMode: eco ? 'solar' : 'none', ecoKwh: ECO_KWH });
+    const rc = calcMain({ effUnit, monthlyKwh: kwh, leaseKey: LEASE_PLANS[String(c)] ? String(c) : 'custom', leaseCapCustom: c, ppaKey: 'smile', ppaCap: c, ecoMode: eco ? ECO_MODE : 'none', ecoKwh: ECO_KWH });
     let s = 0; for (let y = 1; y <= 20; y++) s += swY * Math.pow(1.02, y - 1) + rc.annualLease[y - 1];
     return s;
   };
@@ -567,14 +571,16 @@ function render() {
   $('w2s').textContent = swY >= 0 ? '月あたり約' + yen(swY / 12) + '。使用量が多いご家庭ほど差が大きくなります。'
     : '夜に使う割合が大きいご家庭では、今のプランの方が安いことがあります。次の太陽光で昼の電気をまかなうと変わります。';
 
-  // ③ 太陽光の積み上げ（今の電気代を1本の帯にして、切り替え・太陽光・残りに分ける）
+  // ③ 太陽光の積み上げ（今のままの20年間の電気代を1本の帯にして、切り替え・太陽光・残りに分ける）
   const sc3 = state.reached >= 3;
-  const restY = Math.max(net1, 0), sunShown = Math.max(0, yEne - restY), eneShown = Math.max(0, swY);
-  countTo($('b3Now'), yNow, x => manU(x).replace('万円', '万円/年'));
-  setW('g3Ene', sc3 ? eneShown / yNow * 100 : 0);
-  setW('g3Sun', sc3 ? sunShown / yNow * 100 : 0);
-  setW('g3Rest', sc3 ? restY / yNow * 100 : 100);
-  $('l3Ene').textContent = yen(swY); $('l3Sun').textContent = yen(sunY); $('l3Rest').textContent = yen(net1);
+  let now20 = 0, sw20 = 0, sun20 = 0;
+  for (let y = 1; y <= 20; y++) { const g = Math.pow(1.02, y - 1); now20 += yNow * g; sw20 += swY * g; sun20 += r.annualLease[y - 1]; }
+  const rest20 = now20 - sw20 - sun20;
+  countTo($('b3Now'), now20, x => manU(x));
+  setW('g3Ene', sc3 ? Math.max(0, sw20) / now20 * 100 : 0);
+  setW('g3Sun', sc3 ? Math.max(0, sun20) / now20 * 100 : 0);
+  setW('g3Rest', sc3 ? Math.max(0, rest20) / now20 * 100 : 100);
+  $('l3Ene').textContent = man(sw20) + '万円'; $('l3Sun').textContent = (sun20 < 0 ? '−' : '') + man(sun20) + '万円'; $('l3Rest').textContent = man(rest20) + '万円';
   const totalY = yNow - net1;
   $('k1y').innerHTML = (totalY >= 0 ? '' : '−') + man(totalY) + '<small>万円</small>';
   $('k1').innerHTML = yen(net1 / 12).replace('円', '<small>円</small>');
