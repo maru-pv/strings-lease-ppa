@@ -424,7 +424,7 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
         <h4>1年目の内訳（SBIリース）</h4>
         <table class="rows">
           <tr><td>今の年間電気代（<span id="dNowName"></span>）</td><td id="d0">-</td></tr>
-          <tr><td>ENEOSでんきに切り替えた差額</td><td id="d1">-</td></tr>
+          <tr><td>ENEOSでんきに切り替えた差額（2年契約の割引込み）</td><td id="d1">-</td></tr>
           <tr><td>太陽光の電気を家で使って減る分（自家消費 <span id="scR">-</span>%）</td><td id="d2">-</td></tr>
           <tr><td>余った電気を売った収入（1kWhあたり24円・1〜4年目）</td><td id="d3">-</td></tr>
           <tr><td>リース料（年間・税抜）</td><td id="d4">-</td></tr>
@@ -463,6 +463,8 @@ const DENKA_DAY = (DENKA.daySummer * 3 + DENKA.dayOther * 9) / 12;
 const FAMILY_KWH = { denka: { 1: 380, 2: 520, 3: 600, 4: 700, 5: 800 }, gas: { 1: 200, 2: 300, 3: 370, 4: 430, 5: 500 } };
 const ECO_KWH_BY_FAMILY = { 1: 600, 2: 900, 3: 1200, 4: 1400, 5: 1600 };
 const ECO_SHIFT = 0.70, SELF_K = 1.5; // 比較ツールと同じ「おひさまモード」（エコキュートの7割を昼に沸かす）。SELF_K：発電で昼の電気をまかなう度合い
+// ENEOSでんき公式の2年契約割引「にねん とく2割」：電力量料金 1kWhあたり 1〜2年目0.2円・3年目以降0.3円引き（税込）
+const NINEN = y => y <= 2 ? 0.2 : 0.3;
 const MIN_KWH = 15, PRICE_PER_KW = 28; // 購入価格の初期値（万円/kW）
 
 const $ = id => document.getElementById(id);
@@ -519,8 +521,8 @@ function renderTips() {
     : '<b>中国電力 従量電灯A</b>' + tipTable([['最低料金（15kWhまで）', '759.68円/月'], ['15〜120kWh', '32.75円/kWh'], ['120〜300kWh', '39.43円/kWh'], ['300kWh超', '41.55円/kWh'], ...add])
       + '<div class="src">出典：<a href="https://selectra.jp/energy/kaisha/cepco/bill" target="_blank" rel="noopener">Selectra掲載の料金表</a>（2026年10月17日確認）</div><div class="warn">2026年11月1日に料金の見直しが予定されています。</div>';
   $('tipEne').innerHTML = '<b>ENEOSでんき 中国Aプラン</b>' + tipTable([['最低料金（15kWhまで）', '759.68円/月'], ['16〜120kWh', '32.58円/kWh'], ['121〜300kWh', '38.71円/kWh'], ['301kWh超', '39.72円/kWh'], ...add])
-    + '<div class="src">出典：<a href="https://www.eneos-power.co.jp/denki/plan/v/#chugoku" target="_blank" rel="noopener">ENEOSでんき公式サイト（Vプラン・中国エリア）</a>（2026年10月17日確認）。2026年10月31日までの料金です。燃料費調整は中国電力と同じ値で計算し、2年契約の割引（にねん とく2割）は入れていません。</div>'
-    + '<div class="src" style="margin-top:6px">照合：<a href="https://www.eneos-power.co.jp/denkigas/simulator/" target="_blank" rel="noopener">ENEOSでんき公式の料金シミュレーション</a>で、鳥取市・戸建て・中国電力 従量電灯A・月430kWhを入れると「年間最大5,853円おトク」（2年契約の割引込み）。このページの同じ条件は年4,624円（割引なし）で、差はおおむね割引の分です（2026年10月17日確認）。公式シミュレーションには、電化Styleコースからの比較はありません。</div>'
+    + '<div class="src">出典：<a href="https://www.eneos-power.co.jp/denki/plan/v/#chugoku" target="_blank" rel="noopener">ENEOSでんき公式サイト（Vプラン・中国エリア）</a>（2026年10月17日確認）。2026年10月31日までの料金です。燃料費調整は中国電力と同じ値で計算しています。2年契約の割引（<a href="https://www.eneos-power.co.jp/denki/benefit/longuse.html" target="_blank" rel="noopener">にねん とく2割</a>：1kWhあたり1〜2年目0.2円・3年目以降0.3円引き）を入れています。</div>'
+    + '<div class="src" style="margin-top:6px">照合：<a href="https://www.eneos-power.co.jp/denkigas/simulator/" target="_blank" rel="noopener">ENEOSでんき公式の料金シミュレーション</a>で、鳥取市・戸建て・中国電力 従量電灯A・月430kWhを入れると「年間最大5,853円おトク」（2年契約の割引込み）。このページの同じ条件は年5,656円（同じ割引込み）で、おおむね一致しています（2026年10月17日確認）。公式シミュレーションには、電化Styleコースからの比較はありません。</div>'
     + '<div class="warn">中国エリアのENEOSでんきには、オール電化向けのプランがありません。オール電化の家も、時間帯で単価が変わらないこのプランで計算しています。</div>';
   $('tipSun').innerHTML = '<b>太陽光の計算</b>' + tipTable([['発電量', '1kWあたり年1,000kWh'], ['売電単価 1〜4年目', '24円/kWh'], ['売電単価 5〜10年目', '8.3円/kWh'], ['売電単価 11年目以降', '7.15円/kWh'], ['劣化', '年0.5%'], ['パワコン交換', '15年目・30年目に各20万円']])
     + '<div class="src">発電量・売電単価・劣化・パワコン交換は、弊社の比較シミュレーターと同じ前提です。家で使える量は、昼に使う電気（月の使用量の30%と、エコキュートを昼に沸かす分＝4人家族で年1,400kWhの7割）のうち、発電でまかなえる分として計算しています。パネルを増やすほど、曇りの日や朝夕にまかなえる分が増えます。</div>';
@@ -530,8 +532,9 @@ function render() {
   const kwh = currentKwh(), denka = state.home === 'denka';
   $('kwhShow').textContent = kwh;
   $('dayShow').textContent = Math.round(state.day * 100) + '%';
-  const bNow = nowBill(kwh), bEne = tieredBill(TIERED.eneosA, kwh);
+  const bNow = nowBill(kwh), bEne = tieredBill(TIERED.eneosA, kwh) - kwh * NINEN(1);
   const yNow = bNow * 12, yEne = bEne * 12, swY = yNow - yEne;
+  const swAt = y => (swY + kwh * 12 * (NINEN(y) - NINEN(1))) * Math.pow(1.02, y - 1); // y年目の切り替えのおトク
   const nowName = denka ? '中国電力 電化Styleコース' : '中国電力 従量電灯A';
   $('pNow').textContent = nowName; $('dNowName').textContent = nowName;
   $('s1Now').textContent = yen(yNow);
@@ -563,7 +566,7 @@ function render() {
   // 容量ごとの20年間の合計（タイルに表示）
   [5, 6, 7, 8].forEach(c => {
     const rc = leaseFor(c);
-    let v = 0; for (let y = 1; y <= 20; y++) v += swY * Math.pow(1.02, y - 1) + rc.annualLease[y - 1];
+    let v = 0; for (let y = 1; y <= 20; y++) v += swAt(y) + rc.annualLease[y - 1];
     $('cv' + c).textContent = '20年 ' + man(v) + '万円';
   });
 
@@ -573,15 +576,15 @@ function render() {
   countTo($('b2Ene'), sc2 ? yEne : 0, x => manU(x).replace('万円', '万円/年'));
   setW('g2Now', sc2 ? 100 : 0); setW('g2Ene', sc2 ? Math.min(yEne, yNow) / yNow * 100 : 0); setW('g2Gap', sc2 ? Math.max(0, swY) / yNow * 100 : 0);
   countTo($('w2'), sc2 ? Math.abs(swY) : 0, x => Math.round(x).toLocaleString('ja-JP'));
-  $('w2Lbl').textContent = swY >= 0 ? '切り替えるだけで 年' : '切り替えると 年';
-  $('w2u').textContent = swY >= 0 ? '円 おトク' : '円 高くなります';
-  $('w2s').textContent = swY >= 0 ? '月あたり約' + yen(swY / 12) + '。使用量が多いご家庭ほど差が大きくなります。'
-    : '夜に使う割合が大きいご家庭では、今のプランの方が安いことがあります。次の太陽光で昼の電気をまかなうと変わります。';
+  $('w2Lbl').textContent = swY >= 0 ? '切り替えるだけで 年' : '切り替えの差は 年';
+  $('w2u').textContent = swY >= 0 ? '円 おトク' : '円（今のプランの方が安い）';
+  $('w2s').textContent = swY >= 0 ? '月あたり約' + yen(swY / 12) + '。2年契約の割引（にねん とく2割）込みです。3年目からは割引が増えます。'
+    : '夜に使う電気が多いオール電化のご家庭では、夜が安い今のプランの方が安くなることがあります。中国エリアのENEOSでんきには、オール電化向けのプランがないためです。';
 
   // ③ 太陽光の積み上げ（今のままの20年間の電気代を1本の帯にして、切り替え・太陽光・残りに分ける）
   const sc3 = state.reached >= 3;
   let now20 = 0, sw20 = 0, sun20 = 0;
-  for (let y = 1; y <= 20; y++) { const g = Math.pow(1.02, y - 1); now20 += yNow * g; sw20 += swY * g; sun20 += r.annualLease[y - 1]; }
+  for (let y = 1; y <= 20; y++) { const g = Math.pow(1.02, y - 1); now20 += yNow * g; sw20 += swAt(y); sun20 += r.annualLease[y - 1]; }
   const rest20 = now20 - sw20 - sun20;
   countTo($('b3Now'), now20, x => manU(x));
   setW('g3Ene', sc3 ? Math.max(0, sw20) / now20 * 100 : 0);
@@ -601,7 +604,7 @@ function render() {
   const payBuy = y => loan ? (y <= state.term ? pmt * 12 : 0) : (y === 1 ? price : 0);
   const cumWay = (n, isBuy) => {
     let s = 0;
-    for (let y = 1; y <= n; y++) s += swY * Math.pow(1.02, y - 1) + solarOnly(y) - (isBuy ? payBuy(y) : (y <= lp.term ? feeY : 0));
+    for (let y = 1; y <= n; y++) s += swAt(y) + solarOnly(y) - (isBuy ? payBuy(y) : (y <= lp.term ? feeY : 0));
     return s;
   };
   const word = c => man(c) + '<small>万円 ' + (c >= 0 ? 'おトク' : '負担増') + '</small>';
