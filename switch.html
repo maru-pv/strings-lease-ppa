@@ -414,7 +414,7 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
     <div class="versus" id="versus" hidden>
       <div class="eyebrow">SBIリースと購入を比べると</div>
       <h3 class="vhead"><span id="vhA">購入より、SBIリースの方が</span> <span class="vbig num" id="vDiff">-</span> <span id="vhB">おトクです</span></h3>
-      <p class="hint" style="font-size:13.5px">同じ <span id="duelCap"></span> の太陽光で、払い終わるまでに支払うお金の合計を比べました（どちらも税込）。</p>
+      <p class="hint" style="font-size:13.5px">同じ <span id="duelCap"></span> の太陽光で、払い終わるまでに支払うお金の合計を比べました（どちらも税別。購入のローンの金利はそのまま足しています）。</p>
 
       <div class="race" aria-label="払い終わるまでに支払うお金の合計">
         <div class="lane" id="laneL">
@@ -688,9 +688,10 @@ function render() {
   countTo($('w3'), sc3 ? Math.abs(l20) : 0, x => man(x));
   $('w3u').textContent = l20 >= 0 ? '万円 おトク' : '万円 負担増';
 
-  // 購入との比べ（どちらも税込。リース料は税抜なので消費税10%を足す）
-  const leaseTotalTax = leaseTotal * 1.1;
-  const diff = buyTotal - leaseTotalTax, leaseWins = diff >= 0;
+  // 購入との比べ（どちらも税別でそろえる。購入は代金から消費税を除き、ローンの金利はそのまま足す）
+  const leaseTotalTax = leaseTotal;                       // リース料（税別）の合計
+  const priceEx = price / 1.1, buyTotalEx = priceEx + (buyTotal - price);
+  const diff = buyTotalEx - leaseTotalTax, leaseWins = diff >= 0;
   $('duelCap').textContent = cap + 'kW';
   $('vhA').textContent = leaseWins ? '購入より、SBIリースの方が' : 'この条件では、購入の方が';
   $('vDiff').textContent = man(Math.abs(diff)) + '万円';
@@ -698,14 +699,14 @@ function render() {
   $('dlTotal').innerHTML = manU(leaseTotalTax);
   $('dbName').textContent = loan ? '購入（ローン）' : '購入（現金）';
   $('dbSub').textContent = loan ? '金利' + state.rate.toFixed(1) + '%・' + state.term + '年' : '最初に一括で支払い';
-  $('dbTotal').innerHTML = manU(buyTotal);
-  const cmax = Math.max(leaseTotalTax, buyTotal, 1), vs = !$('versus').hidden;
-  setW('cbL', vs ? leaseTotalTax / cmax * 100 : 0); setW('cbP', vs ? price / cmax * 100 : 0); setW('cbI', vs ? (buyTotal - price) / cmax * 100 : 0);
+  $('dbTotal').innerHTML = manU(buyTotalEx);
+  const cmax = Math.max(leaseTotalTax, buyTotalEx, 1), vs = !$('versus').hidden;
+  setW('cbL', vs ? leaseTotalTax / cmax * 100 : 0); setW('cbP', vs ? priceEx / cmax * 100 : 0); setW('cbI', vs ? (buyTotal - price) / cmax * 100 : 0);
   $('cbIL').hidden = !loan;
   $('laneL').classList.toggle('lost', !leaseWins); $('laneB').classList.toggle('lost', leaseWins);
-  $('fFirst').textContent = loan ? '0円（ローンで分割）' : man(price) + '万円';
-  $('fMonL').textContent = yen(lp.monthly * 1.1) + '（10年）';
-  $('fMonB').textContent = loan ? yen(pmt) + '（' + state.term + '年）' : 'なし';
+  $('fFirst').textContent = loan ? '0円（ローンで分割）' : man(priceEx) + '万円（税別）';
+  $('fMonL').textContent = yen(lp.monthly) + '（税別・10年）';
+  $('fMonB').textContent = loan ? yen(pmt) + '（返済額・' + state.term + '年）' : 'なし';
   $('fEnd').textContent = loan ? state.term + '年' : '最初に一括';
   $('fInt').textContent = loan ? man(buyTotal - price) + '万円' : 'なし';
   $('rateShow').textContent = state.rate.toFixed(1) + '%';
