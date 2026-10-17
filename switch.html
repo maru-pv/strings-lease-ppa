@@ -458,7 +458,7 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
           <summary>計算の前提</summary>
           <ul>
             <li>電気代は料金表の単価（税込）に、燃料費調整額 1kWhあたり<span class="num" id="pFuel"></span>円と再エネ賦課金 1kWhあたり<span class="num" id="pRen"></span>円を足しています。国の一時的な値引き（電気・ガス料金支援）は入れていません。</li>
-            <li>日中の在宅は、平日の昼（9〜21時）に使う電気の割合を 少ない25%・ふつう35%・多い45% とし、使用量を比較ツールと同じ 0.9・1.0・1.2倍 にしています。</li>
+            <li>日中の在宅は、平日の昼（9〜21時）に使う電気の割合を 少ない30%・ふつう35%・多い45% とし（電化Styleコースの昼は夜9時までなので、共働きでも夕方からの家事・照明・冷暖房の分が入ります）、使用量を比較ツールと同じ 0.9・1.0・1.2倍 にしています。</li>
             <li>オール電化の今の料金は、中国電力「電化Styleコース」です。土日祝は終日、夜の単価です。平日の昼の単価は、夏（7〜9月）とそれ以外を月数で平均しています。</li>
             <li>太陽光の計算は、弊社の比較シミュレーターと同じ前提です。ただし家で使える量は、パネルを増やすほど、これまで電気を買っていた時間帯をまかなえる分が増える計算にしています（発電量 1kWあたり年1,000kWh、劣化 年0.5%、売電単価 1〜4年目24円・5〜10年目8.3円・11年目以降7.15円、パワコン交換 15年目・30年目に各20万円、電気代の上昇 年2%）。</li>
             <li>ローンは元利均等返済で計算しています。金利・期間は実際の借入条件に合わせて変えてください。購入時の保険や点検の費用は入れていません。</li>
@@ -506,8 +506,8 @@ function tieredBill(t, kwh) {
 }
 const denkaBillAt = (kwh, day) => DENKA.basic + kwh * (day * DENKA_DAY + (1 - day) * DENKA.night + FUEL + REN);
 const denkaBill = kwh => denkaBillAt(kwh, state.day);
-// 日中の在宅：昼の割合と、使用量の補正（比較ツール navi.html の在宅補正 少ない0.9／普通1.0／多い1.2 と同じ）
-const LIFE = { few: { day: 0.25, mult: 0.90, label: '少ない' }, mid: { day: 0.35, mult: 1.00, label: 'ふつう' }, many: { day: 0.45, mult: 1.20, label: '多い' } };
+// 日中の在宅：平日9〜21時に使う割合（夕方〜夜9時の家事・照明・冷暖房を含むため、共働きでも3割はある想定）と、使用量の補正（比較ツール navi.html の在宅補正 少ない0.9／普通1.0／多い1.2 と同じ）
+const LIFE = { few: { day: 0.30, mult: 0.90, label: '少ない' }, mid: { day: 0.35, mult: 1.00, label: 'ふつう' }, many: { day: 0.45, mult: 1.20, label: '多い' } };
 const nowBill = kwh => state.home === 'denka' ? denkaBill(kwh) : tieredBill(TIERED.chugokuA, kwh);
 function billToKwhNow(bill) {
   let lo = 0, hi = 4000;
