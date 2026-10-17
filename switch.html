@@ -492,6 +492,7 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
             <li>オール電化の今の料金は、中国電力「電化Styleコース」です。土日祝は終日、夜の単価です。平日の昼の単価は、夏（7〜9月）とそれ以外を月数で平均しています。</li>
             <li>太陽光の計算は、弊社の比較シミュレーターと同じ前提です。ただし家で使う量は、発電の30%（弊社の提案資料の標準）＋エコキュートを昼に沸かす分としています（発電量 1kWあたり年1,000kWh、劣化 年0.5%、売電単価 1〜4年目24円・5〜10年目8.3円・11年目以降7.15円、パワコン交換 15年目・30年目に各20万円、電気代の上昇 年2%）。</li>
             <li>ローンは元利均等返済で計算しています。金利・期間は実際の借入条件に合わせて変えてください。購入時の保険や点検の費用は入れていません。</li>
+            <li>切り替えの計算は、ENEOSでんき公式の料金シミュレーションと同じ方法です。月の使用量を、鳥取市の季節ごとの使い方（冬と8月が多い）で12か月に分け、月ごとに料金表で計算して1年分を足しています。燃料費調整額と再エネ賦課金はどちらのプランも同じなので、差には影響しません。</li>
             <li>単価は、どちらも2026年11月1日からの料金でそろえています。中国電力は公式の料金表、ENEOSでんきは10月までの公式単価に中国電力と同じ値上げ幅を足した推定です（ENEOSでんき公式のお知らせの値上げ額と一致）。2026年10月18日確認。</li>
           </ul>
         </details>
@@ -512,7 +513,6 @@ const TIERED = {
   eneosA:   { min: 983.37, tiers: [[120, 33.15], [300, 39.28], [Infinity, 40.29]] },
 };
 const DENKA = { basic: 2255.36, daySummer: 47.06, dayOther: 45.00, night: 30.92 }; // 中国電力 電化Styleコース（10kWまで）
-const DENKA_DAY = (DENKA.daySummer * 3 + DENKA.dayOther * 9) / 12;
 // 人数別の月間使用量・エコキュート年間使用量は、比較ツール（navi.html）と同じ値。ガス併用は戸建ての平均的な使用量
 const FAMILY_KWH = { denka: { 1: 380, 2: 520, 3: 600, 4: 700, 5: 800 }, gas: { 1: 200, 2: 300, 3: 370, 4: 430, 5: 500 } };
 const ECO_KWH_BY_FAMILY = { 1: 600, 2: 900, 3: 1200, 4: 1400, 5: 1600 };
@@ -527,7 +527,11 @@ const man = n => (Math.abs(n) / 10000).toFixed(1);
 const manU = n => man(n) + '<small>万円</small>';
 const state = { step: 1, reached: 1, home: 'denka', mode: 'family', n: 4, day: 0.35, life: 'mid', cap: 6, pay: 'loan', rate: 3.0, term: 15, priceTouched: false };
 
-function tieredBill(t, kwh) {
+// 季節ごとの使い方（1〜12月）。ENEOSでんき公式の料金シミュレーション（ENECHANGE）が鳥取市（郵便番号680-0000）で使う月ごとの使用量の形。
+// 公式と同じく、月ごとに料金表で計算して1年分を足す（月の使用量×12 にはしない）
+const SEASON = (s => { const m = s.reduce((a, b) => a + b, 0) / 12; return s.map(v => v / m); })([515, 510, 466, 408, 378, 391, 450, 482, 430, 382, 387, 460]);
+const seasonal = (fn, avg) => SEASON.reduce((sum, f, i) => sum + fn(avg * f, i), 0) / 12; // 月平均の電気代を返す
+function tieredMonth(t, kwh) {
   let y = t.min, prev = MIN_KWH;
   for (const [upTo, unit] of t.tiers) {
     if (kwh <= prev) break;
@@ -536,7 +540,9 @@ function tieredBill(t, kwh) {
   }
   return y + kwh * (FUEL + REN);
 }
-const denkaBillAt = (kwh, day) => DENKA.basic + kwh * (day * DENKA_DAY + (1 - day) * DENKA.night + FUEL + REN);
+const tieredBill = (t, avg) => seasonal(k => tieredMonth(t, k), avg);
+// 電化Style：7〜9月は夏の昼の単価、それ以外はその他季の単価
+const denkaBillAt = (avg, day) => seasonal((k, i) => DENKA.basic + k * (day * (i >= 6 && i <= 8 ? DENKA.daySummer : DENKA.dayOther) + (1 - day) * DENKA.night + FUEL + REN), avg);
 const denkaBill = kwh => denkaBillAt(kwh, state.day);
 // 日中の在宅：平日9〜21時に使う割合（夕方〜夜9時の家事・照明・冷暖房を含むため、共働きでも3割はある想定）と、使用量の補正（比較ツール navi.html の在宅補正 少ない0.9／普通1.0／多い1.2 と同じ）
 const LIFE = { few: { day: 0.30, mult: 0.90, label: '少ない' }, mid: { day: 0.35, mult: 1.00, label: 'ふつう' }, many: { day: 0.45, mult: 1.20, label: '多い' } };
@@ -579,7 +585,7 @@ function renderTips() {
       + '<div class="src">出典：<a href="https://www.energia-support.com/pricemenu/meter_a.html" target="_blank" rel="noopener">中国電力 公式の料金表（従量電灯A）</a>。2026年11月1日からの単価です。2026年10月18日確認。</div>';
   $('tipEne').innerHTML = '<b>ENEOSでんき 中国Aプラン</b>' + tipTable([['最低料金（15kWhまで）', '983.37円/月'], ['16〜120kWh', '33.15円/kWh'], ['121〜300kWh', '39.28円/kWh'], ['301kWh超', '40.29円/kWh'], ...add])
     + '<div class="src">出典：<a href="https://www.eneos-power.co.jp/denki/plan/v/#chugoku" target="_blank" rel="noopener">ENEOSでんき公式サイト（Vプラン・中国エリア）</a>）。2026年11月1日からの単価は、10月までの公式単価（最低料金759.68円・32.58円・38.71円・39.72円）に、中国電力 従量電灯Aと同じ値上げ幅を足した推定です。ENEOSでんき公式の<a href="https://www.eneos-power.co.jp/denkigas/information/uploads/denki-important-20261015-390.pdf" target="_blank" rel="noopener">値上げのお知らせ</a>（2026年10月15日）にある「中国エリア 月400kWhで+443円」と一致します。燃料費調整は中国電力と同じ値で計算しています。2年契約の割引（<a href="https://www.eneos-power.co.jp/denki/benefit/longuse.html" target="_blank" rel="noopener">にねん とく2割</a>：1kWhあたり1〜2年目0.2円・3年目以降0.3円引き）を入れています。</div>'
-    + '<div class="src" style="margin-top:6px">照合：<a href="https://www.eneos-power.co.jp/denkigas/simulator/" target="_blank" rel="noopener">ENEOSでんき公式の料金シミュレーション</a>で、鳥取市・戸建て・中国電力 従量電灯A・月430kWhを入れると「年間最大5,853円おトク」（2年契約の割引込み）。10月までの単価で計算したこのページの同じ条件は年5,656円（同じ割引込み）で、おおむね一致しています（2026年10月17日確認）。公式シミュレーションには、電化Styleコースからの比較はありません。</div>'
+    + '<div class="src" style="margin-top:6px">照合：<a href="https://www.eneos-power.co.jp/denkigas/simulator/" target="_blank" rel="noopener">ENEOSでんき公式の料金シミュレーション</a>で、鳥取市・戸建て・中国電力 従量電灯A・月430kWhを入れると「年間最大5,853円おトク」（2年契約の割引込み）。このページは公式と同じ計算方法（1か月の使用量から季節ごとの12か月分を出し、月ごとに料金表で計算）で、同じ条件・10月までの単価なら年5,857円となり、公式と4円差（端数の丸め）で一致します（2026年10月18日確認）。公式シミュレーションには、電化Styleコースからの比較はありません。</div>'
     + '<div class="warn">中国エリアのENEOSでんきには、オール電化向けのプランがありません。オール電化の家も、時間帯で単価が変わらないこのプランで計算しています。</div>';
   $('tipSun').innerHTML = '<b>太陽光の計算</b>' + tipTable([['発電量', '1kWあたり年1,000kWh'], ['売電単価 1〜4年目', '24円/kWh'], ['売電単価 5〜10年目', '8.3円/kWh'], ['売電単価 11年目以降', '7.15円/kWh'], ['劣化', '年0.5%'], ['パワコン交換', '15年目・30年目に各20万円']])
     + '<div class="src">発電量・売電単価・劣化・パワコン交換は、弊社の比較シミュレーターと同じ前提です。家で使う量は、発電した電気の30%（弊社の提案資料の標準）に、エコキュートを昼に沸かす分（4人家族で年1,400kWhの7割）を足して計算しています。容量を増やすほど、家で使える電気も増えます。</div>';
