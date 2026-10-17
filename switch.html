@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>電気代まるごと見直し</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="calc.js"></script>
+<style>
+/* 電力会社の切り替え＋太陽光の概算（中国電力エリア・太陽光なしの戸建て向け）
+   太陽光は calc.js と同じ前提（発電量・劣化・売電単価・リース料・パワコン交換）。家で使う量だけ、発電の30%（提案資料の標準）＋エコキュート昼沸かし分にしている
+   流れ：① 今の電気代 → ② ENEOSでんきに切り替え → ③ SBIリースで太陽光。おトクを1本の帯に積み上げて見せる */
+:root{
+  --text:#1D1D1F; --sub:#6E6E73; --line:#E3E3E8; --surface:#F5F5F7; --paper:#FFFFFF;
+  --now:#D2D2D7; --orange:#FF6A00; --yellow:#FFC107; --sun:#FFB000; --good:#0A8F5B; --warn:#C2410C;
+  --pop:linear-gradient(100deg,#FF5A00 0%,#FF8A00 45%,#FFC107 100%);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none !important}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{font-family:'Noto Sans JP','Hiragino Sans',sans-serif;color:var(--text);background:var(--paper);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.num{font-family:'Manrope',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+button{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--orange);outline-offset:3px;border-radius:8px}
+
+/* 上の帯：進み具合と、積み上がったおトク */
+.nav{position:sticky;top:0;z-index:30;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;height:60px;padding:0 28px;background:rgba(255,255,255,.84);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);border-bottom:1px solid var(--line)}
+.logo{font-weight:900;font-size:14.5px;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.logo i{width:22px;height:22px;border-radius:7px;background:var(--pop)}
+.steps{display:flex;gap:6px}
+.steps button{border:0;background:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:700;color:#A1A1A6}
+.steps button b{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-family:'Manrope',sans-serif;font-size:12px;background:var(--surface);color:#A1A1A6;transition:background .3s,color .3s}
+.steps button[data-state="done"]{color:var(--text)}
+.steps button[data-state="done"] b{background:var(--text);color:#fff}
+.steps button[data-state="now"]{color:var(--text);background:var(--surface)}
+.steps button[data-state="now"] b{background:var(--pop);color:#fff}
+.steps button:disabled{cursor:default}
+.total{justify-self:end;display:flex;align-items:baseline;gap:8px;font-size:12.5px;color:var(--sub);white-space:nowrap}
+.total .num{font-size:20px;font-weight:800;color:var(--text)}
+.total.on .num{background:var(--pop);-webkit-background-clip:text;background-clip:text;color:transparent}
+.total .bump{animation:bump .6s var(--ease)}
+@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.18)}100%{transform:scale(1)}}
+
+/* 場面 */
+.scene{max-width:1040px;margin:0 auto;padding:72px 32px 40px}
+.scene+.scene{border-top:1px solid var(--line)}
+.scene.enter>*{animation:rise .8s var(--ease) both}
+.scene.enter>*:nth-child(2){animation-delay:.08s}
+.scene.enter>*:nth-child(3){animation-delay:.16s}
+.scene.enter>*:nth-child(4){animation-delay:.24s}
+.scene.enter>*:nth-child(5){animation-delay:.32s}
+@keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+.eyebrow{font-size:14px;font-weight:700;color:var(--orange)}
+.scene h1,.scene h2{font-size:clamp(30px,4.4vw,54px);font-weight:900;line-height:1.2;letter-spacing:-.015em;margin-top:6px}
+.scene .lead{color:var(--sub);font-size:15.5px;margin-top:12px;max-width:40em}
+
+/* 入力 */
+.form{display:grid;grid-template-columns:1fr 1fr;gap:28px 40px;margin-top:40px}
+.form .full{grid-column:1/-1}
+.form h3{font-size:14px;font-weight:700;color:var(--sub);margin-bottom:10px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tiles.three{grid-template-columns:repeat(3,1fr)}
+.tiles.four{grid-template-columns:repeat(4,1fr)}
+.tiles.five{grid-template-columns:repeat(5,1fr)}
+.opt{border:1.5px solid var(--line);background:var(--paper);border-radius:16px;padding:14px 8px;min-height:56px;cursor:pointer;font-size:15px;font-weight:700;text-align:center;transition:border-color .15s,box-shadow .15s,transform .15s}
+.opt small{display:block;font-size:11.5px;font-weight:500;color:var(--sub);margin-top:2px}
+.opt:hover{border-color:#B9B9C0}
+.opt:active{transform:scale(.98)}
+.opt[aria-pressed="true"]{border-color:var(--text);box-shadow:inset 0 0 0 1px var(--text)}
+.field{display:flex;align-items:center;gap:10px;margin-top:10px}
+.field input{font-family:'Manrope',sans-serif;font-size:22px;font-weight:700;width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:16px;color:var(--text);background:var(--paper)}
+.field input:focus{border-color:var(--text);outline:none}
+.field span{white-space:nowrap;color:var(--sub);font-size:14px}
+.hint{font-size:12.5px;color:var(--sub);margin-top:8px;line-height:1.6}
+.range label{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--sub);font-weight:700}
+.range label .num{font-size:20px;font-weight:800;color:var(--text)}
+input[type=range]{width:100%;accent-color:var(--orange);margin-top:8px;height:28px}
+.switch{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;border-radius:16px;background:var(--surface);font-size:15px;font-weight:700;cursor:pointer}
+.switch input{width:24px;height:24px;accent-color:var(--orange);flex:none}
+
+/* 次へ進むボタン */
+.next{margin-top:48px;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.go{border:0;cursor:pointer;display:inline-flex;align-items:center;gap:14px;min-height:60px;padding:16px 30px;border-radius:999px;background:var(--text);color:#fff;font-size:17px;font-weight:900;transition:transform .2s var(--ease),box-shadow .2s}
+.go:hover{transform:translateY(-2px);box-shadow:0 14px 30px -14px rgba(0,0,0,.5)}
+.go.pop{background:var(--pop);box-shadow:0 16px 36px -14px rgba(255,106,0,.75)}
+.go svg{flex:none}
+.next .s{font-size:12.5px;color:var(--sub)}
+
+/* 比べる帯（横棒） */
+.bars{margin-top:44px;display:grid;gap:18px}
+.bar .row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px;font-size:14.5px;font-weight:700}
+.bar .row .num{font-size:26px;font-weight:800;white-space:nowrap}
+.bar .row .num small{font-size:13px;color:var(--sub);font-weight:600;margin-left:3px}
+.bar .row .p{display:block;font-size:12.5px;font-weight:400;color:var(--sub)}
+.track{height:22px;border-radius:999px;background:var(--surface);overflow:hidden;display:flex}
+.seg{height:100%;width:0;transition:width 1.1s var(--ease)}
+.seg.now{background:var(--now)}
+.seg.ene{background:var(--orange)}
+.seg.sun{background:linear-gradient(90deg,var(--sun),var(--yellow))}
+.seg.rest{background:var(--now)}
+.seg.gap{background:repeating-linear-gradient(45deg,#FFD7B8 0 5px,#FFF1E6 5px 10px)}
+
+.win{margin-top:40px;display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 14px}
+.win .lbl{font-size:16px;font-weight:700}
+.win .big{font-size:clamp(48px,7vw,88px);font-weight:800;line-height:1;background:var(--pop);-webkit-background-clip:text;background-clip:text;color:transparent}
+.win .u{font-size:20px;font-weight:900}
+.win .s{width:100%;font-size:13px;color:var(--sub)}
+
+/* 積み上げの凡例 */
+.stack-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--sub)}
+.stack-legend span{display:inline-flex;align-items:center;gap:6px}
+.stack-legend i{width:12px;height:12px;border-radius:4px;display:inline-block}
+
+/* 根拠：マウスを乗せても、押しても開く */
+.why{position:relative;display:inline-block;margin-left:6px;vertical-align:2px}
+.why>.info{border:1px solid var(--line);background:var(--paper);border-radius:999px;font-size:11px;padding:0 9px;line-height:20px;cursor:pointer;font-weight:700;color:var(--sub)}
+.why>.info:hover{color:var(--text);border-color:var(--text)}
+.tip{position:absolute;z-index:40;left:0;top:calc(100% + 10px);width:380px;max-width:82vw;background:var(--paper);border-radius:18px;padding:18px 20px;font-size:12.5px;font-weight:400;line-height:1.65;color:var(--text);box-shadow:0 30px 60px -20px rgba(0,0,0,.28),0 0 0 1px rgba(0,0,0,.05);opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .18s,transform .18s}
+.why:hover .tip,.why:focus-within .tip,.why.open .tip{opacity:1;visibility:visible;transform:none}
+.tip b{display:block;font-size:14px;margin-bottom:6px}
+.tip table{width:100%;border-collapse:collapse;margin:4px 0 10px}
+.tip td{padding:4px 0;border-bottom:1px solid var(--surface)}
+.tip td:last-child{text-align:right;font-family:'Manrope',sans-serif;font-variant-numeric:tabular-nums;padding-left:10px;white-space:nowrap}
+.tip .src{color:var(--sub)}
+.tip .warn{color:var(--warn);margin-top:6px}
+
+.map{margin-top:40px;border:1px solid var(--line);border-radius:22px;padding:22px 24px}
+.map h3{font-size:17px;font-weight:900}
+.mapwrap{overflow-x:auto;margin-top:12px}
+#mapT{width:100%;border-collapse:separate;border-spacing:6px;font-size:13px;min-width:460px}
+#mapT th{font-weight:700;color:var(--sub);font-size:12.5px;text-align:center;padding:4px}
+#mapT th.r{text-align:left;white-space:nowrap}
+#mapT td{text-align:center;border-radius:12px;padding:10px 6px;font-family:'Manrope',sans-serif;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+#mapT td.ok{background:#FFF1E6;color:#C2410C}
+#mapT td.ok.strong{background:var(--orange);color:#fff}
+#mapT td.ng{background:var(--surface);color:#A1A1A6;font-family:inherit;font-weight:700;font-size:12px}
+#mapT td.me{box-shadow:0 0 0 3px var(--text)}
+#mapT td small{display:block;font-size:10.5px;font-weight:700}
+.official{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:36px;padding:20px 24px;border-radius:22px;background:var(--surface)}
+.official p{font-size:12.5px;color:var(--sub);line-height:1.6}
+.official p b{display:block;font-size:15px;color:var(--text)}
+.official .links{display:flex;gap:10px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 22px;border-radius:999px;font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap}
+.pill.pri{background:var(--pop);color:#fff}
+.pill.sec{background:var(--paper);border:1px solid var(--line)}
+
+/* ③ 太陽光 */
+.sbi{display:inline-block;line-height:1.9;font-size:13px;font-weight:700;padding:6px 14px;border-radius:999px;background:var(--surface);margin-top:16px}
+.sbi b{background:var(--pop);color:#fff;border-radius:999px;padding:1px 10px;font-size:12px;margin-right:8px;white-space:nowrap}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+.kpis>div{background:var(--surface);border-radius:20px;padding:18px 20px}
+.kpis .l{font-size:12.5px;color:var(--sub)}
+.kpis .v{font-size:28px;font-weight:800;line-height:1.2;margin-top:2px}
+.kpis .v small{font-size:13px;margin-left:3px}
+.bad{color:var(--warn) !important}
+
+/* 購入との比べ */
+.versus{margin-top:24px;border-radius:28px;background:var(--surface);padding:36px 36px 30px}
+.versus>h3{font-size:clamp(22px,2.6vw,32px);font-weight:900;line-height:1.3}
+.versus .form{margin-top:24px}
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:28px;position:relative}
+.duel::after{content:"VS";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:var(--text);color:#fff;display:grid;place-items:center;font-family:'Manrope',sans-serif;font-weight:800;font-size:15px;box-shadow:0 0 0 6px var(--surface)}
+.duel>div.lost{opacity:.92}
+.duel>div.won{box-shadow:inset 0 0 0 2px var(--orange)}
+.cost{margin-top:16px}
+.cost .track{height:14px}
+.cost .seg.lease{background:var(--pop)}
+.cost .seg.price{background:#8E8E93}
+.cost .seg.int{background:repeating-linear-gradient(45deg,#C2410C 0 6px,#E0763A 6px 12px)}
+.cost .lg{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--sub);margin-top:6px}
+.cost .lg i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:4px;vertical-align:-1px}
+.versus.enter>*{animation:rise .8s var(--ease) both}
+.duel>div{background:var(--paper);border-radius:22px;padding:24px 26px}
+.duel .t{font-size:15px;font-weight:900;display:flex;align-items:center;gap:8px}
+.duel .badge{font-size:11.5px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--pop);color:#fff}
+.duel .big{font-size:38px;font-weight:800;line-height:1.15;margin-top:8px}
+.duel .big small{font-size:15px;font-weight:700;margin-left:4px}
+.duel .s{font-size:13px;color:var(--sub)}
+.duel table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+.duel td{padding:8px 0;border-top:1px solid var(--surface)}
+.duel td:last-child{text-align:right;font-family:'Manrope',sans-serif;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;padding-left:10px}
+.verdict{margin-top:16px;border-radius:22px;padding:22px 26px;background:var(--text);color:#fff;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.verdict .num{font-size:36px;font-weight:800;background:var(--pop);-webkit-background-clip:text;background-clip:text;color:transparent}
+.verdict p{font-size:15px;font-weight:700}
+.verdict span.s{font-size:12.5px;color:#A1A1A6;font-weight:400;width:100%}
+
+.vhead{font-size:clamp(22px,2.8vw,34px);font-weight:900;line-height:1.35;margin-top:6px}
+.vbig{font-size:1.5em;font-weight:800;background:var(--pop);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.race{margin-top:26px;background:var(--paper);border-radius:22px;padding:22px 24px;display:grid;gap:16px}
+.lane{display:grid;grid-template-columns:150px 1fr 120px;align-items:center;gap:16px}
+.lane .who b{display:block;font-size:15px;font-weight:900}
+.lane .who span{font-size:12px;color:var(--sub)}
+.lane .track{height:30px;border-radius:10px}
+.lane .seg{border-radius:0}
+.lane .amt{font-size:26px;font-weight:800;text-align:right;white-space:nowrap}
+.lane .amt small{font-size:13px;margin-left:2px}
+.lane.lost{opacity:.85}
+.race-lg{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--sub);padding-left:166px}
+.race-lg i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-1px}
+.seg.lease{background:var(--pop)}
+.seg.price{background:#8E8E93}
+.seg.int{background:repeating-linear-gradient(45deg,#C2410C 0 6px,#E0763A 6px 12px)}
+.facts{margin-top:16px;background:var(--paper);border-radius:22px;padding:8px 24px;display:grid;grid-template-columns:1.1fr 1fr 1fr;font-size:14px}
+.facts>div{padding:12px 6px;border-bottom:1px solid var(--surface)}
+.facts>div:nth-last-child(-n+3){border-bottom:0}
+.facts .fh{font-size:13px;font-weight:900;color:var(--sub);text-align:center}
+.facts .fh.l{color:var(--orange)}
+.facts .fk{color:var(--sub);font-size:13px}
+.facts .fv{text-align:center;font-weight:700}
+.facts .fv.l{color:var(--text);background:#FFF6EE}
+details.cond{margin-top:16px;background:var(--paper);border-radius:22px;padding:16px 24px}
+details.cond summary{cursor:pointer;font-weight:700;font-size:14px}
+details.cond .form{margin-top:16px}
+@media (max-width:640px){
+  .lane{grid-template-columns:1fr auto;gap:6px 10px}
+  .lane .bar2{grid-column:1/-1;grid-row:2}
+  .race-lg{padding-left:0}
+  .facts{padding:6px 12px;font-size:13px}
+}
+.detail{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.detail>div{border:1px solid var(--line);border-radius:22px;padding:22px 26px}
+.detail h4{font-size:15px;font-weight:900;margin-bottom:6px}
+.rows{width:100%;border-collapse:collapse;font-size:13.5px}
+.rows td{padding:9px 0;border-bottom:1px solid var(--surface)}
+.rows td:last-child{text-align:right;font-family:'Manrope',sans-serif;font-variant-numeric:tabular-nums;font-weight:700;padding-left:12px;white-space:nowrap}
+.rows tr.total td{border-bottom:0;font-weight:900;font-size:15px}
+.notice{font-size:13px;color:var(--warn);margin-top:12px}
+details.base{font-size:12.5px;color:var(--sub)}
+details.base summary{cursor:pointer;font-weight:700;color:var(--text);font-size:15px}
+details.base ul{padding-left:1.2em;margin-top:8px}
+.again{margin-top:36px}
+.again button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:10px 20px;min-height:44px;cursor:pointer;font-weight:700;font-size:14px}
+footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;color:var(--sub);border-top:1px solid var(--line)}
+
+@media (max-width:860px){
+  .nav{grid-template-columns:1fr auto;height:auto;padding:10px 16px;row-gap:6px}
+  .steps{grid-column:1/-1;grid-row:2;justify-content:space-between}
+  .steps button{padding:4px 6px;font-size:12px}
+  .scene{padding:48px 16px 32px}
+  .form{grid-template-columns:1fr;gap:24px}
+  .kpis,.duel,.detail{grid-template-columns:1fr}
+  .duel::after{top:50%}
+  .versus{padding:24px 18px}
+  footer{padding:20px 16px 40px}
+}
+@media (max-width:520px){
+  .logo span{display:none}
+  .tiles.five{grid-template-columns:repeat(3,1fr)}
+  .tip{position:fixed;left:16px !important;right:16px !important;top:auto;bottom:16px;width:auto;max-width:none;transform:none !important}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .scene.enter>*,.total .bump{animation:none}
+  .seg,.tip,.go{transition:none}
+}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="logo"><i aria-hidden="true"></i><span>電気代まるごと見直し</span></div>
+  <nav class="steps" aria-label="進み具合">
+    <button type="button" class="stepbtn rb" data-go="1" data-state="now"><b>1</b>今の電気代</button>
+    <button type="button" class="stepbtn rb" data-go="2" disabled><b>2</b>切り替え</button>
+    <button type="button" class="stepbtn rb" data-go="3" disabled><b>3</b>太陽光</button>
+  </nav>
+  <div class="total" id="totalBox">おトクの合計 年<span class="num" id="totalV">0</span>万円</div>
+</header>
+
+<main>
+  <!-- ① 今の電気代 -->
+  <section class="scene enter" id="s1" aria-labelledby="s1h">
+    <div class="eyebrow">中国電力エリア・戸建てのお客様へ</div>
+    <h1 id="s1h">まずは、今の電気代から。</h1>
+    <p class="lead">お住まいと電気の使い方を選ぶだけ。1分で、電気代がいくら下がるかがわかります。</p>
+    <div class="form">
+      <div class="full">
+        <h3>お住まい</h3>
+        <div class="tiles" id="homeOpts">
+          <button type="button" class="opt" data-home="denka" aria-pressed="true">オール電化<small>今は中国電力 電化Styleコース</small></button>
+          <button type="button" class="opt" data-home="gas">ガス併用<small>今は中国電力 従量電灯A</small></button>
+        </div>
+      </div>
+      <div>
+        <h3>入力のしかた</h3>
+        <div class="tiles three" id="modeOpts">
+          <button type="button" class="opt" data-mode="family" aria-pressed="true">家族の人数</button>
+          <button type="button" class="opt" data-mode="bill">電気代</button>
+          <button type="button" class="opt" data-mode="kwh">使用量</button>
+        </div>
+      </div>
+      <div>
+        <div id="modeFamily">
+          <h3>家族の人数</h3>
+          <div class="tiles five" id="familyOpts">
+            <button type="button" class="opt" data-n="1">1人</button>
+            <button type="button" class="opt" data-n="2">2人</button>
+            <button type="button" class="opt" data-n="3">3人</button>
+            <button type="button" class="opt" data-n="4" aria-pressed="true">4人</button>
+            <button type="button" class="opt" data-n="5">5人〜</button>
+          </div>
+        </div>
+        <div id="modeBill" hidden><h3>毎月の電気代（平均）</h3><div class="field"><input id="billIn" type="number" inputmode="numeric" min="1000" step="500" value="22000" aria-label="毎月の電気代"><span>円／月</span></div></div>
+        <div id="modeKwh" hidden><h3>毎月の使用量（平均）</h3><div class="field"><input id="kwhIn" type="number" inputmode="numeric" min="50" step="10" value="550" aria-label="毎月の使用量"><span>kWh／月</span></div></div>
+        <p class="hint">月 <span class="num" id="kwhShow">-</span> kWh として計算しています。</p>
+      </div>
+      <div class="full" id="dayBox">
+        <h3>日中、ご家族が家にいる時間</h3>
+        <div class="tiles three" id="lifeOpts">
+          <button type="button" class="opt" data-life="few">少ない<small>共働きで日中は留守がち</small></button>
+          <button type="button" class="opt" data-life="mid" aria-pressed="true">ふつう<small>ときどき家にいる</small></button>
+          <button type="button" class="opt" data-life="many">多い<small>在宅勤務・子育て・ご高齢の方</small></button>
+        </div>
+        <p class="hint">平日の昼（9〜21時）に使う電気を <span class="num" id="dayShow">35%</span> として計算します。家にいる時間が長いほど、使用量も増えます。</p>
+      </div>
+    </div>
+    <div class="next">
+      <button type="button" class="go" data-go="2">ENEOSでんきに切り替えると？
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg></button>
+      <span class="s">今の年間電気代 <span class="num" id="s1Now">-</span></span>
+    </div>
+  </section>
+
+  <!-- ② 切り替え -->
+  <section class="scene" id="s2" hidden aria-labelledby="s2h">
+    <div class="eyebrow">STEP 2　電力会社の切り替え</div>
+    <h2 id="s2h">手続きだけで、電気代が下がります。</h2>
+    <p class="lead">工事も機器の交換もいりません。今の中国電力から、ENEOSでんき「中国Aプラン」に切り替えた場合です。</p>
+    <div class="bars">
+      <div class="bar">
+        <div class="row"><div>今のまま<span class="why"><button type="button" class="info" aria-label="今の料金プランの根拠">根拠</button><span class="tip" id="tipNow" role="tooltip"></span></span><span class="p" id="pNow"></span></div><div class="num" id="b2Now">-</div></div>
+        <div class="track"><div class="seg now" id="g2Now"></div></div>
+      </div>
+      <div class="bar">
+        <div class="row"><div>ENEOSでんきに切り替え<span class="why"><button type="button" class="info" aria-label="ENEOSでんきの料金プランの根拠">根拠</button><span class="tip" id="tipEne" role="tooltip"></span></span><span class="p">中国Aプラン</span></div><div class="num" id="b2Ene">-</div></div>
+        <div class="track"><div class="seg ene" id="g2Ene"></div><div class="seg gap" id="g2Gap"></div></div>
+      </div>
+    </div>
+    <div class="win">
+      <span class="lbl" id="w2Lbl">切り替えるだけで 年</span><span class="big num" id="w2">-</span><span class="u" id="w2u">円 おトク</span>
+      <span class="s" id="w2s"></span>
+    </div>
+    <div class="map" id="mapBox">
+      <h3>切り替えでおトクになるご家庭</h3>
+      <p class="hint" id="mapLead"></p>
+      <div class="mapwrap"><table id="mapT"></table></div>
+    </div>
+    <div class="official">
+      <p><b>ENEOSでんき 中国Aプランの料金は公式サイトで確認できます</b>提供：ENEOS Power株式会社。単価・お申し込み条件は公式サイトの内容が優先されます。</p>
+      <div class="links">
+        <a class="pill pri" href="https://www.eneos-power.co.jp/denki/plan/v/#chugoku" target="_blank" rel="noopener">公式サイトで料金を見る</a>
+        <a class="pill sec" href="https://www.eneos-power.co.jp/denki/entry/" target="_blank" rel="noopener">お申し込みページ</a>
+      </div>
+    </div>
+    <div class="next">
+      <button type="button" class="go pop" data-go="3">さらに、初期費用0円のSBIリースなら…
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg></button>
+      <span class="s">屋根に太陽光をのせて、昼の電気をまかなうと</span>
+    </div>
+  </section>
+
+  <!-- ③ 太陽光 -->
+  <section class="scene" id="s3" hidden aria-labelledby="s3h">
+    <div class="eyebrow">STEP 3　初期費用0円のSBIリースで太陽光</div>
+    <h2 id="s3h">切り替えの上に、太陽光のおトクを積み上げます。</h2>
+    <div class="sbi"><b>初期費用0円</b>リース料は月 <span class="num" id="leaseFee">-</span>（税抜）を10年。11年目からは設備がお客様のものに</div>
+    <div class="form">
+      <div>
+        <h3>パネルの容量</h3>
+        <div class="tiles four" id="capOpts">
+          <button type="button" class="opt" data-cap="5">5kW<small id="cv5">-</small></button>
+          <button type="button" class="opt" data-cap="6" aria-pressed="true">6kW<small id="cv6">-</small></button>
+          <button type="button" class="opt" data-cap="7">7kW<small id="cv7">-</small></button>
+          <button type="button" class="opt" data-cap="8">8kW<small id="cv8">-</small></button>
+        </div>
+        <p class="hint">発電した電気の3割を家で使う計算なので、容量を増やすほど家で使える電気も増え、おトクが大きくなります。タイルの数字は20年間の合計のおトクです。</p>
+      </div>
+      <div id="ecoWrap">
+        <h3>エコキュート</h3>
+        <label class="switch" id="ecoBox">昼の太陽光でお湯を沸かす<input type="checkbox" id="ecoIn" checked></label>
+      </div>
+    </div>
+
+    <div class="bars">
+      <div class="bar">
+        <div class="row"><div>今のままの電気代（20年間）<span class="p">この1本の中に、おトクを積み上げていきます</span></div><div class="num" id="b3Now">-</div></div>
+        <div class="track" aria-label="今の電気代の内訳"><div class="seg ene" id="g3Ene"></div><div class="seg sun" id="g3Sun"></div><div class="seg rest" id="g3Rest"></div></div>
+        <div class="stack-legend">
+          <span><i style="background:var(--orange)"></i>切り替えのおトク <b class="num" id="l3Ene">-</b></span>
+          <span><i style="background:var(--sun)"></i>太陽光のおトク <b class="num" id="l3Sun">-</b><span class="why"><button type="button" class="info" aria-label="太陽光の計算の根拠">根拠</button><span class="tip" id="tipSun" role="tooltip"></span></span></span>
+          <span><i style="background:var(--now)"></i>残る負担 <b class="num" id="l3Rest">-</b></span>
+        </div>
+        <p class="hint">20年間の合計です（電気代の上昇 年2%、パワコン交換を含む）。容量を変えると、太陽光のおトクの長さが変わります。</p>
+      </div>
+    </div>
+    <div class="win">
+      <span class="lbl" id="w3Lbl">切り替え＋SBIリースで 20年間に</span><span class="big num" id="w3">-</span><span class="u" id="w3u">万円 おトク</span>
+      <span class="s">今のままと比べた20年間の合計（税込・概算）。太陽光の分は、売電収入とリース料・パワコン交換を差し引いた実質のおトクです。</span>
+    </div>
+    <div class="kpis">
+      <div><div class="l">1年目のおトク</div><div class="v num" id="k1y">-</div></div>
+      <div><div class="l">1年目の毎月の実質負担</div><div class="v num" id="k1">-</div></div>
+      <div><div class="l">10年間の合計（今と比べて）</div><div class="v num" id="k10">-</div></div>
+    </div>
+
+    <!-- 購入との比べ -->
+    <div class="next" id="vsNext">
+      <button type="button" class="go" id="vsGo">では、リースではなく購入したら？
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg></button>
+      <span class="s">同じ太陽光を、リフォームローンなどで買った場合と比べます</span>
+    </div>
+    <div class="versus" id="versus" hidden>
+      <div class="eyebrow">SBIリースと購入を比べると</div>
+      <h3 class="vhead"><span id="vhA">購入より、SBIリースの方が</span> <span class="vbig num" id="vDiff">-</span> <span id="vhB">おトクです</span></h3>
+      <p class="hint" style="font-size:13.5px">同じ <span id="duelCap"></span> の太陽光で、払い終わるまでに支払うお金の合計を比べました（どちらも税別。購入のローンの金利はそのまま足しています）。</p>
+
+      <div class="race" aria-label="払い終わるまでに支払うお金の合計">
+        <div class="lane" id="laneL">
+          <div class="who"><b>SBIリース</b><span>初期費用0円</span></div>
+          <div class="bar2"><div class="track"><div class="seg lease" id="cbL"></div></div></div>
+          <div class="amt num" id="dlTotal">-</div>
+        </div>
+        <div class="lane" id="laneB">
+          <div class="who"><b id="dbName">購入</b><span id="dbSub"></span></div>
+          <div class="bar2"><div class="track"><div class="seg price" id="cbP"></div><div class="seg int" id="cbI"></div></div></div>
+          <div class="amt num" id="dbTotal">-</div>
+        </div>
+        <div class="race-lg"><span><i style="background:#FF8A00"></i>リース料</span><span><i style="background:#8E8E93"></i>太陽光の代金</span><span id="cbIL"><i style="background:#C2410C"></i>ローンの金利</span></div>
+      </div>
+
+      <div class="facts">
+        <div class="fh"></div><div class="fh l">SBIリース</div><div class="fh">購入</div>
+        <div class="fk">最初に払うお金</div><div class="fv l">0円</div><div class="fv" id="fFirst">-</div>
+        <div class="fk">毎月の支払い</div><div class="fv l" id="fMonL">-</div><div class="fv" id="fMonB">-</div>
+        <div class="fk">払い終わるまで</div><div class="fv l">10年</div><div class="fv" id="fEnd">-</div>
+        <div class="fk">金利の負担</div><div class="fv l">なし</div><div class="fv" id="fInt">-</div>
+        <div class="fk">払い終わったあと</div><div class="fv l">設備はお客様のものに</div><div class="fv">設備はお客様のもの</div>
+      </div>
+
+      <details class="cond">
+        <summary>購入の条件を変える（見積り金額・ローン）</summary>
+      <div class="form">
+        <div>
+          <h3>購入価格（税込）</h3>
+          <div class="field"><input id="priceIn" type="number" inputmode="numeric" min="0" step="1" value="168" aria-label="購入価格"><span>万円</span></div>
+          <p class="hint">最初は1kWあたり28万円の目安です。お見積りの金額に書き換えてください。</p>
+        </div>
+        <div>
+          <h3>支払い方法</h3>
+          <div class="tiles" id="payOpts">
+            <button type="button" class="opt" data-pay="loan" aria-pressed="true">ローン</button>
+            <button type="button" class="opt" data-pay="cash">現金</button>
+          </div>
+        </div>
+        <div class="range" id="rateBox">
+          <label for="rateIn"><span>ローンの金利（年）</span><span class="num" id="rateShow">3.0%</span></label>
+          <input id="rateIn" type="range" min="0.5" max="5" step="0.1" value="3">
+        </div>
+        <div id="termBox">
+          <h3>返す期間</h3>
+          <div class="tiles three" id="termOpts">
+            <button type="button" class="opt" data-term="10">10年</button>
+            <button type="button" class="opt" data-term="15" aria-pressed="true">15年</button>
+            <button type="button" class="opt" data-term="20">20年</button>
+          </div>
+        </div>
+      </div>
+      </details>
+    </div>
+
+    <div class="detail">
+      <div>
+        <h4>1年目の内訳（SBIリース）</h4>
+        <table class="rows">
+          <tr><td>今の年間電気代（<span id="dNowName"></span>）</td><td id="d0">-</td></tr>
+          <tr><td>ENEOSでんきに切り替えた差額（2年契約の割引込み）</td><td id="d1">-</td></tr>
+          <tr><td>太陽光の電気を家で使って減る分（自家消費 <span id="scR">-</span>%）</td><td id="d2">-</td></tr>
+          <tr><td>余った電気を売った収入（1kWhあたり24円・1〜4年目）</td><td id="d3">-</td></tr>
+          <tr><td>リース料（年間・税抜）</td><td id="d4">-</td></tr>
+          <tr class="total"><td>1年目の実質負担</td><td id="d5">-</td></tr>
+        </table>
+        <p class="notice">中国電力エリアでは、国の認定が下りてから電力網につなぎます。お申し込みから発電・売電の開始まで、数か月かかることがあります。</p>
+      </div>
+      <div>
+        <details class="base">
+          <summary>計算の前提</summary>
+          <ul>
+            <li>電気代は料金表の単価（税込）に、燃料費調整額 1kWhあたり<span class="num" id="pFuel"></span>円と再エネ賦課金 1kWhあたり<span class="num" id="pRen"></span>円を足しています。国の一時的な値引き（電気・ガス料金支援）は入れていません。</li>
+            <li>日中の在宅は、平日の昼（9〜21時）に使う電気の割合を 少ない30%・ふつう35%・多い45% とし（電化Styleコースの昼は夜9時までなので、共働きでも夕方からの家事・照明・冷暖房の分が入ります）、使用量を比較ツールと同じ 0.9・1.0・1.2倍 にしています。</li>
+            <li>オール電化の今の料金は、中国電力「電化Styleコース」です。土日祝は終日、夜の単価です。平日の昼の単価は、夏（7〜9月）とそれ以外を月数で平均しています。</li>
+            <li>太陽光の計算は、弊社の比較シミュレーターと同じ前提です。ただし家で使う量は、発電の30%（弊社の提案資料の標準）＋エコキュートを昼に沸かす分としています（発電量 1kWあたり年1,000kWh、劣化 年0.5%、売電単価 1〜4年目24円・5〜10年目8.3円・11年目以降7.15円、パワコン交換 15年目・30年目に各20万円、電気代の上昇 年2%）。</li>
+            <li>ローンは元利均等返済で計算しています。金利・期間は実際の借入条件に合わせて変えてください。購入時の保険や点検の費用は入れていません。</li>
+            <li>切り替えの計算は、ENEOSでんき公式の料金シミュレーションと同じ方法です。月の使用量を、鳥取市の季節ごとの使い方（冬と8月が多い）で12か月に分け、月ごとに料金表で計算して1年分を足しています。燃料費調整額と再エネ賦課金はどちらのプランも同じなので、差には影響しません。</li>
+            <li>単価は、どちらも2026年11月1日からの料金でそろえています。中国電力は公式の料金表、ENEOSでんきは10月までの公式単価に中国電力と同じ値上げ幅を足した推定です（ENEOSでんき公式のお知らせの値上げ額と一致）。2026年10月18日確認。</li>
+          </ul>
+        </details>
+      </div>
+    </div>
+    <div class="again"><button type="button" data-go="1">条件を変えてもう一度</button></div>
+  </section>
+</main>
+<footer>この試算は、公表されている料金表をもとにした概算です。実際の金額は、ご使用状況・屋根の条件・借入条件・料金改定によって変わります。電力会社の公式な見積りではありません。作成：ミライエコリース</footer>
+
+<script>
+// 料金表（税込・円）。燃料費調整と再エネ賦課金は calc.js の UTIL_DATA.chugoku と同じ値を使う
+const FUEL = UTIL_DATA.chugoku.fuel, REN = UTIL_DATA.chugoku.ren;
+const TIERED = {
+  // 2026年11月1日からの単価。中国電力は公式料金表。ENEOSでんきは10月までの公式単価に、中国電力 従量電灯Aと同じ値上げ幅
+  // （最低料金+223.69円・各段+0.57円）を足した推定。ENEOS公式のお知らせ「中国エリア 月400kWhで+443円」と一致する
+  chugokuA: { min: 983.37, tiers: [[120, 33.32], [300, 40.00], [Infinity, 42.12]] },
+  eneosA:   { min: 983.37, tiers: [[120, 33.15], [300, 39.28], [Infinity, 40.29]] },
+};
+const DENKA = { basic: 2255.36, daySummer: 47.06, dayOther: 45.00, night: 30.92 }; // 中国電力 電化Styleコース（10kWまで）
+// 人数別の月間使用量・エコキュート年間使用量は、比較ツール（navi.html）と同じ値。ガス併用は戸建ての平均的な使用量
+const FAMILY_KWH = { denka: { 1: 380, 2: 520, 3: 600, 4: 700, 5: 800 }, gas: { 1: 200, 2: 300, 3: 370, 4: 430, 5: 500 } };
+const ECO_KWH_BY_FAMILY = { 1: 600, 2: 900, 3: 1200, 4: 1400, 5: 1600 };
+const ECO_SHIFT = 0.70, SELF_RATE = 0.30; // 比較ツールと同じ「おひさまモード」（エコキュートの7割を昼に沸かす）。SELF_RATE：発電のうち家で使う割合（提案資料の標準 30%）
+// ENEOSでんき公式の2年契約割引「にねん とく2割」：電力量料金 1kWhあたり 1〜2年目0.2円・3年目以降0.3円引き（税込）
+const NINEN = y => y <= 2 ? 0.2 : 0.3;
+const MIN_KWH = 15, PRICE_PER_KW = 28; // 購入価格の初期値（万円/kW）
+
+const $ = id => document.getElementById(id);
+const yen = n => (n < 0 ? '−' : '') + Math.round(Math.abs(n)).toLocaleString('ja-JP') + '円';
+const man = n => (Math.abs(n) / 10000).toFixed(1);
+const manU = n => man(n) + '<small>万円</small>';
+const state = { step: 1, reached: 1, home: 'denka', mode: 'family', n: 4, day: 0.35, life: 'mid', cap: 6, pay: 'loan', rate: 3.0, term: 15, priceTouched: false };
+
+// 季節ごとの使い方（1〜12月）。ENEOSでんき公式の料金シミュレーション（ENECHANGE）が鳥取市（郵便番号680-0000）で使う月ごとの使用量の形。
+// 公式と同じく、月ごとに料金表で計算して1年分を足す（月の使用量×12 にはしない）
+const SEASON = (s => { const m = s.reduce((a, b) => a + b, 0) / 12; return s.map(v => v / m); })([515, 510, 466, 408, 378, 391, 450, 482, 430, 382, 387, 460]);
+const seasonal = (fn, avg) => SEASON.reduce((sum, f, i) => sum + fn(avg * f, i), 0) / 12; // 月平均の電気代を返す
+function tieredMonth(t, kwh) {
+  let y = t.min, prev = MIN_KWH;
+  for (const [upTo, unit] of t.tiers) {
+    if (kwh <= prev) break;
+    y += (Math.min(kwh, upTo) - prev) * unit;
+    prev = upTo;
+  }
+  return y + kwh * (FUEL + REN);
+}
+const tieredBill = (t, avg) => seasonal(k => tieredMonth(t, k), avg);
+// 電化Style：7〜9月は夏の昼の単価、それ以外はその他季の単価
+const denkaBillAt = (avg, day) => seasonal((k, i) => DENKA.basic + k * (day * (i >= 6 && i <= 8 ? DENKA.daySummer : DENKA.dayOther) + (1 - day) * DENKA.night + FUEL + REN), avg);
+const denkaBill = kwh => denkaBillAt(kwh, state.day);
+// 日中の在宅：平日9〜21時に使う割合（夕方〜夜9時の家事・照明・冷暖房を含むため、共働きでも3割はある想定）と、使用量の補正（比較ツール navi.html の在宅補正 少ない0.9／普通1.0／多い1.2 と同じ）
+const LIFE = { few: { day: 0.30, mult: 0.90, label: '少ない' }, mid: { day: 0.35, mult: 1.00, label: 'ふつう' }, many: { day: 0.45, mult: 1.20, label: '多い' } };
+const nowBill = kwh => state.home === 'denka' ? denkaBill(kwh) : tieredBill(TIERED.chugokuA, kwh);
+function billToKwhNow(bill) {
+  let lo = 0, hi = 4000;
+  for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; nowBill(m) < bill ? lo = m : hi = m; }
+  return Math.round(lo);
+}
+// 元利均等返済の毎月の返済額
+function loanMonthly(principal, ratePct, years) {
+  const r = ratePct / 100 / 12, n = years * 12;
+  return r === 0 ? principal / n : principal * r / (1 - Math.pow(1 + r, -n));
+}
+function pick(groupId, btn) { $(groupId).querySelectorAll('.opt').forEach(b => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false')); }
+function currentKwh() {
+  if (state.mode === 'family') return Math.round(FAMILY_KWH[state.home][state.n] * LIFE[state.life].mult);
+  if (state.mode === 'bill') return billToKwhNow(+$('billIn').value || 0);
+  return Math.max(0, Math.round(+$('kwhIn').value || 0));
+}
+
+// 数字の数え上げ（動きを減らす設定なら即表示）
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function countTo(el, to, fmt) {
+  const from = +el.dataset.v || 0; el.dataset.v = to;
+  if (reduce || from === to) { el.innerHTML = fmt(to); return; }
+  const t0 = performance.now(), d = 900;
+  const tick = t => { const k = Math.min(1, (t - t0) / d), e = 1 - Math.pow(1 - k, 3); el.innerHTML = fmt(from + (to - from) * e); if (k < 1) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+}
+const setW = (id, pct) => { $(id).style.width = Math.max(0, Math.min(100, pct)) + '%'; };
+
+const tipTable = rows => '<table>' + rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('') + '</table>';
+function renderTips() {
+  const add = [['燃料費調整額', FUEL + '円/kWh'], ['再エネ賦課金（2026年度）', REN + '円/kWh']];
+  $('tipNow').innerHTML = state.home === 'denka'
+    ? '<b>中国電力 電化Styleコース</b>' + tipTable([['基本料金（10kWまで）', '2,255.36円/月'], ['平日 9〜21時（7〜9月）', '47.06円/kWh'], ['平日 9〜21時（その他）', '45.00円/kWh'], ['平日 21〜翌9時', '30.92円/kWh'], ['土日祝 終日', '30.92円/kWh'], ...add])
+      + '<div class="src">出典：<a href="https://www.energia-support.com/pricemenu/denka.html" target="_blank" rel="noopener">中国電力 公式の料金表（電化Styleコース）</a>。2026年11月1日からの単価です（10月までは基本料金2,018.72円・昼44.40円／夏46.46円・夜30.35円）。2026年10月18日確認。</div>'
+    : '<b>中国電力 従量電灯A</b>' + tipTable([['最低料金（15kWhまで）', '983.37円/月'], ['15〜120kWh', '33.32円/kWh'], ['120〜300kWh', '40.00円/kWh'], ['300kWh超', '42.12円/kWh'], ...add])
+      + '<div class="src">出典：<a href="https://www.energia-support.com/pricemenu/meter_a.html" target="_blank" rel="noopener">中国電力 公式の料金表（従量電灯A）</a>。2026年11月1日からの単価です。2026年10月18日確認。</div>';
+  $('tipEne').innerHTML = '<b>ENEOSでんき 中国Aプラン</b>' + tipTable([['最低料金（15kWhまで）', '983.37円/月'], ['16〜120kWh', '33.15円/kWh'], ['121〜300kWh', '39.28円/kWh'], ['301kWh超', '40.29円/kWh'], ...add])
+    + '<div class="src">出典：<a href="https://www.eneos-power.co.jp/denki/plan/v/#chugoku" target="_blank" rel="noopener">ENEOSでんき公式サイト（Vプラン・中国エリア）</a>）。2026年11月1日からの単価は、10月までの公式単価（最低料金759.68円・32.58円・38.71円・39.72円）に、中国電力 従量電灯Aと同じ値上げ幅を足した推定です。ENEOSでんき公式の<a href="https://www.eneos-power.co.jp/denkigas/information/uploads/denki-important-20261015-390.pdf" target="_blank" rel="noopener">値上げのお知らせ</a>（2026年10月15日）にある「中国エリア 月400kWhで+443円」と一致します。燃料費調整は中国電力と同じ値で計算しています。2年契約の割引（<a href="https://www.eneos-power.co.jp/denki/benefit/longuse.html" target="_blank" rel="noopener">にねん とく2割</a>：1kWhあたり1〜2年目0.2円・3年目以降0.3円引き）を入れています。</div>'
+    + '<div class="src" style="margin-top:6px">照合：<a href="https://www.eneos-power.co.jp/denkigas/simulator/" target="_blank" rel="noopener">ENEOSでんき公式の料金シミュレーション</a>で、鳥取市・戸建て・中国電力 従量電灯A・月430kWhを入れると「年間最大5,853円おトク」（2年契約の割引込み）。このページは公式と同じ計算方法（1か月の使用量から季節ごとの12か月分を出し、月ごとに料金表で計算）で、同じ条件・10月までの単価なら年5,857円となり、公式と4円差（端数の丸め）で一致します（2026年10月18日確認）。公式シミュレーションには、電化Styleコースからの比較はありません。</div>'
+    + '<div class="warn">中国エリアのENEOSでんきには、オール電化向けのプランがありません。オール電化の家も、時間帯で単価が変わらないこのプランで計算しています。</div>';
+  $('tipSun').innerHTML = '<b>太陽光の計算</b>' + tipTable([['発電量', '1kWあたり年1,000kWh'], ['売電単価 1〜4年目', '24円/kWh'], ['売電単価 5〜10年目', '8.3円/kWh'], ['売電単価 11年目以降', '7.15円/kWh'], ['劣化', '年0.5%'], ['パワコン交換', '15年目・30年目に各20万円']])
+    + '<div class="src">発電量・売電単価・劣化・パワコン交換は、弊社の比較シミュレーターと同じ前提です。家で使う量は、発電した電気の30%（弊社の提案資料の標準）に、エコキュートを昼に沸かす分（4人家族で年1,400kWhの7割）を足して計算しています。容量を増やすほど、家で使える電気も増えます。</div>';
+}
+
+function render() {
+  const kwh = currentKwh(), denka = state.home === 'denka';
+  $('kwhShow').textContent = kwh;
+  $('dayShow').textContent = Math.round(state.day * 100) + '%';
+  const bNow = nowBill(kwh), bEne = tieredBill(TIERED.eneosA, kwh) - kwh * NINEN(1);
+  const yNow = bNow * 12, yEne = bEne * 12, swY = yNow - yEne;
+  const swAt = y => (swY + kwh * 12 * (NINEN(y) - NINEN(1))) * Math.pow(1.02, y - 1); // y年目の切り替えのおトク
+  const nowName = denka ? '中国電力 電化Styleコース' : '中国電力 従量電灯A';
+  $('pNow').textContent = nowName; $('dNowName').textContent = nowName;
+  $('s1Now').textContent = yen(yNow);
+
+  // 太陽光（SBIリース）：発電量・劣化・売電単価・リース料・パワコン交換・電気代の上昇は calc.js と同じ前提。
+  // 家で使える量（自家消費）だけは、発電が増えるほど「買っていた時間帯」をまかなえる分が増える計算にする
+  const cap = state.cap, eco = denka && $('ecoIn').checked;
+  const ECO_KWH = ECO_KWH_BY_FAMILY[state.n] || 1200;
+  const effUnit = kwh > 0 ? bEne / kwh : getEffUnitByKey('chugoku');
+  // 家で使う量：発電の30%（提案資料の標準）＋エコキュートを昼に沸かす分。上限は発電の85%（calc.js と同じ）
+  const ecoDay = eco ? ECO_KWH * ECO_SHIFT : 0;
+  const selfKwh = g => Math.min(g * SELF_RATE + ecoDay, g * 0.85);
+  const leaseFor = c => {
+    const lp = LEASE_PLANS[String(c)] || { cap: c, monthly: c * 2000, term: 10 };
+    const annualLease = [];
+    for (let y = 1; y <= 30; y++) {
+      const eu = effUnit * Math.pow(1.02, y - 1), g = c * 1000 * Math.pow(0.995, y - 1), self = selfKwh(g);
+      const fit = y <= 4 ? DEFAULT_LF1 : y <= lp.term ? DEFAULT_LF2 : DEFAULT_LF3;
+      annualLease.push(self * eu + (g - self) * fit - (y <= lp.term ? lp.monthly * 12 : 0) - ((y === 15 || y === 30) ? 200000 : 0));
+    }
+    return { leasePlan: lp, annualLease };
+  };
+  const r = leaseFor(cap);
+  const lp = r.leasePlan, feeY = lp.monthly * 12;
+  const gen = cap * 1000, self1 = selfKwh(gen), scEco = gen > 0 ? self1 / gen : 0;
+  const selfY = self1 * effUnit, sellY = (gen - self1) * DEFAULT_LF1;
+  const net1 = yEne - selfY - sellY + feeY;   // リースの1年目の実質負担
+  const sunY = yEne - net1;                   // 太陽光のおトク（1年目）
+
+  // 容量ごとの20年間の合計（タイルに表示）
+  [5, 6, 7, 8].forEach(c => {
+    const rc = leaseFor(c);
+    let v = 0; for (let y = 1; y <= 20; y++) v += swAt(y) + rc.annualLease[y - 1];
+    $('cv' + c).textContent = '20年 ' + man(v) + '万円';
+  });
+
+  // ② 切り替え
+  const sc2 = state.reached >= 2;
+  countTo($('b2Now'), sc2 ? yNow : 0, x => manU(x).replace('万円', '万円/年'));
+  countTo($('b2Ene'), sc2 ? yEne : 0, x => manU(x).replace('万円', '万円/年'));
+  setW('g2Now', sc2 ? 100 : 0); setW('g2Ene', sc2 ? Math.min(yEne, yNow) / yNow * 100 : 0); setW('g2Gap', sc2 ? Math.max(0, swY) / yNow * 100 : 0);
+  countTo($('w2'), sc2 ? Math.abs(swY) : 0, x => Math.round(x).toLocaleString('ja-JP'));
+  $('w2Lbl').textContent = swY >= 0 ? '切り替えるだけで 年' : '切り替えの差は 年';
+  $('w2u').textContent = swY >= 0 ? '円 おトク' : '円（今のプランの方が安い）';
+  $('w2s').textContent = swY >= 0 ? '月あたり約' + yen(swY / 12) + '。2年契約の割引（にねん とく2割）込みです。3年目からは割引が増えます。'
+    : '夜に使う電気が多いオール電化のご家庭では、夜が安い今のプランの方が安くなることがあります。中国エリアのENEOSでんきには、オール電化向けのプランがないためです。';
+
+  // おトクになるご家庭の早見表（家族の人数 × 日中の在宅）
+  const ns = [1, 2, 3, 4, 5], lifes = ['few', 'mid', 'many'];
+  let html = '<tr><th></th>' + lifes.map(l => '<th>在宅 ' + LIFE[l].label + '</th>').join('') + '</tr>';
+  ns.forEach(n => {
+    html += '<tr><th class="r">' + (n === 5 ? '5人〜' : n + '人') + '</th>';
+    lifes.forEach(l => {
+      const k = Math.round(FAMILY_KWH[state.home][n] * LIFE[l].mult);
+      const now = denka ? denkaBillAt(k, LIFE[l].day) : tieredBill(TIERED.chugokuA, k);
+      const d = (now - (tieredBill(TIERED.eneosA, k) - k * NINEN(1))) * 12;
+      const me = state.mode === 'family' && state.n === n && state.life === l ? ' me' : '';
+      html += d > 0 ? '<td class="ok' + (d >= 10000 ? ' strong' : '') + me + '">年 ' + Math.round(d).toLocaleString('ja-JP') + '円<small>おトク</small></td>'
+        : '<td class="ng' + me + '">今のプランの<br>ままがおトク</td>';
+    });
+    html += '</tr>';
+  });
+  $('mapT').innerHTML = html;
+  $('mapLead').textContent = denka
+    ? '中国電力 電化Styleコースから切り替えた場合（2年契約の割引込み）。日中に家にいる時間が長いご家庭ほどおトクです。黒い枠が、このご家庭です。'
+    : '中国電力 従量電灯Aから切り替えた場合（2年契約の割引込み）。どのご家庭でもおトクになります。黒い枠が、このご家庭です。';
+
+  // ③ 太陽光の積み上げ（今のままの20年間の電気代を1本の帯にして、切り替え・太陽光・残りに分ける）
+  const sc3 = state.reached >= 3;
+  let now20 = 0, sw20 = 0, sun20 = 0;
+  for (let y = 1; y <= 20; y++) { const g = Math.pow(1.02, y - 1); now20 += yNow * g; sw20 += swAt(y); sun20 += r.annualLease[y - 1]; }
+  const rest20 = now20 - sw20 - sun20;
+  countTo($('b3Now'), now20, x => manU(x));
+  setW('g3Ene', sc3 ? Math.max(0, sw20) / now20 * 100 : 0);
+  setW('g3Sun', sc3 ? Math.max(0, sun20) / now20 * 100 : 0);
+  setW('g3Rest', sc3 ? Math.max(0, rest20) / now20 * 100 : 100);
+  $('l3Ene').textContent = man(sw20) + '万円'; $('l3Sun').textContent = (sun20 < 0 ? '−' : '') + man(sun20) + '万円'; $('l3Rest').textContent = man(rest20) + '万円';
+  const totalY = yNow - net1;
+  $('k1y').innerHTML = (totalY >= 0 ? '' : '−') + man(totalY) + '<small>万円</small>';
+  $('k1').innerHTML = yen(net1 / 12).replace('円', '<small>円</small>');
+
+  // 今と比べて、N年で減る合計（電気代の上昇は calc.js の既定と同じ年2%）
+  if (!state.priceTouched) $('priceIn').value = cap * PRICE_PER_KW;
+  const price = (+$('priceIn').value || 0) * 10000, loan = state.pay === 'loan';
+  const pmt = loan ? loanMonthly(price, state.rate, state.term) : 0;
+  const buyTotal = loan ? pmt * 12 * state.term : price, leaseTotal = feeY * lp.term;
+  const solarOnly = y => r.annualLease[y - 1] + (y <= lp.term ? feeY : 0);
+  const payBuy = y => loan ? (y <= state.term ? pmt * 12 : 0) : (y === 1 ? price : 0);
+  const cumWay = (n, isBuy) => {
+    let s = 0;
+    for (let y = 1; y <= n; y++) s += swAt(y) + solarOnly(y) - (isBuy ? payBuy(y) : (y <= lp.term ? feeY : 0));
+    return s;
+  };
+  const word = c => man(c) + '<small>万円 ' + (c >= 0 ? 'おトク' : '負担増') + '</small>';
+  const l10 = cumWay(10, false), l20 = cumWay(20, false), b20 = cumWay(20, true);
+  $('k10').innerHTML = word(l10); $('k10').classList.toggle('bad', l10 < 0);
+  countTo($('w3'), sc3 ? Math.abs(l20) : 0, x => man(x));
+  $('w3u').textContent = l20 >= 0 ? '万円 おトク' : '万円 負担増';
+
+  // 購入との比べ（どちらも税別でそろえる。購入は代金から消費税を除き、ローンの金利はそのまま足す）
+  const leaseTotalTax = leaseTotal;                       // リース料（税別）の合計
+  const priceEx = price / 1.1, buyTotalEx = priceEx + (buyTotal - price);
+  const diff = buyTotalEx - leaseTotalTax, leaseWins = diff >= 0;
+  $('duelCap').textContent = cap + 'kW';
+  $('vhA').textContent = leaseWins ? '購入より、SBIリースの方が' : 'この条件では、購入の方が';
+  $('vDiff').textContent = man(Math.abs(diff)) + '万円';
+  $('vhB').textContent = leaseWins ? 'おトクです' : '安くすみます';
+  $('dlTotal').innerHTML = manU(leaseTotalTax);
+  $('dbName').textContent = loan ? '購入（ローン）' : '購入（現金）';
+  $('dbSub').textContent = loan ? '金利' + state.rate.toFixed(1) + '%・' + state.term + '年' : '最初に一括で支払い';
+  $('dbTotal').innerHTML = manU(buyTotalEx);
+  const cmax = Math.max(leaseTotalTax, buyTotalEx, 1), vs = !$('versus').hidden;
+  setW('cbL', vs ? leaseTotalTax / cmax * 100 : 0); setW('cbP', vs ? priceEx / cmax * 100 : 0); setW('cbI', vs ? (buyTotal - price) / cmax * 100 : 0);
+  $('cbIL').hidden = !loan;
+  $('laneL').classList.toggle('lost', !leaseWins); $('laneB').classList.toggle('lost', leaseWins);
+  $('fFirst').textContent = loan ? '0円（ローンで分割）' : man(priceEx) + '万円（税別）';
+  $('fMonL').textContent = yen(lp.monthly) + '（税別・10年）';
+  $('fMonB').textContent = loan ? yen(pmt) + '（返済額・' + state.term + '年）' : 'なし';
+  $('fEnd').textContent = loan ? state.term + '年' : '最初に一括';
+  $('fInt').textContent = loan ? man(buyTotal - price) + '万円' : 'なし';
+  $('rateShow').textContent = state.rate.toFixed(1) + '%';
+  $('rateBox').hidden = !loan; $('termBox').hidden = !loan;
+
+  // 1年目の内訳
+  $('d0').textContent = yen(yNow);
+  $('d1').textContent = (swY >= 0 ? '−' : '+') + yen(Math.abs(swY));
+  $('scR').textContent = Math.round(scEco * 100);
+  $('d2').textContent = '−' + yen(selfY);
+  $('d3').textContent = '−' + yen(sellY);
+  $('d4').textContent = '+' + yen(feeY);
+  $('d5').textContent = yen(net1);
+  $('leaseFee').textContent = lp.monthly.toLocaleString('ja-JP') + '円';
+  $('dayBox').hidden = !denka; $('ecoWrap').hidden = !denka;
+  $('pFuel').textContent = FUEL; $('pRen').textContent = REN;
+
+  // 上の帯：たどり着いた段階までのおトクを積み上げる
+  const t = state.reached >= 3 ? totalY : state.reached >= 2 ? swY : 0;
+  const tv = $('totalV'), prev = +tv.dataset.v || 0;
+  countTo(tv, Math.max(0, t), x => man(x));
+  $('totalBox').classList.toggle('on', t > 0);
+  if (Math.abs(t - prev) > 1 && !reduce) { tv.classList.remove('bump'); void tv.offsetWidth; tv.classList.add('bump'); }
+  renderTips();
+}
+
+// 場面の切り替え
+function goTo(n) {
+  n = +n;
+  if (n > state.reached + 1) return;
+  state.step = n; state.reached = Math.max(state.reached, n);
+  [1, 2, 3].forEach(i => {
+    const s = $('s' + i);
+    if (i <= state.reached) { if (s.hidden) { s.hidden = false; s.classList.remove('enter'); void s.offsetWidth; s.classList.add('enter'); } }
+  });
+  document.querySelectorAll('.stepbtn').forEach(b => {
+    const i = +b.dataset.go;
+    b.disabled = i > state.reached;
+    b.dataset.state = i === n ? 'now' : i <= state.reached ? 'done' : '';
+    if (i === n) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+  });
+  // 帯の伸びは、場面が見えてから始める
+  requestAnimationFrame(() => setTimeout(render, reduce ? 0 : 250));
+  const target = $('s' + n), top = target.getBoundingClientRect().top + scrollY - document.querySelector('.nav').offsetHeight;
+  scrollTo({ top: n === 1 ? 0 : top, behavior: reduce ? 'auto' : 'smooth' });
+}
+$('vsGo').addEventListener('click', () => {
+  const v = $('versus'); v.hidden = false; v.classList.remove('enter'); void v.offsetWidth; v.classList.add('enter');
+  $('vsNext').hidden = true;
+  setTimeout(render, reduce ? 0 : 250);
+  scrollTo({ top: v.getBoundingClientRect().top + scrollY - document.querySelector('.nav').offsetHeight - 16, behavior: reduce ? 'auto' : 'smooth' });
+});
+document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g && !g.disabled) goTo(g.dataset.go); });
+
+const onPick = (groupId, fn) => $(groupId).addEventListener('click', e => { const b = e.target.closest('.opt'); if (!b) return; pick(groupId, b); fn(b.dataset); render(); });
+onPick('homeOpts', d => state.home = d.home);
+onPick('modeOpts', d => {
+  state.mode = d.mode;
+  $('modeFamily').hidden = d.mode !== 'family'; $('modeBill').hidden = d.mode !== 'bill'; $('modeKwh').hidden = d.mode !== 'kwh';
+});
+onPick('familyOpts', d => state.n = +d.n);
+onPick('capOpts', d => {
+  // 購入価格を書き換えていたら、1kWあたりの価格を保ったまま新しい容量に合わせる
+  if (state.priceTouched) $('priceIn').value = Math.round((+$('priceIn').value || 0) / state.cap * +d.cap);
+  state.cap = +d.cap;
+});
+onPick('payOpts', d => state.pay = d.pay);
+onPick('termOpts', d => state.term = +d.term);
+onPick('lifeOpts', d => { state.life = d.life; state.day = LIFE[d.life].day; });
+$('rateIn').addEventListener('input', e => { state.rate = +e.target.value; render(); });
+['billIn', 'kwhIn'].forEach(id => $(id).addEventListener('input', render));
+$('ecoIn').addEventListener('change', render);
+$('priceIn').addEventListener('input', () => { state.priceTouched = true; render(); });
+// 根拠：押すと開閉（iPad向け）。外を押すと閉じる
+document.addEventListener('click', e => {
+  const w = e.target.closest('.why');
+  document.querySelectorAll('.why.open').forEach(x => { if (x !== w) x.classList.remove('open'); });
+  if (w && e.target.closest('.info')) w.classList.toggle('open');
+});
+render();
+</script>
+</body>
+</html>
