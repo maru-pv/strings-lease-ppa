@@ -400,6 +400,7 @@ function renderTips() {
       + '<div class="src">出典：<a href="https://selectra.jp/energy/kaisha/cepco/bill" target="_blank" rel="noopener">Selectra掲載の料金表</a>（2026年10月17日確認）</div><div class="warn">2026年11月1日に料金の見直しが予定されています。</div>';
   $('tipEne').innerHTML = '<b>ENEOSでんき 中国Aプラン</b>' + tipTable([['最低料金（15kWhまで）', '759.68円/月'], ['16〜120kWh', '32.58円/kWh'], ['121〜300kWh', '38.71円/kWh'], ['301kWh超', '39.72円/kWh'], ...add])
     + '<div class="src">出典：<a href="https://www.eneos-power.co.jp/denki/plan/v/#chugoku" target="_blank" rel="noopener">ENEOSでんき公式サイト（Vプラン・中国エリア）</a>（2026年10月17日確認）。2026年10月31日までの料金です。燃料費調整は中国電力と同じ値で計算し、2年契約の割引（にねん とく2割）は入れていません。</div>'
+    + '<div class="src" style="margin-top:6px">照合：<a href="https://www.eneos-power.co.jp/denkigas/simulator/" target="_blank" rel="noopener">ENEOSでんき公式の料金シミュレーション</a>で、鳥取市・戸建て・中国電力 従量電灯A・月430kWhを入れると「年間最大5,853円おトク」（2年契約の割引込み）。このページの同じ条件は年4,624円（割引なし）で、差はおおむね割引の分です（2026年10月17日確認）。公式シミュレーションには、電化Styleコースからの比較はありません。</div>'
     + '<div class="warn">中国エリアのENEOSでんきには、オール電化向けのプランがありません。オール電化の家も、時間帯で単価が変わらないこのプランで計算しています。</div>';
   $('tipSun').innerHTML = '<b>太陽光の計算</b>' + tipTable([['発電量', '1kWあたり年1,000kWh'], ['売電単価 1〜4年目', '24円/kWh'], ['売電単価 5〜10年目', '8.3円/kWh'], ['売電単価 11年目以降', '7.15円/kWh'], ['劣化', '年0.5%'], ['パワコン交換', '15年目・30年目に各20万円']])
     + '<div class="src">弊社の比較シミュレーターと同じ計算式です。家で使う割合は、月の使用量の30%を昼に使う想定で自動計算しています。エコキュートを昼に沸かすと、年1,200kWhのうち4割を太陽光でまかなう想定です。</div>';
