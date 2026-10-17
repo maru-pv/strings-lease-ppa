@@ -5,268 +5,335 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>電気代まるごと見直し</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="calc.js"></script>
 <style>
 /* 電力会社の切り替え＋太陽光の概算（中国電力エリア・太陽光なしの戸建て向け）
-   太陽光の計算は calc.js（calcMain・calcAutoSC）をそのまま使う。このページで足すのは電気代の料金表の計算だけ
-   このページは来場者向けの独立した見た目（紺と白）。暗め／クリーンの切替は使わない */
+   太陽光の計算は calc.js（calcMain・calcAutoSC）をそのまま使う。このページで足すのは電気代の料金表とローンの計算だけ
+   見た目：左に結果（舞台）、右に条件（車の仕様を選ぶ画面の型）。白と黒を基調に、オレンジと黄色で明るさを出す */
 :root{
-  --ink:#0B2545; --ink-2:#13315C; --ink-soft:#4A5D78; --line:#D8E1EC;
-  --mist:#EEF3F8; --paper:#FFFFFF;
-  --now:#8DA2BF; --switch:#E86A10; --sun:#F2B33D; --save:#14855A; --save-bg:#E6F4EC;
-  --r-lg:20px; --r-md:14px; --r-sm:10px;
+  --text:#1D1D1F; --sub:#6E6E73; --line:#E3E3E8; --surface:#F5F5F7; --paper:#FFFFFF;
+  --now:#C7C7CC; --orange:#FF6A00; --yellow:#FFC107; --sun:#FFB000; --good:#0A8F5B; --warn:#C2410C;
+  --pop:linear-gradient(100deg,#FF5A00 0%,#FF8A00 45%,#FFC107 100%);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
 [hidden]{display:none !important}
-body{font-family:'Zen Kaku Gothic New','Hiragino Sans',sans-serif;font-size:15px;line-height:1.7;color:var(--ink);background:var(--mist)}
-.num{font-family:'Manrope',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Noto Sans JP','Hiragino Sans',sans-serif;color:var(--text);background:var(--paper);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.num{font-family:'Manrope',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 button{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--switch);outline-offset:2px}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--orange);outline-offset:3px;border-radius:6px}
 
-.bar-top{background:var(--ink);color:#fff}
-.bar-top .in{max-width:1200px;margin:0 auto;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px}
-.brand{font-weight:900;font-size:17px;letter-spacing:.04em}
-.bar-top small{color:#AFC0D6;font-size:12.5px;margin-left:10px}
-.bar-top a{color:#AFC0D6;font-size:12.5px;text-decoration:none}
+/* 上の帯 */
+.nav{position:sticky;top:0;z-index:30;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(255,255,255,.82);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);border-bottom:1px solid var(--line)}
+.nav .logo{font-weight:900;font-size:15px;letter-spacing:.02em;display:flex;align-items:center;gap:10px}
+.nav .logo i{width:22px;height:22px;border-radius:7px;background:var(--pop);display:inline-block}
+.nav a{font-size:13px;color:var(--sub);text-decoration:none}
 
-.page{max-width:1200px;margin:0 auto;padding:28px 24px 64px;display:grid;grid-template-columns:380px 1fr;gap:28px;align-items:start}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 420px;min-height:calc(100vh - 56px)}
 
-/* 左：入力 */
-.panel{background:var(--paper);border-radius:var(--r-lg);padding:26px 24px;box-shadow:0 1px 0 var(--line),0 18px 40px -28px rgba(11,37,69,.35);position:sticky;top:20px}
-.panel h2{font-size:15px;font-weight:900;margin:24px 0 10px;display:flex;align-items:baseline;gap:10px}
-.panel h2:first-child{margin-top:0}
-.panel h2 .n{font-family:'Manrope',sans-serif;font-size:12px;font-weight:800;color:var(--switch)}
-.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--mist);border-radius:12px;padding:4px;gap:4px}
-.seg .opt{border:0;background:transparent;border-radius:9px;padding:10px 6px;min-height:44px;cursor:pointer;font-size:13.5px;font-weight:700;color:var(--ink-soft)}
-.seg .opt[aria-pressed="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(11,37,69,.18)}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chips .opt{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 16px;min-height:44px;cursor:pointer;font-size:14px}
-.chips .opt[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:700}
-.field{display:flex;align-items:center;gap:10px;margin-top:12px}
-.field input[type=number]{font-family:'Manrope',sans-serif;font-size:20px;font-weight:700;width:150px;padding:9px 12px;border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink)}
-.range{margin-top:14px}
-.range label{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft)}
-.range input{width:100%;accent-color:var(--ink);margin-top:6px}
-.hint{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.6}
-.toggle{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:14px;cursor:pointer}
-.toggle input{width:20px;height:20px;accent-color:var(--save)}
+/* 左：結果（舞台） */
+.stage{padding:48px 56px 56px;position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto;display:flex;flex-direction:column}
+.kicker{font-size:15px;font-weight:700;color:var(--sub)}
+.headline{font-size:clamp(34px,4.2vw,60px);font-weight:900;line-height:1.15;letter-spacing:-.01em;margin-top:6px}
+.headline .num{background:var(--pop);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+.headline small{font-size:.42em;font-weight:700;color:var(--text);margin-left:6px}
+.lead{color:var(--sub);font-size:14px;margin-top:10px}
 
-/* 右：結果 */
-.hero{background:linear-gradient(160deg,var(--ink) 0%,var(--ink-2) 100%);color:#fff;border-radius:var(--r-lg);padding:34px 36px 30px}
-.hero h1{font-size:28px;font-weight:900;line-height:1.4;max-width:24em}
-.hero .sub{color:#B9C8DC;font-size:14px;margin-top:8px}
-.stair{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;height:330px;margin-top:30px;align-items:end}
-.step{display:flex;flex-direction:column;justify-content:flex-end;height:100%}
-.step .v{font-size:34px;font-weight:800;line-height:1.1}
-.step .v small{font-size:14px;font-weight:600;color:#B9C8DC;margin-left:2px}
-.step .m{font-size:13px;color:#B9C8DC;margin:2px 0 10px}
-.step .blk{border-radius:14px 14px 4px 4px;transition:height .7s cubic-bezier(.2,.8,.2,1);min-height:6px}
-.s1 .blk{background:var(--now)}
-.s2 .blk{background:var(--switch)}
-.s3 .blk{background:linear-gradient(180deg,var(--sun),#E0941C)}
-.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:12px;border-top:1px solid rgba(255,255,255,.18);padding-top:12px}
-.legend>div{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.legend .p{display:block;width:100%;font-weight:400;font-size:12.5px;color:#B9C8DC}
+.stair{flex:1;min-height:250px;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:end;margin-top:28px}
+.col{display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.col .v{font-size:clamp(22px,2.4vw,34px);font-weight:800;line-height:1.1}
+.col .v small{font-size:13px;font-weight:600;color:var(--sub);margin-left:3px}
+.col .m{font-size:12.5px;color:var(--sub);margin:4px 0 12px;min-height:2.6em}
+.col .blk{border-radius:22px 22px 6px 6px;transition:height .8s cubic-bezier(.16,1,.3,1);min-height:8px}
+.c1 .blk{background:var(--now)}
+.c2 .blk{background:var(--orange)}
+.c3 .blk{background:linear-gradient(180deg,var(--yellow),var(--sun))}
+.labels{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:14px}
+.labels>div{font-size:14px;font-weight:700}
+.labels .p{display:block;font-weight:400;font-size:12.5px;color:var(--sub)}
 
 /* 根拠：マウスを乗せても、押しても開く */
-.why{position:relative;display:inline-flex}
-.why>.info{border:1px solid rgba(255,255,255,.45);background:transparent;border-radius:999px;font-size:11.5px;padding:1px 10px;cursor:pointer;color:inherit;font-weight:700}
-.tip{position:absolute;z-index:20;left:0;bottom:calc(100% + 10px);width:350px;max-width:80vw;background:var(--paper);color:var(--ink);border-radius:var(--r-md);padding:16px 18px;font-size:12.5px;font-weight:400;line-height:1.65;box-shadow:0 20px 50px -12px rgba(11,37,69,.5);opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity .15s,transform .15s}
+.why{position:relative;display:inline-block;margin-left:4px;vertical-align:1px}
+.why>.info{border:1px solid var(--line);background:var(--paper);border-radius:999px;font-size:11px;padding:0 9px;line-height:20px;cursor:pointer;font-weight:700;color:var(--sub)}
+.why>.info:hover{color:var(--text);border-color:var(--text)}
+.tip{position:absolute;z-index:40;left:0;bottom:calc(100% + 10px);width:360px;max-width:80vw;background:var(--paper);border-radius:18px;padding:18px 20px;font-size:12.5px;font-weight:400;line-height:1.65;color:var(--text);box-shadow:0 30px 60px -20px rgba(0,0,0,.28),0 0 0 1px rgba(0,0,0,.05);opacity:0;visibility:hidden;transform:translateY(6px);transition:opacity .18s,transform .18s}
 .why:hover .tip,.why:focus-within .tip,.why.open .tip{opacity:1;visibility:visible;transform:none}
-.tip b{display:block;font-size:13.5px;margin-bottom:6px}
-.tip table{width:100%;border-collapse:collapse;margin:4px 0 8px}
-.tip td{padding:3px 0;border-bottom:1px solid var(--mist)}
-.tip td:last-child{text-align:right;font-family:'Manrope',sans-serif;font-variant-numeric:tabular-nums;padding-left:10px}
-.tip .src{color:var(--ink-soft)}
-.tip .warn{color:#A4520B;margin-top:4px}
-.tip a{color:var(--ink-2)}
-.legend .s2w .tip{left:50%;transform:translate(-50%,4px)}
-.legend .s2w .why:hover .tip,.legend .s2w .why:focus-within .tip,.legend .s2w .why.open .tip{transform:translate(-50%,0)}
-.legend .s3w .tip{left:auto;right:0}
+.tip b{display:block;font-size:14px;margin-bottom:6px}
+.tip table{width:100%;border-collapse:collapse;margin:4px 0 10px}
+.tip td{padding:4px 0;border-bottom:1px solid var(--surface)}
+.tip td:last-child{text-align:right;font-family:'Manrope',sans-serif;font-variant-numeric:tabular-nums;padding-left:10px;white-space:nowrap}
+.tip .src{color:var(--sub)}
+.tip .warn{color:var(--warn);margin-top:6px}
+.labels>div:nth-child(2) .tip{left:50%;transform:translate(-50%,6px)}
+.labels>div:nth-child(2) .why:hover .tip,.labels>div:nth-child(2) .why:focus-within .tip,.labels>div:nth-child(2) .why.open .tip{transform:translate(-50%,0)}
+.labels>div:nth-child(3) .tip{left:auto;right:0}
 
-.cards{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:16px;margin-top:18px}
-.card{background:var(--paper);border-radius:var(--r-md);padding:20px 22px}
-.card .l{font-size:13px;color:var(--ink-soft)}
-.card .big{font-size:30px;font-weight:800;line-height:1.2;margin-top:4px}
-.card.good{background:var(--save-bg)}
-.card.good .big{color:var(--save)}
-.card .u{font-size:13px;font-weight:700;margin-left:4px}
-.card .big.bad{color:#B24A12}
-
-.detail{background:var(--paper);border-radius:var(--r-md);padding:20px 22px;margin-top:16px}
-.detail h3{font-size:15px;font-weight:900;margin-bottom:8px}
-.rows{width:100%;border-collapse:collapse;font-size:14px}
-.rows td{padding:9px 0;border-bottom:1px solid var(--mist)}
-.rows td:last-child{text-align:right;font-family:'Manrope',sans-serif;font-variant-numeric:tabular-nums;font-weight:700;padding-left:12px;white-space:nowrap}
-.rows tr.total td{border-bottom:0;font-weight:900;font-size:15.5px;padding-top:12px}
-.official{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:22px;padding:16px 18px;border-radius:var(--r-md);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16)}
-.official p{font-size:13px;color:#D5DFEC;line-height:1.6}
-.official p b{display:block;color:#fff;font-size:14.5px}
+.official{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:26px;padding:18px 22px;border-radius:20px;background:var(--surface)}
+.official p{font-size:12.5px;color:var(--sub);line-height:1.6}
+.official p b{display:block;font-size:14.5px;color:var(--text)}
 .official .links{display:flex;gap:10px;flex-wrap:wrap}
-.official a{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:10px 16px;border-radius:var(--r-sm);font-size:14px;font-weight:700;text-decoration:none}
-.official a.pri{background:var(--switch);color:#fff}
-.official a.sec{border:1px solid rgba(255,255,255,.5);color:#fff}
-.vs{background:var(--paper);border-radius:var(--r-md);padding:20px 22px;margin-top:16px}
-.vs h3{font-size:15px;font-weight:900;margin-bottom:4px}
-.vs .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
-.vs .grid>div{border:1px solid var(--line);border-radius:12px;padding:14px 16px}
-.vs .grid>div.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
-.vs .t{font-size:13.5px;font-weight:900}
-.vs .v{font-size:24px;font-weight:800;margin-top:2px}
-.vs .s{font-size:12.5px;color:var(--ink-soft)}
-.notice{margin-top:16px;padding:14px 18px;border-radius:var(--r-md);background:#FFF4E8;color:#7A3B06;font-size:13px}
-details.base{margin-top:16px;font-size:13px;color:var(--ink-soft)}
-details.base summary{cursor:pointer;font-weight:700;color:var(--ink)}
-details.base ul{padding-left:1.3em;margin-top:8px}
-footer{max-width:1200px;margin:0 auto;padding:0 24px 40px;font-size:12px;color:var(--ink-soft)}
+.pill{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 20px;border-radius:999px;font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap}
+.pill.pri{background:var(--pop);color:#fff;box-shadow:0 8px 20px -10px rgba(255,106,0,.8)}
+.pill.sec{background:var(--paper);border:1px solid var(--line)}
 
-@media (max-width:1023px){
-  .page{grid-template-columns:1fr}
-  .panel{position:static}
-  .cards{grid-template-columns:1fr 1fr}.cards .card:first-child{grid-column:1/-1}
+/* 右：条件 */
+.config{border-left:1px solid var(--line);padding:40px 32px 64px;background:var(--paper)}
+.config h2{font-size:22px;font-weight:900;letter-spacing:-.01em;margin:44px 0 14px}
+.config h2:first-child{margin-top:0}
+.config h3{font-size:13px;font-weight:700;color:var(--sub);margin:18px 0 8px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tiles.three{grid-template-columns:repeat(3,1fr)}
+.tiles.four{grid-template-columns:repeat(4,1fr)}
+.tiles.five{grid-template-columns:repeat(5,1fr)}
+.opt{border:1.5px solid var(--line);background:var(--paper);border-radius:14px;padding:12px 8px;min-height:52px;cursor:pointer;font-size:14px;font-weight:700;text-align:center;transition:border-color .15s,box-shadow .15s}
+.opt small{display:block;font-size:11.5px;font-weight:500;color:var(--sub);margin-top:2px}
+.opt:hover{border-color:#B9B9C0}
+.opt[aria-pressed="true"]{border-color:var(--text);box-shadow:inset 0 0 0 1px var(--text)}
+.field{display:flex;align-items:center;gap:10px;margin-top:10px}
+.field input{font-family:'Manrope',sans-serif;font-size:22px;font-weight:700;width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:14px;color:var(--text);background:var(--paper)}
+.field input:focus{border-color:var(--text);outline:none}
+.field span{white-space:nowrap;color:var(--sub);font-size:14px}
+.hint{font-size:12.5px;color:var(--sub);margin-top:8px;line-height:1.6}
+.range label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--sub)}
+.range label .num{font-size:18px;font-weight:800;color:var(--text)}
+input[type=range]{width:100%;accent-color:var(--orange);margin-top:8px;height:28px}
+.switch{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;padding:14px 16px;border-radius:14px;background:var(--surface);font-size:14px;font-weight:700;cursor:pointer}
+.switch input{width:22px;height:22px;accent-color:var(--orange);flex:none}
+
+/* 下の比べ */
+.below{border-top:1px solid var(--line);padding:64px 56px 40px;background:var(--surface)}
+.below .in{max-width:1080px;margin:0 auto}
+.below h2{font-size:clamp(26px,3vw,40px);font-weight:900;line-height:1.25;letter-spacing:-.01em}
+.below .lead{max-width:44em}
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}
+.duel>div{background:var(--paper);border-radius:24px;padding:26px 28px}
+.duel .t{font-size:15px;font-weight:900;display:flex;align-items:center;gap:8px}
+.duel .badge{font-size:11.5px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--pop);color:#fff}
+.duel .big{font-size:40px;font-weight:800;line-height:1.15;margin-top:8px}
+.duel .big small{font-size:15px;font-weight:700;margin-left:4px}
+.duel .s{font-size:13px;color:var(--sub)}
+.duel table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+.duel td{padding:8px 0;border-top:1px solid var(--surface)}
+.duel td:last-child{text-align:right;font-family:'Manrope',sans-serif;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;padding-left:10px}
+.verdict{margin-top:18px;border-radius:24px;padding:22px 28px;background:var(--text);color:#fff;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.verdict .num{font-size:34px;font-weight:800;background:var(--pop);-webkit-background-clip:text;background-clip:text;color:transparent}
+.verdict p{font-size:15px;font-weight:700}
+.verdict span.s{font-size:12.5px;color:#A1A1A6;font-weight:400;width:100%}
+
+.detail{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.detail>div{background:var(--paper);border-radius:24px;padding:24px 28px}
+.detail h3{font-size:15px;font-weight:900;margin-bottom:6px}
+.rows{width:100%;border-collapse:collapse;font-size:13.5px}
+.rows td{padding:9px 0;border-bottom:1px solid var(--surface)}
+.rows td:last-child{text-align:right;font-family:'Manrope',sans-serif;font-variant-numeric:tabular-nums;font-weight:700;padding-left:12px;white-space:nowrap}
+.rows tr.total td{border-bottom:0;font-weight:900;font-size:15px}
+.notice{font-size:13px;color:var(--warn);margin-top:12px}
+details.base{font-size:12.5px;color:var(--sub)}
+details.base summary{cursor:pointer;font-weight:700;color:var(--text);font-size:14px}
+details.base ul{padding-left:1.2em;margin-top:8px}
+footer{background:var(--surface);padding:0 56px 48px;font-size:12px;color:var(--sub)}
+footer .in{max-width:1080px;margin:0 auto;border-top:1px solid var(--line);padding-top:18px}
+
+@media (max-width:1240px){
+  .wrap{grid-template-columns:minmax(0,1fr) 360px}
+  .stage{padding:32px 32px 40px}.config{padding:32px 24px 56px}
 }
-@media (max-width:600px){
-  .page{padding:16px 16px 48px;gap:16px}
-  .bar-top .in{padding:12px 16px}.bar-top small{display:none}
-  .hero{padding:24px 18px}.hero h1{font-size:21px}
-  .stair{height:240px;gap:10px}.step .m{font-size:11px}.step .v{font-size:21px}.step .v small{font-size:11px}
-  .legend{gap:10px}.legend>div{font-size:12.5px}
-  .cards{grid-template-columns:1fr}
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr}
+  .stage{position:static;height:auto;padding:32px 24px}
+  .stair{height:300px;flex:none}
+  .config{border-left:0;border-top:1px solid var(--line);padding:32px 24px 48px}
+  .below{padding:48px 24px 32px}
+  footer{padding:0 24px 40px}
+}
+@media (max-width:640px){
+  .nav{padding:0 16px}
+  .stage{padding:24px 16px}
+  .stair{height:230px;gap:10px}.labels{gap:10px}.labels>div{font-size:12.5px}
+  .col .m{font-size:11px}
+  .config{padding:28px 16px 40px}
+  .tiles.five{grid-template-columns:repeat(3,1fr)}
+  .duel,.detail{grid-template-columns:1fr}
+  .below{padding:40px 16px 28px}
+  footer{padding:0 16px 32px}
   .tip{position:fixed;left:16px !important;right:16px !important;bottom:16px;width:auto;max-width:none;transform:none !important}
 }
-@media (prefers-reduced-motion:reduce){.step .blk,.tip{transition:none}}
+@media (prefers-reduced-motion:reduce){.col .blk,.tip{transition:none}}
 </style>
 </head>
 <body>
-<header class="bar-top"><div class="in">
-  <div><span class="brand">電気代まるごと見直し</span><small>中国電力エリア・戸建て向けの概算</small></div>
+<header class="nav">
+  <div class="logo"><i aria-hidden="true"></i>電気代まるごと見直し</div>
   <a href="index.html">ホームへ</a>
-</div></header>
+</header>
 
-<main class="page">
-  <section class="panel" aria-label="ご家庭の条件">
-    <h2><span class="n">1</span>お住まいの電気</h2>
-    <div class="seg" id="homeOpts">
-      <button type="button" class="opt" data-home="denka" aria-pressed="true">オール電化</button>
-      <button type="button" class="opt" data-home="gas">ガス併用</button>
+<div class="wrap">
+  <!-- 左：結果 -->
+  <section class="stage" aria-live="polite">
+    <div class="kicker">切り替えと太陽光で、今より</div>
+    <div class="headline">年 <span class="num" id="hDown">-</span><small>万円</small><br><span id="hWord">安くなります</span></div>
+    <p class="lead" id="hLead">1年目の概算・税込。太陽光の分は、売電収入と毎月の支払いを差し引いた実質の負担です。</p>
+
+    <div class="stair">
+      <div class="col c1"><div class="v num" id="v1">-</div><div class="m" id="m1"></div><div class="blk" id="b1"></div></div>
+      <div class="col c2"><div class="v num" id="v2">-</div><div class="m" id="m2"></div><div class="blk" id="b2"></div></div>
+      <div class="col c3"><div class="v num" id="v3">-</div><div class="m" id="m3"></div><div class="blk" id="b3"></div></div>
     </div>
-    <p class="hint" id="homeHint"></p>
+    <div class="labels">
+      <div>今のまま<span class="why"><button type="button" class="info" aria-label="今の料金プランの根拠">根拠</button><span class="tip" id="tipNow" role="tooltip"></span></span><span class="p" id="pNow"></span></div>
+      <div>ENEOSでんきに切り替え<span class="why"><button type="button" class="info" aria-label="ENEOSでんきの料金プランの根拠">根拠</button><span class="tip" id="tipEne" role="tooltip"></span></span><span class="p">中国Aプラン</span></div>
+      <div>さらに太陽光<span class="why"><button type="button" class="info" aria-label="太陽光の計算の根拠">根拠</button><span class="tip" id="tipSun" role="tooltip"></span></span><span class="p" id="pSun"></span></div>
+    </div>
 
-    <h2><span class="n">2</span>毎月の電気の使い方</h2>
-    <div class="seg" id="modeOpts">
+    <div class="official">
+      <p><b>ENEOSでんき 中国Aプランの料金は公式サイトで確認できます</b>提供：ENEOS Power株式会社。単価・お申し込み条件は公式サイトの内容が優先されます。</p>
+      <div class="links">
+        <a class="pill pri" href="https://www.eneos-power.co.jp/denki/plan/v/#chugoku" target="_blank" rel="noopener">公式サイトで料金を見る</a>
+        <a class="pill sec" href="https://www.eneos-power.co.jp/denki/entry/" target="_blank" rel="noopener">お申し込みページ</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 右：条件 -->
+  <section class="config" aria-label="ご家庭の条件">
+    <h2>お住まい</h2>
+    <div class="tiles" id="homeOpts">
+      <button type="button" class="opt" data-home="denka" aria-pressed="true">オール電化<small>今は電化Styleコース</small></button>
+      <button type="button" class="opt" data-home="gas">ガス併用<small>今は従量電灯A</small></button>
+    </div>
+
+    <h2>電気の使い方</h2>
+    <div class="tiles three" id="modeOpts">
       <button type="button" class="opt" data-mode="family" aria-pressed="true">家族の人数</button>
       <button type="button" class="opt" data-mode="bill">電気代</button>
       <button type="button" class="opt" data-mode="kwh">使用量</button>
     </div>
-    <div id="modeFamily" style="margin-top:12px">
-      <div class="chips" id="familyOpts">
+    <div id="modeFamily">
+      <h3>家族の人数</h3>
+      <div class="tiles five" id="familyOpts">
         <button type="button" class="opt" data-n="1">1人</button>
         <button type="button" class="opt" data-n="2">2人</button>
         <button type="button" class="opt" data-n="3">3人</button>
         <button type="button" class="opt" data-n="4" aria-pressed="true">4人</button>
-        <button type="button" class="opt" data-n="5">5人以上</button>
+        <button type="button" class="opt" data-n="5">5人〜</button>
       </div>
     </div>
-    <div id="modeBill" hidden><div class="field"><input id="billIn" type="number" inputmode="numeric" min="1000" step="500" value="22000" aria-label="毎月の電気代"><span>円／月の平均</span></div></div>
-    <div id="modeKwh" hidden><div class="field"><input id="kwhIn" type="number" inputmode="numeric" min="50" step="10" value="550" aria-label="毎月の使用量"><span>kWh／月の平均</span></div></div>
+    <div id="modeBill" hidden><h3>毎月の電気代（平均）</h3><div class="field"><input id="billIn" type="number" inputmode="numeric" min="1000" step="500" value="22000" aria-label="毎月の電気代"><span>円／月</span></div></div>
+    <div id="modeKwh" hidden><h3>毎月の使用量（平均）</h3><div class="field"><input id="kwhIn" type="number" inputmode="numeric" min="50" step="10" value="550" aria-label="毎月の使用量"><span>kWh／月</span></div></div>
     <p class="hint">月 <span class="num" id="kwhShow">-</span> kWh として計算しています。</p>
-    <div class="range" id="dayBox">
+    <div class="range" id="dayBox" style="margin-top:16px">
       <label for="dayIn"><span>平日の昼（9〜21時）に使う割合</span><span class="num" id="dayShow">30%</span></label>
       <input id="dayIn" type="range" min="15" max="50" step="5" value="30">
       <p class="hint">共働きで昼に留守がちなら少なめ、日中も家にいるなら多めにします。</p>
     </div>
 
-    <h2><span class="n">3</span>太陽光ののせ方</h2>
-    <div class="seg" id="wayOpts">
-      <button type="button" class="opt" data-way="lease" aria-pressed="true">リース</button>
-      <button type="button" class="opt" data-way="buy">購入</button>
-    </div>
-    <div class="chips" id="capOpts" style="margin-top:12px">
+    <h2>太陽光</h2>
+    <h3>パネルの容量</h3>
+    <div class="tiles four" id="capOpts">
       <button type="button" class="opt" data-cap="4">4kW</button>
       <button type="button" class="opt" data-cap="5">5kW</button>
       <button type="button" class="opt" data-cap="6" aria-pressed="true">6kW</button>
       <button type="button" class="opt" data-cap="8">8kW</button>
     </div>
-    <p class="hint" id="leaseHint">初期費用0円。リース料は月 <span class="num" id="leaseFee">-</span>（税抜・10年間）。11年目からはリース料がかからず、設備はお客様のものになります。</p>
-    <div id="buyBox" hidden>
-      <div class="field"><input id="priceIn" type="number" inputmode="numeric" min="0" step="1" value="168" aria-label="購入価格"><span>万円（税込）</span></div>
-      <p class="hint">最初は1kWあたり28万円の目安です。お見積りの金額に書き換えてください。</p>
+    <h3>のせ方</h3>
+    <div class="tiles" id="wayOpts">
+      <button type="button" class="opt" data-way="lease" aria-pressed="true">リース<small>初期費用0円</small></button>
+      <button type="button" class="opt" data-way="buy">購入<small>ローンか現金</small></button>
     </div>
-    <label class="toggle" id="ecoBox"><input type="checkbox" id="ecoIn" checked>エコキュートを昼の太陽光で沸かす</label>
+    <p class="hint" id="leaseHint">リース料は月 <span class="num" id="leaseFee">-</span>（税抜）を10年間。11年目からはリース料がかからず、設備はお客様のものになります。</p>
+    <div id="buyBox" hidden>
+      <h3>購入価格（税込）</h3>
+      <div class="field"><input id="priceIn" type="number" inputmode="numeric" min="0" step="1" value="168" aria-label="購入価格"><span>万円</span></div>
+      <p class="hint">最初は1kWあたり28万円の目安です。お見積りの金額に書き換えてください。</p>
+      <h3>支払い方法</h3>
+      <div class="tiles" id="payOpts">
+        <button type="button" class="opt" data-pay="loan" aria-pressed="true">ローン<small>リフォームローンなど</small></button>
+        <button type="button" class="opt" data-pay="cash">現金</button>
+      </div>
+      <div id="loanBox">
+        <div class="range" style="margin-top:16px">
+          <label for="rateIn"><span>金利（年）</span><span class="num" id="rateShow">2.5%</span></label>
+          <input id="rateIn" type="range" min="0.5" max="5" step="0.1" value="2.5">
+        </div>
+        <h3>返す期間</h3>
+        <div class="tiles three" id="termOpts">
+          <button type="button" class="opt" data-term="10">10年</button>
+          <button type="button" class="opt" data-term="15" aria-pressed="true">15年</button>
+          <button type="button" class="opt" data-term="20">20年</button>
+        </div>
+        <p class="hint">毎月の返済 <span class="num" id="loanPmt">-</span>（元利均等・ボーナス払いなし）</p>
+      </div>
+    </div>
+    <label class="switch" id="ecoBox">エコキュートを昼の太陽光で沸かす<input type="checkbox" id="ecoIn" checked></label>
   </section>
+</div>
 
-  <div>
-    <section class="hero" aria-live="polite">
-      <h1>切り替えと太陽光で、年間の電気代はここまで下がります</h1>
-      <p class="sub">1年目の概算・税込。太陽光の分は、売電収入とリース料を差し引いた実質の負担です。</p>
-      <div class="stair">
-        <div class="step s1"><div class="v num" id="v1">-</div><div class="m" id="m1"></div><div class="blk" id="b1"></div></div>
-        <div class="step s2"><div class="v num" id="v2">-</div><div class="m" id="m2"></div><div class="blk" id="b2"></div></div>
-        <div class="step s3"><div class="v num" id="v3">-</div><div class="m" id="m3"></div><div class="blk" id="b3"></div></div>
-      </div>
-      <div class="legend">
-        <div>今のまま
-          <span class="why"><button type="button" class="info" aria-label="今の料金プランの根拠">根拠</button><span class="tip" id="tipNow" role="tooltip"></span></span>
-          <span class="p" id="pNow"></span></div>
-        <div class="s2w">ENEOSでんきに切り替え
-          <span class="why"><button type="button" class="info" aria-label="ENEOSでんきの料金プランの根拠">根拠</button><span class="tip" id="tipEne" role="tooltip"></span></span>
-          <span class="p">中国Aプラン</span></div>
-        <div class="s3w">さらに太陽光
-          <span class="why"><button type="button" class="info" aria-label="太陽光の計算の根拠">根拠</button><span class="tip" id="tipSun" role="tooltip"></span></span>
-          <span class="p" id="pSun"></span></div>
-      </div>
-      <div class="official">
-        <p><b>ENEOSでんき 中国Aプランの料金は公式サイトで確認できます</b>提供：ENEOS Power株式会社。単価・お申し込み条件は公式サイトの内容が優先されます。</p>
-        <div class="links">
-          <a class="pri" href="https://www.eneos-power.co.jp/denki/plan/v/#chugoku" target="_blank" rel="noopener">公式サイトで料金を見る</a>
-          <a class="sec" href="https://www.eneos-power.co.jp/denki/entry/" target="_blank" rel="noopener">お申し込みページ</a>
+  <!-- 下：リースと購入の比べ -->
+  <section class="below">
+    <div class="in">
+      <h2 id="duelHead">買うより、リースの方が負担が少なくすみます</h2>
+      <p class="lead">同じ <span id="duelCap"></span> の太陽光で、リースとローンで購入を比べました。購入はローンの金利も含めた支払いの総額です。</p>
+      <div class="duel">
+        <div>
+          <div class="t">リース<span class="badge" id="badgeL">おすすめ</span></div>
+          <div class="big num" id="dlTotal">-</div>
+          <div class="s">支払いの総額</div>
+          <table>
+            <tr><td>初期費用</td><td>0円</td></tr>
+            <tr><td>毎月の支払い</td><td id="dlPmt">-</td></tr>
+            <tr><td>支払う期間</td><td>10年</td></tr>
+            <tr><td>20年間の合計（今と比べて）</td><td id="dl20">-</td></tr>
+          </table>
+        </div>
+        <div>
+          <div class="t">購入（<span id="dbWay">ローン</span>）<span class="badge" id="badgeB" hidden>おすすめ</span></div>
+          <div class="big num" id="dbTotal">-</div>
+          <div class="s" id="dbSub">支払いの総額（金利を含む）</div>
+          <table>
+            <tr><td>購入価格（税込）</td><td id="dbPrice">-</td></tr>
+            <tr id="dbIntR"><td>ローンの金利の分</td><td id="dbInt">-</td></tr>
+            <tr id="dbPmtR"><td>毎月の返済</td><td id="dbPmt">-</td></tr>
+            <tr><td>20年間の合計（今と比べて）</td><td id="db20">-</td></tr>
+          </table>
         </div>
       </div>
-    </section>
-
-    <div class="cards">
-      <div class="card good"><div class="l" id="cDownL">今と比べて 1年目で</div><div class="big num" id="cDown">-</div></div>
-      <div class="card"><div class="l" id="c10l">10年間の合計</div><div class="big num" id="c10">-</div></div>
-      <div class="card"><div class="l" id="c20l">20年間の合計</div><div class="big num" id="c20">-</div></div>
-    </div>
-
-    <section class="detail">
-      <h3>1年目の内訳</h3>
-      <table class="rows">
-        <tr><td>今の年間電気代（<span id="dNowName"></span>）</td><td id="d0">-</td></tr>
-        <tr><td>ENEOSでんきに切り替えた差額</td><td id="d1">-</td></tr>
-        <tr><td>太陽光の電気を家で使って減る分（自家消費 <span id="scR">-</span>%）</td><td id="d2">-</td></tr>
-        <tr><td>余った電気を売った収入（1kWhあたり24円・1〜4年目）</td><td id="d3">-</td></tr>
-        <tr id="d4r"><td>リース料（年間・税抜）</td><td id="d4">-</td></tr>
-        <tr class="total"><td>1年目の実質負担</td><td id="d5">-</td></tr>
-      </table>
-    </section>
-
-    <section class="vs">
-      <h3>リースと購入の比べ（20年間の合計）</h3>
-      <p class="s">購入は1年目の負担が小さく見えますが、最初に購入価格を支払います。最初の支払いも含めて比べると次のとおりです。</p>
-      <div class="grid">
-        <div id="vsL"><div class="t">リース</div><div class="v num" id="vsLv">-</div><div class="s">初期費用0円・月 <span id="vsLf"></span>×10年</div></div>
-        <div id="vsB"><div class="t">購入</div><div class="v num" id="vsBv">-</div><div class="s">最初に <span id="vsBp"></span>（税込）・元が取れるのは <span id="vsBy"></span></div></div>
+      <div class="verdict">
+        <p id="vWord">購入すると、リースより</p><span class="num" id="vDiff">-</span><p id="vTail">高くつきます</p>
+        <span class="s">支払いの総額どうしの差です。発電で得をする分（電気代が減る分・売電収入）はどちらも同じ計算です。</span>
       </div>
-    </section>
 
-    <div class="notice">中国電力エリアでは、国の認定が下りてから電力網につなぎます。お申し込みから発電・売電の開始まで、数か月かかることがあります。</div>
+      <div class="detail">
+        <div>
+          <h3>1年目の内訳</h3>
+          <table class="rows">
+            <tr><td>今の年間電気代（<span id="dNowName"></span>）</td><td id="d0">-</td></tr>
+            <tr><td>ENEOSでんきに切り替えた差額</td><td id="d1">-</td></tr>
+            <tr><td>太陽光の電気を家で使って減る分（自家消費 <span id="scR">-</span>%）</td><td id="d2">-</td></tr>
+            <tr><td>余った電気を売った収入（1kWhあたり24円・1〜4年目）</td><td id="d3">-</td></tr>
+            <tr id="d4r"><td id="d4l">リース料（年間・税抜）</td><td id="d4">-</td></tr>
+            <tr class="total"><td>1年目の実質負担</td><td id="d5">-</td></tr>
+          </table>
+          <p class="notice">中国電力エリアでは、国の認定が下りてから電力網につなぎます。お申し込みから発電・売電の開始まで、数か月かかることがあります。</p>
+        </div>
+        <div>
+          <details class="base" open>
+            <summary>計算の前提</summary>
+            <ul>
+              <li>電気代は料金表の単価（税込）に、燃料費調整額 1kWhあたり<span class="num" id="pFuel"></span>円と再エネ賦課金 1kWhあたり<span class="num" id="pRen"></span>円を足しています。国の一時的な値引き（電気・ガス料金支援）は入れていません。</li>
+              <li>オール電化の今の料金は、中国電力「電化Styleコース」です。土日祝は終日、夜の単価です。平日の昼の単価は、夏（7〜9月）とそれ以外を月数で平均しています。</li>
+              <li>太陽光の計算は、弊社の比較シミュレーターと同じ計算式です（発電量 1kWあたり年1,000kWh、劣化 年0.5%、売電単価 1〜4年目24円・5〜10年目8.3円・11年目以降7.15円、パワコン交換 15年目・30年目に各20万円、電気代の上昇 年2%）。</li>
+              <li>ローンは元利均等返済で計算しています。金利・期間は実際の借入条件に合わせて変えてください。購入時の保険や点検の費用は入れていません。</li>
+              <li>ENEOSでんきの単価は公式サイト、中国電力の単価は比較サイトの掲載値をもとに、2026年10月17日に確認しました。どちらも2026年11月1日に料金の見直しが予定されています。</li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <details class="base">
-      <summary>計算の前提</summary>
-      <ul>
-        <li>電気代は料金表の単価（税込）に、燃料費調整額 1kWhあたり<span class="num" id="pFuel"></span>円と再エネ賦課金 1kWhあたり<span class="num" id="pRen"></span>円を足しています。国の一時的な値引き（電気・ガス料金支援）は入れていません。</li>
-        <li>オール電化の今の料金は、中国電力「電化Styleコース」で計算しています。土日祝は終日、夜の単価です。平日の昼の単価は、夏（7〜9月）とそれ以外を月数で平均しています。</li>
-        <li>太陽光の計算は、弊社の比較シミュレーターと同じ計算式です（発電量 1kWあたり年1,000kWh、劣化 年0.5%、売電単価 1〜4年目24円・5〜10年目8.3円・11年目以降7.15円、パワコン交換 15年目・30年目に各20万円、電気代の上昇 年2%）。</li>
-        <li>ENEOSでんきの単価は公式サイト、中国電力の単価は比較サイトの掲載値をもとに、2026年10月17日に確認しました。どちらも2026年11月1日に料金の見直しが予定されています。</li>
-      </ul>
-    </details>
-  </div>
-</main>
-<footer>この試算は、公表されている料金表をもとにした概算です。実際の金額は、ご使用状況・屋根の条件・料金改定によって変わります。電力会社の公式な見積りではありません。作成：ミライエコリース</footer>
+  <footer><div class="in">この試算は、公表されている料金表をもとにした概算です。実際の金額は、ご使用状況・屋根の条件・借入条件・料金改定によって変わります。電力会社の公式な見積りではありません。作成：ミライエコリース</div></footer>
 
 <script>
 // 料金表（税込・円）。燃料費調整と再エネ賦課金は calc.js の UTIL_DATA.chugoku と同じ値を使う
@@ -283,7 +350,8 @@ const MIN_KWH = 15, PRICE_PER_KW = 28, ECO_KWH = 1200; // 購入価格の初期�
 const $ = id => document.getElementById(id);
 const yen = n => (n < 0 ? '−' : '') + Math.round(Math.abs(n)).toLocaleString('ja-JP') + '円';
 const man = n => (Math.abs(n) / 10000).toFixed(1);
-const state = { home: 'denka', mode: 'family', n: 4, day: 0.30, way: 'lease', cap: 6, priceTouched: false };
+const manU = n => man(n) + '<small>万円</small>';
+const state = { home: 'denka', mode: 'family', n: 4, day: 0.30, way: 'lease', cap: 6, pay: 'loan', rate: 2.5, term: 15, priceTouched: false };
 
 function tieredBill(t, kwh) {
   let y = t.min, prev = MIN_KWH;
@@ -296,27 +364,28 @@ function tieredBill(t, kwh) {
 }
 const denkaBill = kwh => DENKA.basic + kwh * (state.day * DENKA_DAY + (1 - state.day) * DENKA.night + FUEL + REN);
 const nowBill = kwh => state.home === 'denka' ? denkaBill(kwh) : tieredBill(TIERED.chugokuA, kwh);
-// 毎月の電気代から使用量を逆算（今の料金プランで）
 function billToKwhNow(bill) {
   let lo = 0, hi = 4000;
   for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; nowBill(m) < bill ? lo = m : hi = m; }
   return Math.round(lo);
 }
-function pick(groupId, btn) {
-  $(groupId).querySelectorAll('.opt').forEach(b => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+// 元利均等返済の毎月の返済額
+function loanMonthly(principal, ratePct, years) {
+  const r = ratePct / 100 / 12, n = years * 12;
+  return r === 0 ? principal / n : principal * r / (1 - Math.pow(1 + r, -n));
 }
+function pick(groupId, btn) { $(groupId).querySelectorAll('.opt').forEach(b => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false')); }
 function currentKwh() {
   if (state.mode === 'family') return FAMILY_KWH[state.home][state.n];
   if (state.mode === 'bill') return billToKwhNow(+$('billIn').value || 0);
   return Math.max(0, Math.round(+$('kwhIn').value || 0));
 }
 
-// 数字を数え上げて見せる（動きを減らす設定なら即表示）
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 function countTo(el, to, fmt) {
   const from = +el.dataset.v || 0; el.dataset.v = to;
   if (reduce) { el.innerHTML = fmt(to); return; }
-  const t0 = performance.now(), d = 600;
+  const t0 = performance.now(), d = 650;
   const tick = t => { const k = Math.min(1, (t - t0) / d), e = 1 - Math.pow(1 - k, 3); el.innerHTML = fmt(from + (to - from) * e); if (k < 1) requestAnimationFrame(tick); };
   requestAnimationFrame(tick);
 }
@@ -351,65 +420,82 @@ function render() {
   const leaseKey = LEASE_PLANS[String(cap)] ? String(cap) : 'custom';
   const r = calcMain({ effUnit, monthlyKwh: kwh, leaseKey, leaseCapCustom: cap, ppaKey: 'smile', ppaCap: cap, ecoMode: eco ? 'solar' : 'none', ecoKwh: ECO_KWH });
   const lp = r.leasePlan, feeY = lp.monthly * 12;
-  // 1年目の内訳（calcMain の1年目と同じ式）
   const gen = cap * 1000, sc = calcAutoSC(kwh, cap);
   const scEco = sc + (eco && DEFAULT_LF1 < effUnit ? Math.min(ECO_KWH * 0.40 / gen, 1 - sc) : 0);
   const selfY = gen * scEco * effUnit, sellY = gen * (1 - scEco) * DEFAULT_LF1;
-  const buy = state.way === 'buy';
-  if (buy && !state.priceTouched) $('priceIn').value = cap * PRICE_PER_KW;
-  const price = buy ? (+$('priceIn').value || 0) * 10000 : 0;
-  const net1 = yEne - selfY - sellY + (buy ? 0 : feeY);
-  const buyPrice = (buy || state.priceTouched ? (+$('priceIn').value || 0) : cap * PRICE_PER_KW) * 10000;
 
-  // 今のままと比べて、N年で減る合計（電気代の上昇は calc.js の既定と同じ年2%）
+  // 購入：ローン（元利均等）か現金
+  const buy = state.way === 'buy', loan = state.pay === 'loan';
+  if (!state.priceTouched) $('priceIn').value = cap * PRICE_PER_KW;
+  const price = (+$('priceIn').value || 0) * 10000;
+  const pmt = loan ? loanMonthly(price, state.rate, state.term) : 0;
+  const loanTotal = loan ? pmt * 12 * state.term : price;
+  const payInYear = y => loan ? (y <= state.term ? pmt * 12 : 0) : (y === 1 ? price : 0);
+  const leaseTotal = feeY * lp.term;
+
+  // 毎年の支払い：リースはリース料、購入はローン返済（現金なら1年目に購入価格）
+  const solarOnly = y => r.annualLease[y - 1] + (y <= lp.term ? feeY : 0); // 発電の得（パワコン交換を差し引き）
   const cumWay = (n, isBuy) => {
-    let s = isBuy ? -buyPrice : 0;
-    for (let y = 1; y <= n; y++) s += (yNow - yEne) * Math.pow(1.02, y - 1) + r.annualLease[y - 1] + (isBuy && y <= lp.term ? feeY : 0);
+    let s = 0;
+    for (let y = 1; y <= n; y++) s += (yNow - yEne) * Math.pow(1.02, y - 1) + solarOnly(y) - (isBuy ? payInYear(y) : (y <= lp.term ? feeY : 0));
     return s;
   };
-  const cum = n => cumWay(n, buy);
-  // 購入の元が取れる年（太陽光の分だけで、購入価格を取り戻す年）
-  let bep = null, acc = -buyPrice;
-  for (let y = 1; y <= 30 && bep === null; y++) { acc += r.annualLease[y - 1] + (y <= lp.term ? feeY : 0); if (acc >= 0) bep = y; }
+  const payY1 = buy ? (loan ? pmt * 12 : 0) : feeY;
+  const net1 = yEne - selfY - sellY + payY1;
 
-  const top = Math.max(yNow, yEne, 1);
+  // 見出しと階段
+  const down = yNow - net1;
+  countTo($('hDown'), Math.abs(down), x => man(x));
+  $('hWord').textContent = down >= 0 ? '安くなります' : '高くなります';
+  $('hLead').textContent = buy && !loan
+    ? '1年目の概算・税込。現金で購入した場合、購入価格は別に最初に支払います。'
+    : '1年目の概算・税込。太陽光の分は、売電収入と毎月の支払いを差し引いた実質の負担です。';
+  const top = Math.max(yNow, yEne, net1, 1);
   [[yNow, 'v1', 'b1', 'm1', bNow], [yEne, 'v2', 'b2', 'm2', bEne], [net1, 'v3', 'b3', 'm3', net1 / 12]].forEach(([v, vi, bi, mi, mo]) => {
     countTo($(vi), v, x => (x < 0 ? '−' : '') + man(x) + '<small>万円/年</small>');
-    $(bi).style.height = Math.max(0, v / top * 62) + '%';
+    $(bi).style.height = Math.max(0, v / top * 70) + '%';
     $(mi).textContent = '月あたり ' + yen(mo);
-    if (vi === 'v3' && buy) $(mi).textContent += '（別に購入価格 ' + man(price) + '万円）';
   });
-  $('cDownL').textContent = buy ? '今と比べて 1年目で（購入価格は別）' : '今と比べて 1年目で';
+  if (buy && !loan) $('m3').textContent += '（別に購入価格 ' + man(price) + '万円）';
+  $('pSun').textContent = (buy ? (loan ? 'ローンで購入 ' : '現金で購入 ') : 'リース ') + cap + 'kW' + (eco ? '・昼に沸かす' : '');
+
+  // リースと購入の比べ
   const l20 = cumWay(20, false), b20 = cumWay(20, true);
-  $('vsLv').innerHTML = man(l20) + '<span class="u">万円 ' + (l20 >= 0 ? 'おトク' : '負担増') + '</span>';
-  $('vsBv').innerHTML = man(b20) + '<span class="u">万円 ' + (b20 >= 0 ? 'おトク' : '負担増') + '</span>';
-  $('vsLf').textContent = yen(lp.monthly);
-  $('vsBp').textContent = man(buyPrice) + '万円';
-  $('vsBy').textContent = bep ? bep + '年目' : '30年以内に届かない';
-  $('vsL').classList.toggle('on', !buy); $('vsB').classList.toggle('on', buy);
-  $('pSun').textContent = (buy ? '購入' : 'リース') + ' ' + cap + 'kW' + (eco ? '・昼に沸かす' : '');
+  const word = c => man(c) + '万円 ' + (c >= 0 ? 'おトク' : '負担増');
+  $('duelCap').textContent = cap + 'kW';
+  $('dlTotal').innerHTML = manU(leaseTotal);
+  $('dlPmt').textContent = '月 ' + yen(lp.monthly) + '（税抜）';
+  $('dl20').textContent = word(l20);
+  $('dbWay').textContent = loan ? 'ローン ' + state.rate.toFixed(1) + '%・' + state.term + '年' : '現金';
+  $('dbTotal').innerHTML = manU(loanTotal);
+  $('dbSub').textContent = loan ? '支払いの総額（金利を含む）' : '支払いの総額';
+  $('dbPrice').textContent = yen(price);
+  $('dbIntR').hidden = !loan; $('dbInt').textContent = '+' + yen(loanTotal - price);
+  $('dbPmtR').hidden = !loan; $('dbPmt').textContent = '月 ' + yen(pmt);
+  $('db20').textContent = word(b20);
+  const diff = loanTotal - leaseTotal, leaseWins = diff >= 0;
+  $('badgeL').hidden = !leaseWins; $('badgeB').hidden = leaseWins;
+  $('duelHead').textContent = leaseWins ? '買うより、リースの方が負担が少なくすみます' : 'この条件では、購入の方が負担が少なくすみます';
+  $('vWord').textContent = leaseWins ? '購入すると、リースより' : 'リースにすると、購入より';
+  $('vDiff').textContent = man(Math.abs(diff)) + '万円';
+  $('vTail').textContent = '高くつきます';
 
-  const down = yNow - net1;
-  $('cDown').innerHTML = (down >= 0 ? '−' : '+') + man(down) + '<span class="u">万円</span>';
-  $('cDown').classList.toggle('bad', down < 0);
-  [[cum(10), 'c10'], [cum(20), 'c20']].forEach(([c, id]) => {
-    $(id).innerHTML = man(c) + '<span class="u">万円 ' + (c >= 0 ? 'おトク' : '負担増') + '</span>';
-    $(id).classList.toggle('bad', c < 0);
-  });
-  $('c10l').textContent = buy ? '10年間の合計（購入価格を含む）' : '10年間の合計';
-  $('c20l').textContent = buy ? '20年間の合計（購入価格を含む）' : '20年間の合計';
-
+  // 1年目の内訳
   $('d0').textContent = yen(yNow);
   $('d1').textContent = (yEne <= yNow ? '−' : '+') + yen(Math.abs(yEne - yNow));
   $('scR').textContent = Math.round(scEco * 100);
   $('d2').textContent = '−' + yen(selfY);
   $('d3').textContent = '−' + yen(sellY);
-  $('d4r').hidden = buy; $('d4').textContent = '+' + yen(feeY);
+  $('d4r').hidden = buy && !loan;
+  $('d4l').textContent = buy ? 'ローン返済（年間）' : 'リース料（年間・税抜）';
+  $('d4').textContent = '+' + yen(payY1);
   $('d5').textContent = yen(net1);
+
   $('leaseFee').textContent = lp.monthly.toLocaleString('ja-JP') + '円';
-  $('leaseHint').hidden = buy; $('buyBox').hidden = !buy;
+  $('rateShow').textContent = state.rate.toFixed(1) + '%';
+  $('loanPmt').textContent = yen(pmt);
+  $('leaseHint').hidden = buy; $('buyBox').hidden = !buy; $('loanBox').hidden = !loan;
   $('dayBox').hidden = !denka; $('ecoBox').hidden = !denka;
-  $('homeHint').textContent = '今の契約は中国電力「' + (denka ? '電化Styleコース' : '従量電灯A') + '」として計算します。';
   $('pFuel').textContent = FUEL; $('pRen').textContent = REN;
   renderTips();
 }
@@ -423,11 +509,13 @@ onPick('modeOpts', d => {
 onPick('familyOpts', d => state.n = +d.n);
 onPick('wayOpts', d => state.way = d.way);
 onPick('capOpts', d => state.cap = +d.cap);
+onPick('payOpts', d => state.pay = d.pay);
+onPick('termOpts', d => state.term = +d.term);
 $('dayIn').addEventListener('input', e => { state.day = +e.target.value / 100; render(); });
+$('rateIn').addEventListener('input', e => { state.rate = +e.target.value; render(); });
 ['billIn', 'kwhIn'].forEach(id => $(id).addEventListener('input', render));
 $('ecoIn').addEventListener('change', render);
 $('priceIn').addEventListener('input', () => { state.priceTouched = true; render(); });
-// 根拠：押すと開閉（iPad向け）。外を押すと閉じる
 document.addEventListener('click', e => {
   const w = e.target.closest('.why');
   document.querySelectorAll('.why.open').forEach(x => { if (x !== w) x.classList.remove('open'); });
