@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>電気代まるごと見直し</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme-dark.css">
+<script src="theme-switch.js"></script>
+<script src="calc.js"></script>
+<style>
+/* 電力会社の切り替え＋太陽光の概算（中国電力エリア・太陽光なしの戸建て向け）
+   太陽光の計算は calc.js（calcMain・calcAutoSC）をそのまま使う。このページで足すのは段階料金の電気代計算だけ */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Zen Kaku Gothic New','Hiragino Sans',sans-serif;line-height:1.7;font-size:15px;background:var(--gray-100);color:var(--gray-900)}
+.num{font-family:'Manrope',sans-serif;font-variant-numeric:tabular-nums}
+.wrap{max-width:880px;margin:0 auto;padding:28px 16px 80px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px;font-size:12.5px;color:var(--gray-500)}
+.top a{color:inherit;text-decoration:none;border:1px solid var(--gray-300);border-radius:10px;padding:6px 12px}
+h1{font-size:26px;font-weight:900;line-height:1.35;margin-bottom:6px}
+.lead{color:var(--gray-700);margin-bottom:22px}
+.card{background:var(--white);border:1px solid var(--gray-300);border-radius:16px;padding:22px 22px 20px;margin-bottom:16px}
+.step{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.step b{font-family:'Manrope',sans-serif;font-size:12px;font-weight:800;border:1px solid var(--gray-300);border-radius:999px;padding:2px 10px;color:var(--gray-500)}
+.step h2{font-size:18px;font-weight:900}
+.q{font-size:13px;color:var(--gray-500);margin:12px 0 6px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--gray-300);background:var(--white);color:var(--gray-900);border-radius:10px;padding:9px 14px;min-height:44px}
+.opt[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-light);color:var(--blue);font-weight:700}
+.field{display:flex;align-items:center;gap:8px;margin-top:8px}
+.field input{font:inherit;font-family:'Manrope',sans-serif;font-size:18px;width:140px;padding:8px 10px;border:1px solid var(--gray-300);border-radius:10px;background:var(--white);color:var(--gray-900)}
+.hint{font-size:12.5px;color:var(--gray-500);margin-top:6px}
+.cmp{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-top:6px}
+.cmp .box{border:1px solid var(--gray-300);border-radius:12px;padding:14px}
+.cmp .lbl{font-size:12.5px;color:var(--gray-500)}
+.cmp .val{font-size:24px;font-weight:800}
+.arrow{color:var(--gray-500);font-size:20px}
+.save{margin-top:14px;padding:14px 16px;border-radius:12px;background:var(--green-light);color:var(--green);font-weight:700}
+.save .num{font-size:24px;font-weight:800}
+/* 階段グラフ */
+.stairs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:end;height:280px;margin:18px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--gray-300)}
+.bar{display:flex;flex-direction:column;justify-content:flex-end;height:100%;text-align:center}
+.bar .amt{font-size:20px;font-weight:800;margin-bottom:6px}
+.bar .fill{border-radius:10px 10px 0 0;min-height:4px;transition:height .4s}
+.b1 .fill{background:var(--red)}
+.b2 .fill{background:var(--orange)}
+.b3 .fill{background:var(--green)}
+.cap{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:center;font-size:13px;color:var(--gray-700)}
+.cap small{display:block;color:var(--gray-500);font-size:11.5px}
+.big{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.big>div{border:1px solid var(--gray-300);border-radius:12px;padding:12px 14px}
+.big .lbl{font-size:12.5px;color:var(--gray-500)}
+.big .num{font-size:22px;font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+td{padding:7px 4px;border-bottom:1px solid var(--gray-300)}
+td:last-child{text-align:right;font-family:'Manrope',sans-serif;font-variant-numeric:tabular-nums}
+.notice{border-left:3px solid var(--orange);padding:10px 14px;background:var(--orange-light);border-radius:0 10px 10px 0;font-size:13px;margin-top:14px}
+details{margin-top:12px;font-size:13px;color:var(--gray-700)}
+details summary{cursor:pointer;font-weight:700}
+details ul{padding-left:1.3em;margin-top:6px}
+footer{font-size:12px;color:var(--gray-500);margin-top:24px}
+@media (max-width:560px){
+  h1{font-size:21px}
+  .cmp{grid-template-columns:1fr}.arrow{display:none}
+  .stairs{height:220px;gap:8px}.bar .amt{font-size:15px}
+  .cap{gap:8px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span>中国電力エリア・戸建て向け概算</span><a href="index.html">ホームへ</a></div>
+  <h1>電気代まるごと見直しシミュレーション</h1>
+  <p class="lead">電力会社を切り替えると、いくら安くなるか。そこに太陽光をのせると、さらにいくら減らせるか。2つを続けて試算します。</p>
+
+  <!-- ① 今の電気代 -->
+  <section class="card">
+    <div class="step"><b>STEP 1</b><h2>今の電気代</h2></div>
+    <p class="q">入力のしかた</p>
+    <div class="opts" id="modeOpts">
+      <button type="button" class="opt" data-mode="family" aria-pressed="true">家族の人数で</button>
+      <button type="button" class="opt" data-mode="bill">毎月の電気代で</button>
+      <button type="button" class="opt" data-mode="kwh">使用量（kWh）で</button>
+    </div>
+    <div id="modeFamily">
+      <p class="q">家族の人数</p>
+      <div class="opts" id="familyOpts">
+        <button type="button" class="opt" data-kwh="200">1人</button>
+        <button type="button" class="opt" data-kwh="300">2人</button>
+        <button type="button" class="opt" data-kwh="370">3人</button>
+        <button type="button" class="opt" data-kwh="430" aria-pressed="true">4人</button>
+        <button type="button" class="opt" data-kwh="500">5人以上</button>
+      </div>
+      <p class="hint">戸建ての平均的な使用量で計算します。検針票があれば「毎月の電気代で」の方が正確です。</p>
+    </div>
+    <div id="modeBill" hidden>
+      <div class="field"><input id="billIn" type="number" inputmode="numeric" min="1000" step="500" value="15000"><span>円／月（平均）</span></div>
+      <p class="hint">中国電力「従量電灯A」の料金表から、使用量を逆算します。</p>
+    </div>
+    <div id="modeKwh" hidden>
+      <div class="field"><input id="kwhIn" type="number" inputmode="numeric" min="50" step="10" value="430"><span>kWh／月（平均）</span></div>
+    </div>
+    <p class="hint">今の契約：中国電力 従量電灯A（月 <span class="num" id="kwhShow">-</span> kWh として計算）</p>
+  </section>
+
+  <!-- ② 切り替え -->
+  <section class="card">
+    <div class="step"><b>STEP 2</b><h2>ENEOSでんきに切り替えると</h2></div>
+    <div class="cmp">
+      <div class="box"><div class="lbl">中国電力 従量電灯A</div><div class="val num" id="yC">-</div><div class="lbl">年間の電気代</div></div>
+      <div class="arrow">→</div>
+      <div class="box"><div class="lbl">ENEOSでんき 中国Aプラン</div><div class="val num" id="yE">-</div><div class="lbl">年間の電気代</div></div>
+    </div>
+    <div class="save">切り替えるだけで　年間 <span class="num" id="ySw">-</span> 安くなります</div>
+    <p class="hint">工事なし・手続きだけで切り替えられます。使用量が多いご家庭ほど差が大きくなります。</p>
+  </section>
+
+  <!-- ③ 太陽光 -->
+  <section class="card">
+    <div class="step"><b>STEP 3</b><h2>さらに太陽光をのせると</h2></div>
+    <p class="q">導入のしかた</p>
+    <div class="opts" id="wayOpts">
+      <button type="button" class="opt" data-way="lease" aria-pressed="true">リース（初期費用0円）</button>
+      <button type="button" class="opt" data-way="buy">購入</button>
+    </div>
+    <p class="q">パネルの容量</p>
+    <div class="opts" id="capOpts">
+      <button type="button" class="opt" data-cap="4">4kW</button>
+      <button type="button" class="opt" data-cap="5">5kW</button>
+      <button type="button" class="opt" data-cap="6" aria-pressed="true">6kW</button>
+      <button type="button" class="opt" data-cap="8">8kW</button>
+    </div>
+    <div id="buyBox" hidden>
+      <p class="q">購入価格（税込）</p>
+      <div class="field"><input id="priceIn" type="number" inputmode="numeric" min="0" step="1" value="168"><span>万円</span></div>
+      <p class="hint">最初は1kWあたり28万円の目安で入れています。お見積りがあれば、その金額に書き換えてください。</p>
+    </div>
+    <p class="hint" id="leaseHint">リース料：月 <span class="num" id="leaseFee">-</span>（税抜・10年間）。11年目からはリース料がかからず、設備はお客様のものになります。</p>
+
+    <div class="stairs" aria-label="1年あたりの負担の比較">
+      <div class="bar b1"><div class="amt num" id="s1">-</div><div class="fill" id="f1"></div></div>
+      <div class="bar b2"><div class="amt num" id="s2">-</div><div class="fill" id="f2"></div></div>
+      <div class="bar b3"><div class="amt num" id="s3">-</div><div class="fill" id="f3"></div></div>
+    </div>
+    <div class="cap">
+      <div>今のまま<small>中国電力</small></div>
+      <div>切り替え後<small>ENEOSでんき</small></div>
+      <div>＋太陽光<small id="capWay">リース</small></div>
+    </div>
+
+    <div class="big">
+      <div><div class="lbl">1年目の負担 今より</div><div class="num" id="kDown">-</div></div>
+      <div><div class="lbl" id="k10l">10年間の合計で</div><div class="num" id="k10">-</div></div>
+      <div><div class="lbl" id="k20l">20年間の合計で</div><div class="num" id="k20">-</div></div>
+    </div>
+
+    <table aria-label="太陽光をのせた1年目の内訳">
+      <tr><td>切り替え後の年間電気代</td><td id="t1">-</td></tr>
+      <tr><td>太陽光の電気を家で使って減る分（自家消費 <span id="scR">-</span>%）</td><td id="t2">-</td></tr>
+      <tr><td>余った電気を売った収入（1kWhあたり24円・1〜4年目）</td><td id="t3">-</td></tr>
+      <tr id="t4r"><td>リース料（年間・税抜）</td><td id="t4">-</td></tr>
+      <tr><td><b>1年目の実質負担</b></td><td id="t5"><b>-</b></td></tr>
+    </table>
+
+    <div class="notice">中国電力エリアでは、国の認定が下りてから電力網につなぎます。お申し込みから発電・売電の開始まで、数か月かかることがあります。</div>
+
+    <details>
+      <summary>計算の前提</summary>
+      <ul>
+        <li>電気代は、各社が公表している段階料金（税込）に、燃料費調整額 1kWhあたり<span class="num" id="pFuel">-</span>円、再エネ賦課金 1kWhあたり<span class="num" id="pRen">-</span>円を足して計算しています。国の一時的な値引き（電気・ガス料金支援）は入れていません。</li>
+        <li>中国電力 従量電灯A：最低料金 759.68円（15kWhまで）／15〜120kWh 32.75円／120〜300kWh 39.43円／300kWh超 41.55円</li>
+        <li>ENEOSでんき 中国Aプラン：最低料金 759.68円（15kWhまで）／16〜120kWh 32.58円／121〜300kWh 38.71円／301kWh超 39.72円</li>
+        <li>太陽光の計算は、弊社の比較シミュレーターと同じ計算式です（発電量 1kWあたり年1,000kWh、劣化 年0.5%、売電単価 1〜4年目24円・5〜10年目8.3円・11年目以降7.15円、パワコン交換 15年目・30年目に各20万円、電気代の上昇 年2%）。</li>
+        <li>自家消費の割合は、月の使用量の30%を日中に使う想定で、自動で計算しています。</li>
+        <li>単価の確認日：2026年10月17日。料金は改定されることがあります。</li>
+      </ul>
+    </details>
+  </section>
+
+  <footer>この試算は、公表されている料金表をもとにした概算です。実際の金額は、ご使用状況・屋根の条件・料金改定によって変わります。電力会社の公式な見積りではありません。</footer>
+</div>
+
+<script>
+// 段階料金（税込・円）。燃料費調整と再エネ賦課金は calc.js の UTIL_DATA.chugoku と同じ値を使う
+const TARIFF = {
+  chugokuA: { min: 759.68, tiers: [[120, 32.75], [300, 39.43], [Infinity, 41.55]] },
+  eneosA:   { min: 759.68, tiers: [[120, 32.58], [300, 38.71], [Infinity, 39.72]] },
+};
+const FUEL = UTIL_DATA.chugoku.fuel, REN = UTIL_DATA.chugoku.ren;
+const MIN_KWH = 15, PRICE_PER_KW = 28; // 購入価格の初期値（万円/kW）
+
+function monthlyBill(t, kwh) {
+  let yen = t.min, prev = MIN_KWH;
+  for (const [upTo, unit] of t.tiers) {
+    if (kwh <= prev) break;
+    yen += (Math.min(kwh, upTo) - prev) * unit;
+    prev = upTo;
+  }
+  return yen + kwh * (FUEL + REN);
+}
+// 毎月の電気代から使用量を逆算（中国電力の料金表で）
+function billToKwhTiered(bill) {
+  let lo = 0, hi = 3000;
+  for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; monthlyBill(TARIFF.chugokuA, m) < bill ? lo = m : hi = m; }
+  return Math.round(lo);
+}
+
+const $ = id => document.getElementById(id);
+const yen = n => (n < 0 ? '−' : '') + Math.round(Math.abs(n)).toLocaleString('ja-JP') + '円';
+const man = n => (n < 0 ? '−' : '') + (Math.abs(n) / 10000).toFixed(1) + '万円';
+const state = { mode: 'family', familyKwh: 430, way: 'lease', cap: 6, priceTouched: false };
+
+function pick(groupId, btn) {
+  $(groupId).querySelectorAll('.opt').forEach(b => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+}
+function currentKwh() {
+  if (state.mode === 'family') return state.familyKwh;
+  if (state.mode === 'bill') return billToKwhTiered(+$('billIn').value || 0);
+  return Math.max(0, Math.round(+$('kwhIn').value || 0));
+}
+
+function render() {
+  const kwh = currentKwh();
+  $('kwhShow').textContent = kwh;
+  const bC = monthlyBill(TARIFF.chugokuA, kwh), bE = monthlyBill(TARIFF.eneosA, kwh);
+  const yC = bC * 12, yE = bE * 12;
+  $('yC').textContent = yen(yC); $('yE').textContent = yen(yE); $('ySw').textContent = yen(yC - yE);
+
+  // 太陽光：calc.js の計算をそのまま使う（切り替え後の実効単価で）
+  const cap = state.cap;
+  const effUnit = kwh > 0 ? bE / kwh : getEffUnitByKey('chugoku');
+  const leaseKey = LEASE_PLANS[String(cap)] ? String(cap) : 'custom';
+  const r = calcMain({ effUnit, monthlyKwh: kwh, leaseKey, leaseCapCustom: cap, ppaKey: 'smile', ppaCap: cap, ecoMode: 'none' });
+  const lp = r.leasePlan, feeY = lp.monthly * 12;
+  // 1年目の内訳（calcMain の1年目と同じ式）
+  const sc = calcAutoSC(kwh, cap), gen = cap * 1000;
+  const selfY = gen * sc * effUnit, sellY = gen * (1 - sc) * DEFAULT_LF1;
+  const buy = state.way === 'buy';
+  if (buy && !state.priceTouched) $('priceIn').value = cap * PRICE_PER_KW;
+  const price = buy ? (+$('priceIn').value || 0) * 10000 : 0;
+  const net1 = yE - selfY - sellY + (buy ? 0 : feeY);
+
+  // 累積（今のままと比べて、N年で減る合計）。電気代の上昇は calc.js の既定と同じ年2%
+  const inc = 0.02;
+  const cum = n => {
+    let s = buy ? -price : 0;
+    for (let y = 1; y <= n; y++) {
+      s += (yC - yE) * Math.pow(1 + inc, y - 1);
+      s += r.annualLease[y - 1] + (buy && y <= lp.term ? feeY : 0);
+    }
+    return s;
+  };
+
+  const max = Math.max(yC, 1);
+  [[yC, 's1', 'f1'], [yE, 's2', 'f2'], [net1, 's3', 'f3']].forEach(([v, s, f]) => {
+    $(s).textContent = man(v) + '/年';
+    $(f).style.height = Math.max(0, v / max * 85) + '%';
+  });
+  $('capWay').textContent = buy ? '購入' : 'リース';
+  $('kDown').textContent = (yC - net1 >= 0 ? '−' : '+') + man(Math.abs(yC - net1));
+  const c10 = cum(10), c20 = cum(20);
+  // 今のままと比べて、安くなる合計は「おトク」、高くなる合計は「負担増」と書く
+  const total = c => man(Math.abs(c)) + (c >= 0 ? ' おトク' : ' 負担増');
+  $('k10').textContent = total(c10);
+  $('k20').textContent = total(c20);
+  $('k10l').textContent = buy ? '10年間の合計で（購入価格を引いた後）' : '10年間の合計で';
+  $('k20l').textContent = buy ? '20年間の合計で（購入価格を引いた後）' : '20年間の合計で';
+
+  $('t1').textContent = yen(yE);
+  $('scR').textContent = Math.round(sc * 100);
+  $('t2').textContent = '−' + yen(selfY);
+  $('t3').textContent = '−' + yen(sellY);
+  $('t4r').hidden = buy; $('t4').textContent = '+' + yen(feeY);
+  $('t5').innerHTML = '<b>' + yen(net1) + '</b>';
+  $('leaseFee').textContent = lp.monthly.toLocaleString('ja-JP') + '円';
+  $('leaseHint').hidden = buy; $('buyBox').hidden = !buy;
+  $('pFuel').textContent = FUEL; $('pRen').textContent = REN;
+}
+
+$('modeOpts').addEventListener('click', e => {
+  const b = e.target.closest('.opt'); if (!b) return;
+  pick('modeOpts', b); state.mode = b.dataset.mode;
+  $('modeFamily').hidden = state.mode !== 'family'; $('modeBill').hidden = state.mode !== 'bill'; $('modeKwh').hidden = state.mode !== 'kwh';
+  render();
+});
+$('familyOpts').addEventListener('click', e => { const b = e.target.closest('.opt'); if (!b) return; pick('familyOpts', b); state.familyKwh = +b.dataset.kwh; render(); });
+$('wayOpts').addEventListener('click', e => { const b = e.target.closest('.opt'); if (!b) return; pick('wayOpts', b); state.way = b.dataset.way; render(); });
+$('capOpts').addEventListener('click', e => { const b = e.target.closest('.opt'); if (!b) return; pick('capOpts', b); state.cap = +b.dataset.cap; render(); });
+['billIn', 'kwhIn'].forEach(id => $(id).addEventListener('input', render));
+$('priceIn').addEventListener('input', () => { state.priceTouched = true; render(); });
+render();
+</script>
+</body>
+</html>
