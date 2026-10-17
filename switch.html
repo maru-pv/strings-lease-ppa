@@ -492,7 +492,7 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
             <li>オール電化の今の料金は、中国電力「電化Styleコース」です。土日祝は終日、夜の単価です。平日の昼の単価は、夏（7〜9月）とそれ以外を月数で平均しています。</li>
             <li>太陽光の計算は、弊社の比較シミュレーターと同じ前提です。ただし家で使う量は、発電の30%（弊社の提案資料の標準）＋エコキュートを昼に沸かす分としています（発電量 1kWあたり年1,000kWh、劣化 年0.5%、売電単価 1〜4年目24円・5〜10年目8.3円・11年目以降7.15円、パワコン交換 15年目・30年目に各20万円、電気代の上昇 年2%）。</li>
             <li>ローンは元利均等返済で計算しています。金利・期間は実際の借入条件に合わせて変えてください。購入時の保険や点検の費用は入れていません。</li>
-            <li>ENEOSでんきの単価は公式サイト、中国電力の単価は比較サイトの掲載値をもとに、2026年10月17日に確認しました。どちらも2026年11月1日に料金の見直しが予定されています。</li>
+            <li>単価は、どちらも2026年11月1日からの料金でそろえています。中国電力は公式の料金表、ENEOSでんきは10月までの公式単価に中国電力と同じ値上げ幅を足した推定です（ENEOSでんき公式のお知らせの値上げ額と一致）。2026年10月18日確認。</li>
           </ul>
         </details>
       </div>
@@ -506,8 +506,10 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
 // 料金表（税込・円）。燃料費調整と再エネ賦課金は calc.js の UTIL_DATA.chugoku と同じ値を使う
 const FUEL = UTIL_DATA.chugoku.fuel, REN = UTIL_DATA.chugoku.ren;
 const TIERED = {
-  chugokuA: { min: 759.68, tiers: [[120, 32.75], [300, 39.43], [Infinity, 41.55]] },
-  eneosA:   { min: 759.68, tiers: [[120, 32.58], [300, 38.71], [Infinity, 39.72]] },
+  // 2026年11月1日からの単価。中国電力は公式料金表。ENEOSでんきは10月までの公式単価に、中国電力 従量電灯Aと同じ値上げ幅
+  // （最低料金+223.69円・各段+0.57円）を足した推定。ENEOS公式のお知らせ「中国エリア 月400kWhで+443円」と一致する
+  chugokuA: { min: 983.37, tiers: [[120, 33.32], [300, 40.00], [Infinity, 42.12]] },
+  eneosA:   { min: 983.37, tiers: [[120, 33.15], [300, 39.28], [Infinity, 40.29]] },
 };
 const DENKA = { basic: 2255.36, daySummer: 47.06, dayOther: 45.00, night: 30.92 }; // 中国電力 電化Styleコース（10kWまで）
 const DENKA_DAY = (DENKA.daySummer * 3 + DENKA.dayOther * 9) / 12;
@@ -572,12 +574,12 @@ function renderTips() {
   const add = [['燃料費調整額', FUEL + '円/kWh'], ['再エネ賦課金（2026年度）', REN + '円/kWh']];
   $('tipNow').innerHTML = state.home === 'denka'
     ? '<b>中国電力 電化Styleコース</b>' + tipTable([['基本料金（10kWまで）', '2,255.36円/月'], ['平日 9〜21時（7〜9月）', '47.06円/kWh'], ['平日 9〜21時（その他）', '45.00円/kWh'], ['平日 21〜翌9時', '30.92円/kWh'], ['土日祝 終日', '30.92円/kWh'], ...add])
-      + '<div class="src">出典：<a href="https://enechange.jp/plans/energia/denka" target="_blank" rel="noopener">エネチェンジ掲載の料金表</a>（2026年10月17日確認）</div><div class="warn">掲載先によって単価が少し異なります。2026年11月1日に料金の見直しが予定されています。</div>'
-    : '<b>中国電力 従量電灯A</b>' + tipTable([['最低料金（15kWhまで）', '759.68円/月'], ['15〜120kWh', '32.75円/kWh'], ['120〜300kWh', '39.43円/kWh'], ['300kWh超', '41.55円/kWh'], ...add])
-      + '<div class="src">出典：<a href="https://selectra.jp/energy/kaisha/cepco/bill" target="_blank" rel="noopener">Selectra掲載の料金表</a>（2026年10月17日確認）</div><div class="warn">2026年11月1日に料金の見直しが予定されています。</div>';
-  $('tipEne').innerHTML = '<b>ENEOSでんき 中国Aプラン</b>' + tipTable([['最低料金（15kWhまで）', '759.68円/月'], ['16〜120kWh', '32.58円/kWh'], ['121〜300kWh', '38.71円/kWh'], ['301kWh超', '39.72円/kWh'], ...add])
-    + '<div class="src">出典：<a href="https://www.eneos-power.co.jp/denki/plan/v/#chugoku" target="_blank" rel="noopener">ENEOSでんき公式サイト（Vプラン・中国エリア）</a>（2026年10月17日確認）。2026年10月31日までの料金です。燃料費調整は中国電力と同じ値で計算しています。2年契約の割引（<a href="https://www.eneos-power.co.jp/denki/benefit/longuse.html" target="_blank" rel="noopener">にねん とく2割</a>：1kWhあたり1〜2年目0.2円・3年目以降0.3円引き）を入れています。</div>'
-    + '<div class="src" style="margin-top:6px">照合：<a href="https://www.eneos-power.co.jp/denkigas/simulator/" target="_blank" rel="noopener">ENEOSでんき公式の料金シミュレーション</a>で、鳥取市・戸建て・中国電力 従量電灯A・月430kWhを入れると「年間最大5,853円おトク」（2年契約の割引込み）。このページの同じ条件は年5,656円（同じ割引込み）で、おおむね一致しています（2026年10月17日確認）。公式シミュレーションには、電化Styleコースからの比較はありません。</div>'
+      + '<div class="src">出典：<a href="https://www.energia-support.com/pricemenu/denka.html" target="_blank" rel="noopener">中国電力 公式の料金表（電化Styleコース）</a>。2026年11月1日からの単価です（10月までは基本料金2,018.72円・昼44.40円／夏46.46円・夜30.35円）。2026年10月18日確認。</div>'
+    : '<b>中国電力 従量電灯A</b>' + tipTable([['最低料金（15kWhまで）', '983.37円/月'], ['15〜120kWh', '33.32円/kWh'], ['120〜300kWh', '40.00円/kWh'], ['300kWh超', '42.12円/kWh'], ...add])
+      + '<div class="src">出典：<a href="https://www.energia-support.com/pricemenu/meter_a.html" target="_blank" rel="noopener">中国電力 公式の料金表（従量電灯A）</a>。2026年11月1日からの単価です。2026年10月18日確認。</div>';
+  $('tipEne').innerHTML = '<b>ENEOSでんき 中国Aプラン</b>' + tipTable([['最低料金（15kWhまで）', '983.37円/月'], ['16〜120kWh', '33.15円/kWh'], ['121〜300kWh', '39.28円/kWh'], ['301kWh超', '40.29円/kWh'], ...add])
+    + '<div class="src">出典：<a href="https://www.eneos-power.co.jp/denki/plan/v/#chugoku" target="_blank" rel="noopener">ENEOSでんき公式サイト（Vプラン・中国エリア）</a>）。2026年11月1日からの単価は、10月までの公式単価（最低料金759.68円・32.58円・38.71円・39.72円）に、中国電力 従量電灯Aと同じ値上げ幅を足した推定です。ENEOSでんき公式の<a href="https://www.eneos-power.co.jp/denkigas/information/uploads/denki-important-20261015-390.pdf" target="_blank" rel="noopener">値上げのお知らせ</a>（2026年10月15日）にある「中国エリア 月400kWhで+443円」と一致します。燃料費調整は中国電力と同じ値で計算しています。2年契約の割引（<a href="https://www.eneos-power.co.jp/denki/benefit/longuse.html" target="_blank" rel="noopener">にねん とく2割</a>：1kWhあたり1〜2年目0.2円・3年目以降0.3円引き）を入れています。</div>'
+    + '<div class="src" style="margin-top:6px">照合：<a href="https://www.eneos-power.co.jp/denkigas/simulator/" target="_blank" rel="noopener">ENEOSでんき公式の料金シミュレーション</a>で、鳥取市・戸建て・中国電力 従量電灯A・月430kWhを入れると「年間最大5,853円おトク」（2年契約の割引込み）。10月までの単価で計算したこのページの同じ条件は年5,656円（同じ割引込み）で、おおむね一致しています（2026年10月17日確認）。公式シミュレーションには、電化Styleコースからの比較はありません。</div>'
     + '<div class="warn">中国エリアのENEOSでんきには、オール電化向けのプランがありません。オール電化の家も、時間帯で単価が変わらないこのプランで計算しています。</div>';
   $('tipSun').innerHTML = '<b>太陽光の計算</b>' + tipTable([['発電量', '1kWあたり年1,000kWh'], ['売電単価 1〜4年目', '24円/kWh'], ['売電単価 5〜10年目', '8.3円/kWh'], ['売電単価 11年目以降', '7.15円/kWh'], ['劣化', '年0.5%'], ['パワコン交換', '15年目・30年目に各20万円']])
     + '<div class="src">発電量・売電単価・劣化・パワコン交換は、弊社の比較シミュレーターと同じ前提です。家で使う量は、発電した電気の30%（弊社の提案資料の標準）に、エコキュートを昼に沸かす分（4人家族で年1,400kWhの7割）を足して計算しています。容量を増やすほど、家で使える電気も増えます。</div>';
