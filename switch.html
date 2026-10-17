@@ -187,6 +187,39 @@ input[type=range]{width:100%;accent-color:var(--orange);margin-top:8px;height:28
 .verdict p{font-size:15px;font-weight:700}
 .verdict span.s{font-size:12.5px;color:#A1A1A6;font-weight:400;width:100%}
 
+.vhead{font-size:clamp(22px,2.8vw,34px);font-weight:900;line-height:1.35;margin-top:6px}
+.vbig{font-size:1.5em;font-weight:800;background:var(--pop);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.race{margin-top:26px;background:var(--paper);border-radius:22px;padding:22px 24px;display:grid;gap:16px}
+.lane{display:grid;grid-template-columns:150px 1fr 120px;align-items:center;gap:16px}
+.lane .who b{display:block;font-size:15px;font-weight:900}
+.lane .who span{font-size:12px;color:var(--sub)}
+.lane .track{height:30px;border-radius:10px}
+.lane .seg{border-radius:0}
+.lane .amt{font-size:26px;font-weight:800;text-align:right;white-space:nowrap}
+.lane .amt small{font-size:13px;margin-left:2px}
+.lane.lost{opacity:.85}
+.race-lg{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--sub);padding-left:166px}
+.race-lg i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-1px}
+.seg.lease{background:var(--pop)}
+.seg.price{background:#8E8E93}
+.seg.int{background:repeating-linear-gradient(45deg,#C2410C 0 6px,#E0763A 6px 12px)}
+.facts{margin-top:16px;background:var(--paper);border-radius:22px;padding:8px 24px;display:grid;grid-template-columns:1.1fr 1fr 1fr;font-size:14px}
+.facts>div{padding:12px 6px;border-bottom:1px solid var(--surface)}
+.facts>div:nth-last-child(-n+3){border-bottom:0}
+.facts .fh{font-size:13px;font-weight:900;color:var(--sub);text-align:center}
+.facts .fh.l{color:var(--orange)}
+.facts .fk{color:var(--sub);font-size:13px}
+.facts .fv{text-align:center;font-weight:700}
+.facts .fv.l{color:var(--text);background:#FFF6EE}
+details.cond{margin-top:16px;background:var(--paper);border-radius:22px;padding:16px 24px}
+details.cond summary{cursor:pointer;font-weight:700;font-size:14px}
+details.cond .form{margin-top:16px}
+@media (max-width:640px){
+  .lane{grid-template-columns:1fr auto;gap:6px 10px}
+  .lane .bar2{grid-column:1/-1;grid-row:2}
+  .race-lg{padding-left:0}
+  .facts{padding:6px 12px;font-size:13px}
+}
 .detail{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .detail>div{border:1px solid var(--line);border-radius:22px;padding:22px 26px}
 .detail h4{font-size:15px;font-weight:900;margin-bottom:6px}
@@ -379,9 +412,35 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
       <span class="s">同じ太陽光を、リフォームローンなどで買った場合と比べます</span>
     </div>
     <div class="versus" id="versus" hidden>
-      <div class="eyebrow">比べてみると　SBIリース 対 購入</div>
-      <h3 id="duelHead">リースではなく購入すると、高くつきます</h3>
-      <p class="hint" style="font-size:13.5px">同じ <span id="duelCap"></span> の太陽光を、リフォームローンなどで購入した場合です。購入は金利も含めた支払いの総額で比べます。</p>
+      <div class="eyebrow">SBIリースと購入を比べると</div>
+      <h3 class="vhead"><span id="vhA">購入より、SBIリースの方が</span> <span class="vbig num" id="vDiff">-</span> <span id="vhB">おトクです</span></h3>
+      <p class="hint" style="font-size:13.5px">同じ <span id="duelCap"></span> の太陽光で、払い終わるまでに支払うお金の合計を比べました（どちらも税込）。</p>
+
+      <div class="race" aria-label="払い終わるまでに支払うお金の合計">
+        <div class="lane" id="laneL">
+          <div class="who"><b>SBIリース</b><span>初期費用0円</span></div>
+          <div class="bar2"><div class="track"><div class="seg lease" id="cbL"></div></div></div>
+          <div class="amt num" id="dlTotal">-</div>
+        </div>
+        <div class="lane" id="laneB">
+          <div class="who"><b id="dbName">購入</b><span id="dbSub"></span></div>
+          <div class="bar2"><div class="track"><div class="seg price" id="cbP"></div><div class="seg int" id="cbI"></div></div></div>
+          <div class="amt num" id="dbTotal">-</div>
+        </div>
+        <div class="race-lg"><span><i style="background:#FF8A00"></i>リース料</span><span><i style="background:#8E8E93"></i>太陽光の代金</span><span id="cbIL"><i style="background:#C2410C"></i>ローンの金利</span></div>
+      </div>
+
+      <div class="facts">
+        <div class="fh"></div><div class="fh l">SBIリース</div><div class="fh">購入</div>
+        <div class="fk">最初に払うお金</div><div class="fv l">0円</div><div class="fv" id="fFirst">-</div>
+        <div class="fk">毎月の支払い</div><div class="fv l" id="fMonL">-</div><div class="fv" id="fMonB">-</div>
+        <div class="fk">払い終わるまで</div><div class="fv l">10年</div><div class="fv" id="fEnd">-</div>
+        <div class="fk">金利の負担</div><div class="fv l">なし</div><div class="fv" id="fInt">-</div>
+        <div class="fk">払い終わったあと</div><div class="fv l">設備はお客様のものに</div><div class="fv">設備はお客様のもの</div>
+      </div>
+
+      <details class="cond">
+        <summary>購入の条件を変える（見積り金額・ローン）</summary>
       <div class="form">
         <div>
           <h3>購入価格（税込）</h3>
@@ -408,36 +467,7 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
           </div>
         </div>
       </div>
-      <div class="duel" id="duel">
-        <div>
-          <div class="t">SBIリース<span class="badge" id="badgeL">おすすめ</span></div>
-          <div class="big num" id="dlTotal">-</div>
-          <div class="s">支払いの総額</div>
-          <div class="cost"><div class="track"><div class="seg lease" id="cbL"></div></div><div class="lg"><span><i style="background:#FF8A00"></i>リース料</span></div></div>
-          <table>
-            <tr><td>初期費用</td><td>0円</td></tr>
-            <tr><td>毎月の支払い</td><td id="dlPmt">-</td></tr>
-            <tr><td>支払う期間</td><td>10年</td></tr>
-            <tr><td>20年間の合計（今と比べて）</td><td id="dl20">-</td></tr>
-          </table>
-        </div>
-        <div>
-          <div class="t">購入（<span id="dbWay">ローン</span>）<span class="badge" id="badgeB" hidden>おすすめ</span></div>
-          <div class="big num" id="dbTotal">-</div>
-          <div class="s" id="dbSub">支払いの総額（金利を含む）</div>
-          <div class="cost"><div class="track"><div class="seg price" id="cbP"></div><div class="seg int" id="cbI"></div></div><div class="lg"><span><i style="background:#8E8E93"></i>購入価格</span><span id="cbIL"><i style="background:#C2410C"></i>ローンの金利</span></div></div>
-          <table>
-            <tr><td>購入価格（税込）</td><td id="dbPrice">-</td></tr>
-            <tr id="dbIntR"><td>ローンの金利の分</td><td id="dbInt">-</td></tr>
-            <tr id="dbPmtR"><td>毎月の返済</td><td id="dbPmt">-</td></tr>
-            <tr><td>20年間の合計（今と比べて）</td><td id="db20">-</td></tr>
-          </table>
-        </div>
-      </div>
-      <div class="verdict">
-        <p id="vWord">購入すると、リースより</p><span class="num" id="vDiff">-</span><p>高くつきます</p>
-        <span class="s">支払いの総額どうしの差です。発電で得をする分（電気代が減る分・売電収入）はどちらも同じ計算です。</span>
-      </div>
+      </details>
     </div>
 
     <div class="detail">
@@ -658,27 +688,26 @@ function render() {
   countTo($('w3'), sc3 ? Math.abs(l20) : 0, x => man(x));
   $('w3u').textContent = l20 >= 0 ? '万円 おトク' : '万円 負担増';
 
-  // 購入との比べ
+  // 購入との比べ（どちらも税込。リース料は税抜なので消費税10%を足す）
+  const leaseTotalTax = leaseTotal * 1.1;
+  const diff = buyTotal - leaseTotalTax, leaseWins = diff >= 0;
   $('duelCap').textContent = cap + 'kW';
-  $('dlTotal').innerHTML = manU(leaseTotal);
-  $('dlPmt').textContent = '月 ' + yen(lp.monthly) + '（税抜）';
-  $('dl20').innerHTML = word(l20);
-  $('dbWay').textContent = loan ? 'ローン ' + state.rate.toFixed(1) + '%・' + state.term + '年' : '現金';
-  $('dbTotal').innerHTML = manU(buyTotal);
-  $('dbSub').textContent = loan ? '支払いの総額（金利を含む）' : '支払いの総額';
-  $('dbPrice').textContent = yen(price);
-  $('dbIntR').hidden = !loan; $('dbInt').textContent = '+' + yen(buyTotal - price);
-  $('dbPmtR').hidden = !loan; $('dbPmt').textContent = '月 ' + yen(pmt);
-  $('db20').innerHTML = word(b20);
-  const diff = buyTotal - leaseTotal, leaseWins = diff >= 0;
-  $('badgeL').hidden = !leaseWins; $('badgeB').hidden = leaseWins;
-  $('duelHead').textContent = leaseWins ? 'リースではなく購入すると、' + man(diff) + '万円 高くつきます' : 'この条件では、購入の方が' + man(-diff) + '万円 安くすみます';
-  const cmax = Math.max(leaseTotal, buyTotal, 1), vs = !$('versus').hidden;
-  setW('cbL', vs ? leaseTotal / cmax * 100 : 0); setW('cbP', vs ? price / cmax * 100 : 0); setW('cbI', vs ? (buyTotal - price) / cmax * 100 : 0);
-  $('cbIL').hidden = !loan;
-  $('duel').children[0].className = leaseWins ? 'won' : 'lost'; $('duel').children[1].className = leaseWins ? 'lost' : 'won';
-  $('vWord').textContent = leaseWins ? '購入すると、リースより' : 'リースにすると、購入より';
+  $('vhA').textContent = leaseWins ? '購入より、SBIリースの方が' : 'この条件では、購入の方が';
   $('vDiff').textContent = man(Math.abs(diff)) + '万円';
+  $('vhB').textContent = leaseWins ? 'おトクです' : '安くすみます';
+  $('dlTotal').innerHTML = manU(leaseTotalTax);
+  $('dbName').textContent = loan ? '購入（ローン）' : '購入（現金）';
+  $('dbSub').textContent = loan ? '金利' + state.rate.toFixed(1) + '%・' + state.term + '年' : '最初に一括で支払い';
+  $('dbTotal').innerHTML = manU(buyTotal);
+  const cmax = Math.max(leaseTotalTax, buyTotal, 1), vs = !$('versus').hidden;
+  setW('cbL', vs ? leaseTotalTax / cmax * 100 : 0); setW('cbP', vs ? price / cmax * 100 : 0); setW('cbI', vs ? (buyTotal - price) / cmax * 100 : 0);
+  $('cbIL').hidden = !loan;
+  $('laneL').classList.toggle('lost', !leaseWins); $('laneB').classList.toggle('lost', leaseWins);
+  $('fFirst').textContent = loan ? '0円（ローンで分割）' : man(price) + '万円';
+  $('fMonL').textContent = yen(lp.monthly * 1.1) + '（10年）';
+  $('fMonB').textContent = loan ? yen(pmt) + '（' + state.term + '年）' : 'なし';
+  $('fEnd').textContent = loan ? state.term + '年' : '最初に一括';
+  $('fInt').textContent = loan ? man(buyTotal - price) + '万円' : 'なし';
   $('rateShow').textContent = state.rate.toFixed(1) + '%';
   $('rateBox').hidden = !loan; $('termBox').hidden = !loan;
 
