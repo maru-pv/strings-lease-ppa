@@ -510,6 +510,7 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
             <li>太陽光の計算は、弊社の比較シミュレーターと同じ前提です。ただし家で使う量は、発電の30%（弊社の提案資料の標準）＋エコキュートを昼に沸かす分としています（発電量 1kWあたり年1,000kWh、劣化 年0.5%、売電単価 1〜4年目24円・5〜10年目8.3円・11年目以降7.15円、パワコン交換 15年目・30年目に各20万円、電気代の上昇 年2%）。</li>
             <li>ローンは元利均等返済で計算しています。金利・期間は実際の借入条件に合わせて変えてください。購入時の保険や点検の費用は入れていません。</li>
             <li>家族の人数で選んだときは、ENEOSでんき公式の「おトク額の一例」と同じく、月平均の使用量（ガス併用は2〜3人300・4人400・5人以上500kWh）で毎月同じとして計算します。電気代や使用量を入れたときは、ENEOSでんき公式の料金シミュレーションと同じ方法です。月の使用量を、鳥取市の季節ごとの使い方（冬と8月が多い）で12か月に分け、月ごとに料金表で計算して1年分を足しています。燃料費調整額と再エネ賦課金はどちらのプランも同じなので、差には影響しません。</li>
+            <li>切り替えで安くならないご家庭（夜に多く使うオール電化など）は、今のプランのまま太陽光をのせた場合で計算します。</li>
             <li>単価は、どちらも2026年11月1日からの料金でそろえています。中国電力は公式の料金表、ENEOSでんきは10月までの公式単価に中国電力と同じ値上げ幅を足した推定です（ENEOSでんき公式のお知らせの値上げ額と一致）。2026年10月18日確認。</li>
           </ul>
         </details>
@@ -638,7 +639,7 @@ function renderTips() {
     + '<div class="src" style="margin-top:6px">照合2：ENEOSでんき公式の<a href="https://www.eneos-power.co.jp/denki/plan/v/#chugoku" target="_blank" rel="noopener">「おトク額の一例」</a>と同じ前提（ガス併用・月平均 2〜3人300／4人400／5人以上500kWh・毎月同じ使用量・2年契約の割引込み）で、4人家族 年4,925円（公式 約4,960円）、5人以上 年7,361円（公式 約7,360円）。2〜3人は年2,489円で、公式の約2,860円より少なく出ます（公式の前提の違いは確認中）。</div>'
     + '<div class="warn">中国エリアのENEOSでんきには、オール電化向けのプランがありません。オール電化の家も、時間帯で単価が変わらないこのプランで計算しています。</div>';
   $('tipSun').innerHTML = '<b>太陽光の計算</b>' + tipTable([['発電量', '1kWあたり年1,000kWh'], ['売電単価 1〜4年目', '24円/kWh'], ['売電単価 5〜10年目', '8.3円/kWh'], ['売電単価 11年目以降', '7.15円/kWh'], ['劣化', '年0.5%'], ['パワコン交換', '15年目・30年目に各20万円']])
-    + '<div class="src">発電量・売電単価・劣化・パワコン交換は、弊社の比較シミュレーターと同じ前提です。家で使う量は、発電した電気の30%（弊社の提案資料の標準）に、エコキュートを昼に沸かす分（4人家族で年1,400kWhの7割）を足して計算しています。容量を増やすほど、家で使える電気も増えます。</div>';
+    + '<div class="src">発電量・売電単価・劣化・パワコン交換は、弊社の比較シミュレーターと同じ前提です。家で使う量は、発電した電気の30%（弊社の提案資料の標準）に、エコキュートを昼に沸かす分（4人家族で年1,400kWhの7割）を足して計算しています。容量を増やすほど、家で使える電気も増えます。家で使った分は「最後に買っていた電気」の単価で浮く計算です（ENEOSでんきは太陽光をのせた後の使用量の段の単価、今の電化Styleのままなら平日昼・休日の単価、エコキュートの昼沸かし分は夜の単価）。</div>';
 }
 
 function render() {
@@ -650,7 +651,10 @@ function render() {
   $('dayShow').textContent = Math.round(state.day * 100) + '%';
   const bNow = nowBill(kwh), bEne = tieredBill(TIERED.eneosA, kwh) - kwh * NINEN(1);
   const yNow = bNow * 12, yEne = bEne * 12, swY = yNow - yEne;
-  const swAt = y => (swY + kwh * 12 * (NINEN(y) - NINEN(1))) * Math.pow(1.02, y - 1); // y年目の切り替えのおトク
+  // 切り替えで安くなる家だけ切り替える。安くならない家（夜に多く使うオール電化など）は今のプランのまま太陽光を積む
+  const useEne = swY >= 0;
+  const yBase = useEne ? yEne : yNow; // 太陽光をのせる前の電気代（切り替え後、または今のまま）
+  const swAt = y => useEne ? (swY + kwh * 12 * (NINEN(y) - NINEN(1))) * Math.pow(1.02, y - 1) : 0; // y年目の切り替えのおトク
   const nowName = denka ? '中国電力 電化Styleコース' : '中国電力 従量電灯A';
   $('pNow').textContent = nowName; $('dNowName').textContent = nowName;
   $('s1Now').textContent = yen(yNow);
@@ -659,26 +663,35 @@ function render() {
   // 家で使える量（自家消費）だけは、発電が増えるほど「買っていた時間帯」をまかなえる分が増える計算にする
   const cap = state.cap, eco = denka && $('ecoIn').checked;
   const ECO_KWH = ECO_KWH_BY_FAMILY[state.n] || 1200;
-  const effUnit = kwh > 0 ? bEne / kwh : getEffUnitByKey('chugoku');
   // 家で使う量：発電の30%（提案資料の標準）＋エコキュートを昼に沸かす分。上限は発電の85%（calc.js と同じ）
   const ecoDay = eco ? ECO_KWH * ECO_SHIFT : 0;
   const selfKwh = g => Math.min(g * SELF_RATE + ecoDay, g * 0.85);
+  // 太陽光の電気を家で使うと、そのぶん「最後に買っていた電気」が減る。その電気の単価（1kWhあたり）で浮いた額を出す
+  //  切り替える家：ENEOSでんきの段階料金で、太陽光をのせた後の使用量の段の単価（2年契約の割引込み）
+  //  今のままの家（電化Style）：平日の昼は昼の単価、土日祝は休日の単価。エコキュートを昼に沸かした分は夜の単価が浮く
+  const tierUnit = (t, k) => { for (const [upTo, unit] of t.tiers) if (k <= upTo) return unit; return t.tiers[t.tiers.length - 1][1]; };
+  const dayUnitDenka = (DENKA.dayOther * 9 + DENKA.daySummer * 3) / 12 * 5 / 7 + DENKA.night * 2 / 7 + FUEL + REN;
+  const selfValue = (self, c) => {
+    if (useEne) return self * (tierUnit(TIERED.eneosA, Math.max(0, kwh - selfKwh(c * 1000) / 12)) + FUEL + REN - NINEN(1));
+    const ecoPart = Math.min(ecoDay, self);
+    return (self - ecoPart) * dayUnitDenka + ecoPart * (DENKA.night + FUEL + REN);
+  };
   const leaseFor = c => {
     const lp = LEASE_PLANS[String(c)] || { cap: c, monthly: c * 2000, term: 10 };
     const annualLease = [];
     for (let y = 1; y <= 30; y++) {
-      const eu = effUnit * Math.pow(1.02, y - 1), g = c * 1000 * Math.pow(0.995, y - 1), self = selfKwh(g);
+      const pm = Math.pow(1.02, y - 1), g = c * 1000 * Math.pow(0.995, y - 1), self = selfKwh(g);
       const fit = y <= 4 ? DEFAULT_LF1 : y <= lp.term ? DEFAULT_LF2 : DEFAULT_LF3;
-      annualLease.push(self * eu + (g - self) * fit - (y <= lp.term ? lp.monthly * 12 : 0) - ((y === 15 || y === 30) ? 200000 : 0));
+      annualLease.push(selfValue(self, c) * pm + (g - self) * fit - (y <= lp.term ? lp.monthly * 12 : 0) - ((y === 15 || y === 30) ? 200000 : 0));
     }
     return { leasePlan: lp, annualLease };
   };
   const r = leaseFor(cap);
   const lp = r.leasePlan, feeY = lp.monthly * 12;
   const gen = cap * 1000, self1 = selfKwh(gen), scEco = gen > 0 ? self1 / gen : 0;
-  const selfY = self1 * effUnit, sellY = (gen - self1) * DEFAULT_LF1;
-  const net1 = yEne - selfY - sellY + feeY;   // リースの1年目の実質負担
-  const sunY = yEne - net1;                   // 太陽光のおトク（1年目）
+  const selfY = selfValue(self1, cap), sellY = (gen - self1) * DEFAULT_LF1;
+  const net1 = yBase - selfY - sellY + feeY;  // リースの1年目の実質負担
+  const sunY = yBase - net1;                   // 太陽光のおトク（1年目）
 
   // 容量ごとの30年間の合計（タイルに表示）
   [5, 6, 7, 8].forEach(c => {
@@ -693,10 +706,10 @@ function render() {
   countTo($('b2Ene'), sc2 ? yEne : 0, x => manU(x).replace('万円', '万円/年'));
   setW('g2Now', sc2 ? 100 : 0); setW('g2Ene', sc2 ? Math.min(yEne, yNow) / yNow * 100 : 0); setW('g2Gap', sc2 ? Math.max(0, swY) / yNow * 100 : 0);
   countTo($('w2'), sc2 ? Math.abs(swY) : 0, x => Math.round(x).toLocaleString('ja-JP'));
-  $('w2Lbl').textContent = swY >= 0 ? '切り替えるだけで 年' : '切り替えの差は 年';
-  $('w2u').textContent = swY >= 0 ? '円 おトク' : '円（今のプランの方が安い）';
-  $('w2s').textContent = swY >= 0 ? '月あたり約' + yen(swY / 12) + '。2年契約の割引（にねん とく2割）込みです。3年目からは割引が増えます。'
-    : '夜に使う電気が多いオール電化のご家庭では、夜が安い今のプランの方が安くなることがあります。中国エリアのENEOSでんきには、オール電化向けのプランがないためです。';
+  $('w2Lbl').textContent = useEne ? '切り替えるだけで 年' : '今のプランの方が 年';
+  $('w2u').textContent = useEne ? '円 おトク' : '円 割安です';
+  $('w2s').textContent = useEne ? '月あたり約' + yen(swY / 12) + '。2年契約の割引（にねん とく2割）込みです。3年目からは割引が増えます。'
+    : 'このご家庭は夜の電気が多いため、今の電化Styleコースのままが割安です。切り替えずに、次の太陽光で電気代を下げましょう。';
 
   // おトクになるご家庭の早見表（家族の人数 × 日中の在宅）
   const ns = [23, 4, 5], lifes = denka ? ['few', 'mid', 'many'] : ['mid'], keepFlat = FLAT; FLAT = true;
@@ -728,7 +741,7 @@ function render() {
   setW('g3Ene', sc3 ? Math.max(0, sw20) / now20 * 100 : 0);
   setW('g3Sun', sc3 ? Math.max(0, sun20) / now20 * 100 : 0);
   setW('g3Rest', sc3 ? Math.max(0, rest20) / now20 * 100 : 100);
-  $('l3Ene').textContent = man(sw20) + '万円'; $('l3Sun').textContent = (sun20 < 0 ? '−' : '') + man(sun20) + '万円'; $('l3Rest').textContent = man(rest20) + '万円';
+  $('l3Ene').textContent = useEne ? man(sw20) + '万円' : '0円（今のプランのまま）'; $('l3Sun').textContent = (sun20 < 0 ? '−' : '') + man(sun20) + '万円'; $('l3Rest').textContent = man(rest20) + '万円';
   const totalY = yNow - net1;
   $('k1y').innerHTML = (totalY >= 0 ? '' : '−') + man(totalY) + '<small>万円</small>';
   $('k1').innerHTML = yen(net1 / 12).replace('円', '<small>円</small>');
@@ -777,7 +790,7 @@ function render() {
 
   // 1年目の内訳
   $('d0').textContent = yen(yNow);
-  $('d1').textContent = (swY >= 0 ? '−' : '+') + yen(Math.abs(swY));
+  $('d1').textContent = useEne ? '−' + yen(swY) : '切り替えない（今のプランが割安）';
   $('scR').textContent = Math.round(scEco * 100);
   $('d2').textContent = '−' + yen(selfY);
   $('d3').textContent = '−' + yen(sellY);
@@ -804,7 +817,7 @@ function render() {
   $('shBig').textContent = man(l30);
   $('shSteps').innerHTML = tr([
     ['今のままの年間電気代（' + nowName + '）', yen(yNow)],
-    ['① ENEOSでんき 中国Aプランに切り替え（2年契約の割引込み）', (swY >= 0 ? '−' : '+') + yen(Math.abs(swY))],
+    useEne ? ['① ENEOSでんき 中国Aプランに切り替え（2年契約の割引込み）', '−' + yen(swY)] : ['① 電力会社は今のプランのまま（このご家庭は今のプランが割安）', '±0円'],
     ['② SBIリースで太陽光（家で使って減る分＋売電収入−リース料）', '−' + yen(sunY)],
     ['1年目の実質負担', yen(net1)]]);
   $('shLong').innerHTML = tr([['10年間', man(l10) + '万円'], ['20年間', man(l20) + '万円'], ['30年間', man(l30) + '万円']]);
