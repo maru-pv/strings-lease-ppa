@@ -251,6 +251,24 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
   .tiles.five{grid-template-columns:repeat(3,1fr)}
   .tip{position:fixed;left:16px !important;right:16px !important;top:auto;bottom:16px;width:auto;max-width:none;transform:none !important}
 }
+.sheet{display:none}
+.printbtn{border:0;cursor:pointer;min-height:52px;padding:14px 26px;border-radius:999px;background:var(--text);color:#fff;font-size:15px;font-weight:900;margin-right:10px}
+@media print{
+  @page{size:A4;margin:14mm}
+  body{font-size:11pt}
+  .nav,main,.sheet-hide{display:none !important}
+  .sheet{display:block}
+  .sheet h1{font-size:20pt;font-weight:900;margin-bottom:2mm}
+  .sheet .meta{font-size:9.5pt;color:#555;margin-bottom:5mm}
+  .sheet .hero{border:2px solid #FF6A00;border-radius:4mm;padding:5mm 6mm;margin:4mm 0}
+  .sheet .hero b{font-size:26pt;color:#E25A00}
+  .sheet table{width:100%;border-collapse:collapse;margin:2mm 0 5mm}
+  .sheet td,.sheet th{border-bottom:0.3mm solid #ddd;padding:2.2mm 1mm;text-align:left;font-size:10.5pt}
+  .sheet td.r{text-align:right;font-family:'Manrope',sans-serif;font-weight:700;white-space:nowrap}
+  .sheet h2{font-size:12.5pt;font-weight:900;margin-top:4mm}
+  footer{border-top:0;padding:0;font-size:8.5pt;max-width:none}
+  footer .in{border:0}
+}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .scene.enter>*,.total .bump{animation:none}
@@ -497,9 +515,21 @@ footer{max-width:1040px;margin:0 auto;padding:24px 32px 56px;font-size:12px;colo
         </details>
       </div>
     </div>
-    <div class="again"><button type="button" data-go="1">条件を変えてもう一度</button></div>
+    <div class="again"><button type="button" class="printbtn" id="printBtn">試算結果を印刷・PDFで保存</button><button type="button" data-go="1">条件を変えてもう一度</button></div>
   </section>
 </main>
+<section class="sheet" id="sheet" aria-hidden="true">
+  <h1>電気代まるごと見直し　試算結果</h1>
+  <div class="meta" id="shMeta"></div>
+  <table id="shCond"></table>
+  <div class="hero">ENEOSでんきへの切り替え＋SBIリース（初期費用0円）の太陽光で、30年間に <b id="shBig">-</b> 万円おトク（今のままと比べた概算）</div>
+  <h2>3つの段階で積み上がるおトク（1年目）</h2>
+  <table id="shSteps"></table>
+  <h2>長く使うほど大きくなるおトク（今のままと比べた合計）</h2>
+  <table id="shLong"></table>
+  <h2>SBIリースと購入の比べ（払い終わるまでの支払いの合計・税別）</h2>
+  <table id="shVs"></table>
+</section>
 <footer><p style="margin-bottom:8px"><b>試算のご注意</b>（ENEOSでんき公式の料金シミュレーションのご注意に準じています）</p>
 <ul style="padding-left:1.2em;margin-bottom:12px">
 <li>表示されるおトク額をはじめとするすべての結果は目安であり、実際のおトク額や支払額を保証するものではありません。</li>
@@ -763,6 +793,25 @@ function render() {
   countTo(tv, Math.max(0, t), x => man(x));
   $('totalBox').classList.toggle('on', t > 0);
   if (Math.abs(t - prev) > 1 && !reduce) { tv.classList.remove('bump'); void tv.offsetWidth; tv.classList.add('bump'); }
+  // 印刷用の試算結果
+  const tr = rows => rows.map(r => '<tr><th>' + r[0] + '</th><td class="r">' + r[1] + '</td></tr>').join('');
+  const d = new Date();
+  $('shMeta').textContent = '作成日 ' + d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日　中国電力エリア・戸建て　作成：ミライエコリース';
+  $('shCond').innerHTML = tr([
+    ['お住まい', denka ? 'オール電化（今は中国電力 電化Styleコース）' : 'ガス併用（今は中国電力 従量電灯A）'],
+    ['電気の使い方', (state.mode === 'family' ? FAMILY_LABEL[state.n] + '家族' : '入力した検針票の値') + '　月平均' + Math.round(kwh) + 'kWh' + (denka ? '・日中の在宅 ' + LIFE[state.life].label : '')],
+    ['太陽光', cap + 'kW・SBIリース（月' + lp.monthly.toLocaleString('ja-JP') + '円・税別・10年）' + (eco ? '・エコキュートを昼に沸かす' : '')]]);
+  $('shBig').textContent = man(l30);
+  $('shSteps').innerHTML = tr([
+    ['今のままの年間電気代（' + nowName + '）', yen(yNow)],
+    ['① ENEOSでんき 中国Aプランに切り替え（2年契約の割引込み）', (swY >= 0 ? '−' : '+') + yen(Math.abs(swY))],
+    ['② SBIリースで太陽光（家で使って減る分＋売電収入−リース料）', '−' + yen(sunY)],
+    ['1年目の実質負担', yen(net1)]]);
+  $('shLong').innerHTML = tr([['10年間', man(l10) + '万円'], ['20年間', man(l20) + '万円'], ['30年間', man(l30) + '万円']]);
+  $('shVs').innerHTML = tr([
+    ['SBIリース（初期費用0円）', man(leaseTotalTax) + '万円'],
+    ['購入（' + (loan ? 'ローン ' + state.rate.toFixed(1) + '%・' + state.term + '年' : '現金') + '）', man(buyTotalEx) + '万円'],
+    [leaseWins ? 'リースの方がおトク' : '購入の方がおトク', man(Math.abs(diff)) + '万円']]);
   renderTips();
 }
 
@@ -812,6 +861,7 @@ onPick('lifeOpts', d => { state.life = d.life; state.day = LIFE[d.life].day; });
 $('rateIn').addEventListener('input', e => { state.rate = +e.target.value; render(); });
 ['billIn', 'kwhIn'].forEach(id => $(id).addEventListener('input', render));
 $('monthIn').addEventListener('change', render);
+$('printBtn').addEventListener('click', () => { render(); window.print(); });
 $('ecoIn').addEventListener('change', render);
 $('priceIn').addEventListener('input', () => { state.priceTouched = true; render(); });
 // 根拠：押すと開閉（iPad向け）。外を押すと閉じる
