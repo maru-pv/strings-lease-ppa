@@ -6,7 +6,10 @@
 --       users を条件に使う companies・simulations の読み取りもまとめてエラーになっていた。
 -- 直し方：「自分の役割」「自分の会社」を返す小さな関数を作り、ルールはそれを使う。
 --         関数は作成者の権限で動くので、関数の中ではルールを通らず、呼び返しが起きない。
--- 誰が何を見られるか（権限の中身）は変えていない。
+-- users の権限の中身は変えていない。
+-- あわせて：取引先の表の「誰でも全件読める」ルール（companies_select）を外す（2026-10-21 丸さん決定）。
+--   ログインしていない人でも、公開の鍵で取引先の一覧・単価・チャット通知先を読めていたため。
+--   外したあとも、営業は自社の分（自社のみ参照）、管理者は全件（superadmin_can_select_all_companies）を読める。
 
 begin;
 
@@ -47,7 +50,9 @@ create policy "同社スタッフ参照" on public.users
   for select to public
   using (company_id = public.my_company_id());
 
+drop policy if exists "companies_select" on public.companies;
+
 commit;
 
--- 確かめ（エラーにならず、件数が出れば直っている）
+-- 確かめ（エラーにならず、件数が出れば直っている。SQL Editor は管理者の権限なので全件の数が出る）
 select count(*) from public.companies;
