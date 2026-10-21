@@ -22,4 +22,6 @@ jobs:
             -H "apikey: $KEY" -H "Authorization: Bearer $KEY" \
             "$SUPABASE_URL/rest/v1/companies?select=id&limit=1")
           echo "status: $code"
-          test "$code" = 200
+          # 200 以外でも、保存先が答えていれば（＝中まで届いていれば）止まらない。
+          # 答えない（000）・起動していない（502/503/504）ときだけ失敗にして、GitHub からメールが届くようにする。
+          case "$code" in 000|502|503|504) exit 1 ;; esac
