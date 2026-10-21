@@ -1,0 +1,27 @@
+# 比較ナビの保存先（Supabase 無料プラン）は、7日使われないと自動で止まる。
+# 止まるとログインできなくなるので、3日おきに1回だけ軽く問い合わせて「使われている」状態を保つ。
+# 鍵は画面（login.html など）に載っている公開用の鍵と同じもの。書き込みはしない。
+name: Supabase keepalive
+
+on:
+  schedule:
+    - cron: '0 0 */3 * *'   # 3日おき 9:00（日本時間）
+  workflow_dispatch:         # Actions 画面から手で動かすこともできる
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        env:
+          SUPABASE_URL: https://iqgtknxypkqfrhbktxsy.supabase.co
+        run: |
+          KEY=$(curl -fsS https://strings-lease-ppa.pages.dev/login | grep -o "SUPABASE_ANON = '[^']*'" | cut -d"'" -f2)
+          test -n "$KEY"
+          code=$(curl -sS -o /dev/null -w '%{http_code}' \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY" \
+            "$SUPABASE_URL/rest/v1/companies?select=id&limit=1")
+          echo "status: $code"
+          # 200 以外でも、保存先が答えていれば（＝中まで届いていれば）止まらない。
+          # 答えない（000）・起動していない（502/503/504）ときだけ失敗にして、GitHub からメールが届くようにする。
+          case "$code" in 000|502|503|504) exit 1 ;; esac

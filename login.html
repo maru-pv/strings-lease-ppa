@@ -175,7 +175,9 @@ async function doLogin(){
   if(error){
     var msg = error.message.includes('Invalid') 
       ? 'メールアドレスまたはパスワードが正しくありません'
-      : error.message;
+      : (/fetch|network/i.test(error.message)
+          ? 'ログイン情報の保存先につながりません。時間をおいてもう一度お試しください'
+          : error.message);
     errEl.textContent = msg;
     errEl.style.display = 'block';
     return;
